@@ -110,6 +110,167 @@ function dashHubNavigateToFeature(target) {
   }, 150);
 }
 
+// ================== HERO CARD (Sprint 1 Tahap 2, lihat HERO-CARD.md) ==================
+// DashboardHubHero — MURNI TAMPILAN, tidak ada business logic baru. Nilai yang
+// ditampilkan (nama profil, saldo semua akun, pemasukan/pengeluaran bulan
+// berjalan) dibaca dari D.profile/D.transactions yang sudah ada:
+//   - totalSaldoAkun() (akun.js) dipakai APA ADANYA, tanpa duplikasi logic saldo.
+//   - Agregasi pemasukan/pengeluaran bulan berjalan memakai pola yang SAMA
+//     PERSIS dengan yang sudah dipakai berulang di app ini (mis.
+//     renderDashboard()/renderDashLaporanMini() di modules-render.js,
+//     FinCoach.renderDash() di features-aiwidget-reminder-gdrive-search.js):
+//     filter D.transactions ke bulan+tahun berjalan, jumlahkan per type. Ini
+//     BUKAN aturan bisnis baru — cuma baca ulang data yang sudah dihitung
+//     dengan cara yang sama di banyak tempat lain.
+// Semua akses ke D/totalSaldoAkun/fmt di-guard pakai typeof check (pola sama
+// dengan _dashHubIsFav() di atas) supaya file ini tetap aman dipakai
+// tests/dashboard-hub.test.js yang me-load dashboard-hub.js sendirian tanpa
+// D/akun.js/format-tema.js ikut di-load.
+function _dashHubHeroMonthTx() {
+  if (typeof D === 'undefined' || !D.transactions) return { inc: 0, exp: 0 };
+  const now = new Date(), m = now.getMonth(), y = now.getFullYear();
+  const txM = D.transactions.filter((t) => {
+    const d = new Date(t.date);
+    return d.getMonth() === m && d.getFullYear() === y;
+  });
+  const inc = txM.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+  const exp = txM.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  return { inc, exp };
+}
+
+const DashboardHubHero = {
+  render() {
+    const greetEl = document.getElementById('dashHubHeroGreet');
+    const dateEl = document.getElementById('dashHubHeroDate');
+    const saldoEl = document.getElementById('dashHubHeroSaldo');
+    const incEl = document.getElementById('dashHubHeroInc');
+    const expEl = document.getElementById('dashHubHeroExp');
+    if (!greetEl || !dateEl || !saldoEl || !incEl || !expEl) return;
+
+    const nama = (typeof D !== 'undefined' && D.profile && D.profile.nama) ? D.profile.nama : 'W';
+    greetEl.textContent = 'Halo, ' + nama + ' 👋';
+
+    dateEl.textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+    const money = (n) => (typeof fmt === 'function') ? fmt(n) : ('Rp ' + Math.round(n || 0));
+    const saldo = (typeof totalSaldoAkun === 'function') ? totalSaldoAkun() : null;
+    saldoEl.textContent = saldo === null ? '—' : (saldo < 0 ? '-' : '') + money(Math.abs(saldo));
+    saldoEl.className = 'dashhub-hero-balance-val' + (saldo !== null && saldo < 0 ? ' red' : '');
+
+    const { inc, exp } = _dashHubHeroMonthTx();
+    incEl.textContent = money(inc);
+    expEl.textContent = money(exp);
+  },
+};
+
+// ================== SUMMARY CARDS (Sprint 1 Tahap 5, lihat DASHBOARD-SUMMARY.md) ==================
+// DashboardHubSummary — MURNI TAMPILAN, tidak ada business logic baru. Baris
+// kartu ringkas kecil tepat di bawah Quick Actions, menampilkan 4 angka yang
+// SUDAH dihitung dengan pola yang SAMA PERSIS di tempat lain (mis.
+// FinCoach.renderDash() di features-aiwidget-reminder-gdrive-search.js, yang
+// menampilkan persis "Pemasukan/Pengeluaran/Bersih/Jumlah transaksi" dari
+// D.transactions bulan berjalan). _dashHubSummaryMonthTx() SENGAJA
+// menduplikasi pola filter bulan berjalan yang sama dengan
+// _dashHubHeroMonthTx() (Hero Card, Tahap 2) alih-alih memodifikasi/mereuse
+// fungsi Hero secara langsung — supaya Hero Card (constraint: tidak diubah)
+// benar-benar tidak tersentuh sama sekali oleh Tahap 5. Semua akses ke
+// D/fmt di-guard pakai typeof check (pola sama dgn _dashHubIsFav()/
+// DashboardHubHero di atas) supaya file ini tetap aman dipakai
+// tests/dashboard-hub.test.js yang me-load dashboard-hub.js sendirian.
+function _dashHubSummaryMonthTx() {
+  if (typeof D === 'undefined' || !D.transactions) return { inc: 0, exp: 0, count: 0 };
+  const now = new Date(), m = now.getMonth(), y = now.getFullYear();
+  const txM = D.transactions.filter((t) => {
+    const d = new Date(t.date);
+    return d.getMonth() === m && d.getFullYear() === y;
+  });
+  const inc = txM.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+  const exp = txM.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  return { inc, exp, count: txM.length };
+}
+
+const DashboardHubSummary = {
+  render() {
+    const el = document.getElementById('dashHubSummaryGrid');
+    if (!el) return;
+
+    const money = (n) => (typeof fmt === 'function') ? fmt(n) : ('Rp ' + Math.round(n || 0));
+    const { inc, exp, count } = _dashHubSummaryMonthTx();
+    const net = inc - exp;
+
+    const cards = [
+      { label: 'Pemasukan Bulan Ini', value: money(inc), cls: 'green' },
+      { label: 'Pengeluaran Bulan Ini', value: money(exp), cls: 'red' },
+      { label: 'Bersih Bulan Ini', value: (net < 0 ? '-' : '') + money(Math.abs(net)), cls: net < 0 ? 'red' : 'green' },
+      { label: 'Jumlah Transaksi', value: String(count), cls: '' },
+    ];
+
+    el.innerHTML = cards.map((c) => `
+      <div class="dashhub-summary-card">
+        <div class="dashhub-summary-label">${escapeHtml(c.label)}</div>
+        <div class="dashhub-summary-val${c.cls ? ' ' + c.cls : ''}">${escapeHtml(c.value)}</div>
+      </div>
+    `).join('');
+  },
+};
+
+// ================== DASHBOARD ANALYTICS (Sprint 1 Tahap 7, lihat DASHBOARD-ANALYTICS.md) ==================
+// DashboardHubAnalytics — MURNI TAMPILAN, tidak ada business logic baru.
+// Baris kartu horizontal kecil tepat di bawah Summary Cards, menampilkan
+// angka yang SUDAH bisa dihitung dari D.transactions bulan berjalan dgn
+// pola filter bulan berjalan yang SAMA PERSIS dengan _dashHubHeroMonthTx()
+// (Hero Card, Tahap 2) dan _dashHubSummaryMonthTx() (Summary Cards, Tahap
+// 5). _dashHubAnalyticsMonthTx() SENGAJA menduplikasi pola tsb (alih-alih
+// memanggil fungsi Hero/Summary secara langsung) supaya kedua komponen itu
+// (constraint: tidak diubah) benar-benar tidak tersentuh oleh Tahap 7 ini
+// — pola sama persis dgn alasan _dashHubSummaryMonthTx() di Tahap 5 (lihat
+// komentar di atas DashboardHubSummary). Semua akses ke D/fmt di-guard
+// pakai typeof check (pola sama dgn DashboardHubHero/DashboardHubSummary
+// di atas) supaya file ini tetap aman dipakai
+// tests/dashboard-hub.test.js yang me-load dashboard-hub.js sendirian.
+function _dashHubAnalyticsMonthTx() {
+  if (typeof D === 'undefined' || !D.transactions) return { inc: 0, exp: 0, count: 0 };
+  const now = new Date(), m = now.getMonth(), y = now.getFullYear();
+  const txM = D.transactions.filter((t) => {
+    const d = new Date(t.date);
+    return d.getMonth() === m && d.getFullYear() === y;
+  });
+  const inc = txM.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+  const exp = txM.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  return { inc, exp, count: txM.length };
+}
+
+const DashboardHubAnalytics = {
+  render() {
+    const el = document.getElementById('dashHubAnalyticsRow');
+    if (!el) return;
+
+    const money = (n) => (typeof fmt === 'function') ? fmt(n) : ('Rp ' + Math.round(n || 0));
+    const { inc, exp, count } = _dashHubAnalyticsMonthTx();
+    const net = inc - exp;
+    const total = inc + exp;
+    // Persentase pemasukan vs pengeluaran — cuma bisa dihitung kalau ada
+    // nominal (total > 0), sesuai instruksi "jika sudah bisa dihitung".
+    const incPct = total > 0 ? Math.round((inc / total) * 100) : null;
+    const expPct = total > 0 ? Math.round((exp / total) * 100) : null;
+
+    const cards = [
+      { label: 'Transaksi Bulan Ini', value: String(count), cls: '' },
+      { label: 'Total Pemasukan', value: money(inc), cls: 'green' },
+      { label: 'Total Pengeluaran', value: money(exp), cls: 'red' },
+      { label: 'Saldo Bersih', value: (net < 0 ? '-' : '') + money(Math.abs(net)), cls: net < 0 ? 'red' : 'green' },
+      { label: 'Pemasukan vs Pengeluaran', value: incPct === null ? '—' : (incPct + '% : ' + expPct + '%'), cls: '' },
+    ];
+
+    el.innerHTML = cards.map((c) => `
+      <div class="dashhub-analytics-card">
+        <div class="dashhub-analytics-label">${escapeHtml(c.label)}</div>
+        <div class="dashhub-analytics-val${c.cls ? ' ' + c.cls : ''}">${escapeHtml(c.value)}</div>
+      </div>
+    `).join('');
+  },
+};
+
 const DashboardHub = {
   render() {
     const el = document.getElementById('dashboardHubGrid');
@@ -123,7 +284,7 @@ const DashboardHub = {
         <div class="dashhub-cat-head">
           <div class="dashhub-cat-icon">${cat.icon}</div>
           <div>
-            <div class="dashhub-cat-label">${escapeHtml(cat.label)}</div>
+            <div class="dashhub-cat-label">${escapeHtml(cat.label)}<span class="dashhub-cat-badge">${cat.features.length}</span></div>
             <div class="dashhub-cat-desc">${escapeHtml(cat.desc)}</div>
           </div>
         </div>
@@ -148,6 +309,21 @@ const DashboardHub = {
     // Tambahan murni, pola sama dgn LifeOSHome.render() di atas — tidak
     // mengubah baris manapun sebelum ini.
     if (typeof DashboardHubFavoritView !== 'undefined') DashboardHubFavoritView.render();
+
+    // Hero Card (Sprint 1 Tahap 2, lihat HERO-CARD.md). Tambahan murni, pola
+    // sama dgn LifeOSHome.render()/DashboardHubFavoritView.render() di atas —
+    // tidak mengubah baris manapun sebelum ini.
+    if (typeof DashboardHubHero !== 'undefined') DashboardHubHero.render();
+
+    // Summary Cards (Sprint 1 Tahap 5, lihat DASHBOARD-SUMMARY.md). Tambahan
+    // murni, pola sama dgn DashboardHubHero.render() di atas — tidak
+    // mengubah baris manapun sebelum ini.
+    if (typeof DashboardHubSummary !== 'undefined') DashboardHubSummary.render();
+
+    // Dashboard Analytics (Sprint 1 Tahap 7, lihat DASHBOARD-ANALYTICS.md).
+    // Tambahan murni, pola sama dgn DashboardHubSummary.render() di atas —
+    // tidak mengubah baris manapun sebelum ini.
+    if (typeof DashboardHubAnalytics !== 'undefined') DashboardHubAnalytics.render();
   },
 
   // Kontrak resolusi ADR-001 §4 — SATU-SATUNYA entry point publik navigasi.

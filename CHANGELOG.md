@@ -351,3 +351,461 @@ versi berikutnya. Lihat `RELEASE-NOTES.md` untuk ringkasan rilis,
 `PROJECT-SUMMARY.md` untuk onboarding developer baru, `KNOWN-ISSUES.md`
 untuk isu yang belum diperbaiki, dan `ROADMAP-v1.1.md` untuk backlog
 v1.1.
+
+---
+
+# Changelog — Sprint 1, Tahap 2: Dashboard 2.0 — Hero Card
+
+Baseline: FINAL RELEASE CANDIDATE (v242 / `kw83-tahap0-feature-registry-17`,
+1228/1228 test PASS) + Sprint 1 Tahap 1 (`DASHBOARD-2.0-PLAN.md`, audit-only,
+0 file kode disentuh).
+
+## Ditambahkan
+
+- **Hero Card** di `page-dashboard-hub` (`index.html`/`app_production.html`)
+  — elemen pertama setelah header, sebelum search bar, sesuai
+  `DASHBOARD-2.0-PLAN.md` §11/§12. Menampilkan (semua dari data yang SUDAH
+  ADA, tidak ada business logic baru):
+  - Sapaan + nama profil (`D.profile.nama`, field yang sudah ada)
+  - Tanggal hari ini (format native `Date.toLocaleDateString('id-ID', ...)`)
+  - Saldo semua akun (`totalSaldoAkun()` dari `akun.js`, dipanggil apa
+    adanya — tidak ada logic saldo baru)
+  - Pemasukan & pengeluaran bulan berjalan (agregasi `D.transactions` dgn
+    pola yang sama persis dgn `renderDashboard()`/`renderDashLaporanMini()`
+    di `modules-render.js`)
+- **`DashboardHubHero`** (object baru di `dashboard-hub.js`) — modul render
+  murni tampilan, dipanggil dari `DashboardHub.render()` secara aditif
+  (pola sama dgn `LifeOSHome.render()`/`DashboardHubFavoritView.render()`
+  yang sudah ada — tidak mengubah baris lain).
+- CSS baru scoped `.dashhub-hero*` di `styles.css` — Material Design 3 /
+  Material You: radius besar (`--r-2xl`), gradient aksen tipis, elevation
+  via shadow, hierarki tipografi jelas. 100% memakai token yang sudah ada
+  (`--r-*`/`--sp-*`/`--fs-*`/`--accent*`/`.green`/`.red`), responsif lewat
+  breakpoint yang sudah ada di file ini (`max-width:359px`, `min-width:600px`).
+- **`HERO-CARD.md`** — dokumentasi struktur, data, CSS, dan alasan desain
+  Hero Card.
+- **`tests/dashboard-hub-hero.test.js`** — 8 test baru: render tanpa data
+  (placeholder aman), render dgn `D.profile.nama`, saldo positif/negatif,
+  agregasi bulan berjalan (termasuk memastikan transaksi bulan lalu &
+  transfer diabaikan), dan integrasi ke `DashboardHub.render()` (grid
+  kategori tetap tidak berubah).
+
+## Diubah
+
+- **`dashboard-hub.js`**: tambah `_dashHubHeroMonthTx()` + object
+  `DashboardHubHero` (murni fungsi baru, tidak ada baris lama yang
+  dihapus/diubah), + 1 baris pemanggilan aditif di `DashboardHub.render()`.
+- **`index.html`**: tambah blok `<div class="dashhub-hero" id="dashHubHeroCard">…</div>`
+  di dalam `#page-dashboard-hub`, sebelum `.dashhub-search-wrap`. Tidak ada
+  elemen lain yang dipindah/dihapus.
+- **`styles.css`**: tambah blok CSS baru scoped `.dashhub-hero*` (lihat
+  `HERO-CARD.md` §CSS). Tidak ada deklarasi `.dashhub-*` yang sudah ada
+  yang diubah.
+- **`app_production.html`**: disinkronkan ulang jadi salinan persis
+  `index.html` lewat `node scripts/build.js` (konvensi proyek yang sudah
+  ada sejak awal, bukan proses baru).
+- **`app-bundle-a.min.js`, `app-bundle-b.min.js`**: dibuat ulang dari
+  source lewat `node scripts/build.js` supaya Hero Card benar-benar
+  ter-load di app (kedua file HTML memuat bundle ini, bukan file source
+  individual). **`scripts/build.js` sendiri TIDAK diedit/diubah logic-nya**
+  — dijalankan apa adanya sesuai alur kerja yang sudah didokumentasikan di
+  file itu ("Jalankan skrip ini SETIAP KALI selesai edit file .js sumber").
+- **`sw.js`**: `CACHE_NAME` naik ke `kw-cache-v243` — efek samping otomatis
+  dari `scripts/build.js` (bagian bump-version, bukan perubahan logic
+  Service Worker apa pun).
+- Nomor versi `?v=242` → `?v=243` di kedua HTML, dan
+  `kw83-tahap0-feature-registry-17` → `-18` di 6 file source versi — juga
+  efek samping otomatis `scripts/build.js`, konsisten dgn konvensi versi
+  yang sudah ada sejak Tahap 0.
+- **`docs/FILE-MAP.md`**: ditulis ulang otomatis oleh `scripts/build.js`
+  (bagian dari alur build yang sudah ada, bukan proses baru).
+
+## Tidak diubah
+
+- `FEATURE_REGISTRY` (`dashboard-hub-registry.js`) — tidak disentuh sama
+  sekali.
+- ADR-001, Routing (`dashHubNavigateToFeature`/`DashboardHub.open`),
+  Business Logic (`totalSaldoAkun()` dipakai APA ADANYA, tidak ada
+  perubahan di `akun.js`).
+- Grid kategori, Favorit, Life OS, Pinned Widgets, Bottom Navigation — tidak
+  ada satu baris pun dari komponen-komponen ini yang diubah.
+- `scripts/build.js` — dijalankan, tidak diedit.
+- Tidak ada dependency baru ditambahkan (`package.json` tidak berubah).
+
+## Hasil test
+
+```
+node --test tests/*.test.js
+# tests 1235
+# pass 1235
+# fail 0
+```
+
+Catatan: baseline FINAL RELEASE CANDIDATE yang diverifikasi ulang di
+lingkungan ini (`node --test tests/*.test.js` pada arsip asli, sebelum
+perubahan apa pun) menghasilkan **1227/1227 PASS**, bukan 1228 seperti
+disebut di status header — kemungkinan selisih pencatatan minor di
+dokumentasi sebelumnya, dicatat di sini demi akurasi. Tidak ada test lama
+yang gagal atau dihapus; 8 test baru dari `tests/dashboard-hub-hero.test.js`
+ditambahkan murni aditif, sehingga total naik 1227 → 1235.
+
+## Status
+
+Hero Card selesai, sesuai cakupan Sprint 1 Tahap 2. **Belum** mengerjakan
+Quick Actions, refactor Grid Dashboard, Widget lain, atau Bottom Navigation
+— menunggu instruksi Sprint 1 Tahap 3.
+
+# Changelog — Sprint 1, Tahap 3: Dashboard 2.0 — Quick Actions
+
+Baseline: Sprint 1 Tahap 2 — Hero Card (1235/1235 test PASS, build
+`kw83-tahap0-feature-registry-18`, v243).
+
+## Ditambahkan
+
+- **Quick Actions** di `page-dashboard-hub` (`index.html`/`app_production.html`)
+  — baris tombol kartu kecil (pill) bergaya Material Design 3/Material You,
+  tepat di bawah Hero Card, sebelum search bar. 5 aksi, semua memanggil
+  fungsi yang **SUDAH ADA** (tidak ada business logic baru):
+  - 💰 **Transaksi** → `openTxModal('expense')` (`transaksi.js`, pola sama
+    dgn tombol "+ Pengeluaran" di menu Aksi Cepat lama/`qsDashboard`)
+  - 📝 **Catatan** → `openCatatan('anak')` (`transaksi.js`, satu-satunya
+    fungsi "buka form catatan" yang sudah ada di app)
+  - 💾 **Backup** → `openBackupModal()` (`backup-restore.js`, dipakai juga
+    oleh 3 tombol lama lain: `qsDashboard`, `qsShop`, `qsLaporan`)
+  - 🔍 **Cari** → fokus native ke `#dashHubSearchInput` yang sudah ada tepat
+    di bawah Quick Actions (murni `element.focus()`, bukan logic baru)
+  - 🤖 **AI** → `showPage('ai', document.querySelectorAll('.nav-item')[3])`
+    (`modal-navigasi.js` + `PAGE_NAV_IDX.ai` yang sudah ada di
+    `dashboard-hub.js`, pola sama dgn navigasi "Edit Profil" di `qsAI`)
+- CSS baru scoped `.dashhub-qa*` di `styles.css` — 5 kolom grid pill,
+  radius penuh (`--r-pill`), 100% memakai token yang sudah ada
+  (`--sp-*`/`--r-pill`/`--fs-icon-lg`/`--surface2`/`--surface3`/`--border`/
+  `--accent`/`--text2`), breakpoint `max-width:359px` (3 kolom, konsisten
+  dgn pola stack Hero Card) & `min-width:600px` (hover state, konsisten dgn
+  `.dashhub-feature-card:hover`).
+- **`QUICK-ACTIONS.md`** — dokumentasi struktur, aksi, event yang dipanggil,
+  CSS baru, dan alasan desain.
+- **`tests/dashboard-hub-quickactions.test.js`** — 10 test baru: markup ada
+  & posisinya benar (di antara Hero Card & search bar), 5 tombol persis,
+  tiap tombol memanggil fungsi yang sudah ada (bukan fungsi baru), Hero
+  Card/Grid Dashboard tidak tersentuh, parity `index.html`/
+  `app_production.html`, dan token CSS yang dipakai semuanya sudah
+  terdefinisi di `:root`.
+
+## Diubah
+
+- **`index.html`**: tambah blok `<div class="dashhub-qa-row" id="dashHubQuickActions">…</div>`
+  di dalam `#page-dashboard-hub`, tepat setelah `.dashhub-hero` dan sebelum
+  `.dashhub-search-wrap`. Tidak ada elemen lain (Hero Card, search bar,
+  Favorit, Grid Dashboard, Life OS, Pinned Widgets) yang dipindah/diubah.
+- **`styles.css`**: tambah blok CSS baru scoped `.dashhub-qa*` (lihat
+  `QUICK-ACTIONS.md` §3). Tidak ada deklarasi `.dashhub-*` yang sudah ada
+  yang diubah.
+- **`app_production.html`**: disinkronkan ulang jadi salinan persis
+  `index.html` lewat `node scripts/build.js` (konvensi proyek yang sama
+  sejak Tahap 2, bukan proses baru).
+- **`app-bundle-a.min.js`, `app-bundle-b.min.js`**: dibuat ulang dari source
+  lewat `node scripts/build.js` (Quick Actions murni markup, tidak ada
+  fungsi JS baru yang perlu ikut ke-bundle — regenerasi ini hanya supaya
+  bundle tetap sinkron dgn `index.html` versi terbaru, sama seperti proses
+  Tahap 2). **`scripts/build.js` sendiri TIDAK diedit.**
+- **`sw.js`**: `CACHE_NAME` naik ke `kw-cache-v244` — efek samping otomatis
+  `scripts/build.js`.
+- Nomor versi `?v=243` → `?v=244`, dan
+  `kw83-tahap0-feature-registry-18` → `-19` — efek samping otomatis
+  `scripts/build.js`.
+- **`docs/FILE-MAP.md`**: ditulis ulang otomatis oleh `scripts/build.js`.
+
+## Tidak diubah
+
+- `FEATURE_REGISTRY` (`dashboard-hub-registry.js`), ADR-001 — tidak
+  disentuh sama sekali.
+- Business Logic — tidak ada fungsi baru; kelima tombol Quick Actions
+  murni memanggil `openTxModal`/`openCatatan`/`openBackupModal`/`showPage`
+  yang sudah ada, atau `.focus()` native ke elemen yang sudah ada.
+- Routing (`dashHubNavigateToFeature`/`DashboardHub.open`) — tidak diubah;
+  tombol AI memakai `showPage()` langsung (pola yang sudah dipakai di
+  markup `qsAI`/`qsDashboard`), bukan lewat `DashboardHub.open()`.
+- **Grid Dashboard** (`#dashboardHubGrid`/`#dashboardHubWrap`) — tidak
+  disentuh.
+- **Widget** (Life OS, Favorit, Pinned Widgets) — tidak disentuh.
+- **Bottom Navigation** (`.nav-item`) — tidak disentuh; hanya *dibaca*
+  (`document.querySelectorAll('.nav-item')[3]`) untuk parameter `showPage()`,
+  sama persis pola yang sudah dipakai di markup `qsDashboard` (mis.
+  `document.querySelectorAll('.nav-item')[6]` untuk "Edit Profil").
+- `dashboard-hub.js` — **tidak ada baris JS yang diubah**; Quick Actions
+  100% markup (HTML+CSS), tidak butuh modul JS baru karena setiap tombol
+  langsung memanggil fungsi global yang sudah ada lewat `data-onclick`
+  (mekanisme dispatcher yang sudah ada di
+  `features-helpers-global-security.js`, pola sama dgn tombol
+  `qs-action` yang sudah dipakai di `qsDashboard`/`qsAI`).
+- `scripts/build.js` — dijalankan, tidak diedit.
+- Tidak ada dependency baru ditambahkan (`package.json` tidak berubah).
+
+## Hasil test
+
+```
+node --test tests/*.test.js
+# tests 1245
+# pass 1245
+# fail 0
+```
+
+Baseline Tahap 2 (1235/1235 PASS) diverifikasi ulang di lingkungan ini
+sebelum perubahan apa pun. Tidak ada test lama yang gagal atau dihapus; 10
+test baru dari `tests/dashboard-hub-quickactions.test.js` ditambahkan murni
+aditif, sehingga total naik 1235 → 1245.
+
+## Status
+
+Quick Actions selesai, sesuai cakupan Sprint 1 Tahap 3. **Belum**
+mengerjakan Widget Dashboard, Grid Dashboard, Statistik, atau AI Insight —
+menunggu instruksi Sprint 1 Tahap 4.
+
+# Changelog — Sprint 1 Tahap 4: Modern Dashboard Grid
+
+Baseline: Sprint 1 Tahap 3 selesai (Hero Card + Quick Actions), `node
+--test` 1245/1245 PASS. Lihat `DASHBOARD-GRID.md` untuk detail lengkap.
+
+## Diubah
+
+- **`styles.css`** — modernisasi visual Dashboard Grid (Material Design
+  3): radius kartu diperbesar (`--r-lg`→`--r-xl`), padding/gap kartu &
+  kategori mengikuti token spacing yang sudah ada (`--sp-*`), elevation
+  shadow ditambahkan di kartu fitur (default, tekan, & hover), ikon
+  kategori diperbesar + shadow tipis, favorite indicator (`.dashhub-fav-star`)
+  diubah dari teks bintang polos jadi chip bulat (icon-button M3), dan
+  satu class baru `.dashhub-cat-badge` (chip kecil jumlah fitur per
+  kategori). Semua **class lama tetap dipakai** (tidak ada rename),
+  semua nilai memakai token yang sudah ada di `:root` (tidak ada token
+  baru).
+- **`dashboard-hub.js`** — 1 baris ditambah: render `.dashhub-cat-badge`
+  berisi `cat.features.length` di sebelah label kategori. Murni
+  render/tampilan (memakai data yang sudah tersedia saat render),
+  **`FEATURE_REGISTRY` tidak disentuh/diubah**.
+
+## Ditambahkan
+
+- **`DASHBOARD-GRID.md`** — dokumentasi deliverable Tahap 4.
+
+## Tidak diubah
+
+- Hero Card, Quick Actions, Bottom Navigation, AI, Statistik, Widget
+  Drag & Drop, Search — sama sekali tidak disentuh (di luar cakupan
+  Tahap 4).
+- `FEATURE_REGISTRY`, ADR-001, business logic, routing, database.
+- `app-bundle-a.min.js`, `app-bundle-b.min.js`, `sw.js`,
+  `docs/FILE-MAP.md`, versi aplikasi (`package.json` tidak berubah).
+- `scripts/build.js` **tidak dijalankan**.
+
+## Hasil test
+
+```
+node --test
+# tests 1246
+# pass 1246
+# fail 0
+```
+
+Tidak ada test lama yang gagal; tidak ada test yang dihapus. Hero Card,
+Quick Actions, dan seluruh fungsi Dashboard (buka fitur, toggle favorit,
+search, LifeOS, Pinned Widgets) diverifikasi tetap tampil & berfungsi
+setelah perubahan CSS/markup ini.
+
+## Status
+
+Modern Dashboard Grid selesai, sesuai cakupan Sprint 1 Tahap 4. Sesuai
+instruksi, pengerjaan **berhenti di sini** — tahap berikutnya menunggu
+instruksi lebih lanjut.
+
+# Changelog — Sprint 1 Tahap 5: Dashboard Summary Cards
+
+Baseline: Sprint 1 Tahap 4 selesai (Hero Card + Quick Actions + Modern
+Dashboard Grid), `node --test` 1246/1246 PASS. Lihat `DASHBOARD-SUMMARY.md`
+untuk detail lengkap.
+
+## Ditambahkan
+
+- **`dashboard-hub.js`** — fungsi baru murni-baca `_dashHubSummaryMonthTx()`
+  + object baru `DashboardHubSummary` (render 4 kartu ringkas: Pemasukan/
+  Pengeluaran/Bersih/Jumlah Transaksi bulan berjalan dari `D.transactions`),
+  + 1 baris pemanggilan aditif
+  `if (typeof DashboardHubSummary !== 'undefined') DashboardHubSummary.render();`
+  di dalam `DashboardHub.render()`, pola sama dgn `DashboardHubHero.render()`
+  yang sudah ada. Tidak ada baris lama yang dihapus/diubah.
+- **`index.html`, `app_production.html`** — tambah blok
+  `<div class="dashhub-summary-grid" id="dashHubSummaryGrid"></div>` di
+  dalam `#page-dashboard-hub`, tepat setelah `.dashhub-qa-row` (Quick
+  Actions), sebelum `.dashhub-search-wrap`. Kedua file tetap identik satu
+  sama lain (diverifikasi dengan `diff`).
+- **`styles.css`** — blok CSS baru scoped `.dashhub-summary*` (~6
+  deklarasi + 1 media query), 100% pakai token yang sudah ada
+  (`--sp-*`/`--r-xl`/`--fs-caption`/`--fs-title-sm`/`--surface2`/`--border`)
+  serta utility `.green`/`.red` yang sudah ada. Tidak ada deklarasi
+  `.dashhub-*` lama yang diubah nilainya.
+- **`DASHBOARD-SUMMARY.md`** — dokumentasi deliverable Tahap 5.
+- **`tests/dashboard-hub-summary.test.js`** — 6 test baru untuk
+  `_dashHubSummaryMonthTx()`/`DashboardHubSummary` + 1 test integrasi
+  `DashboardHub.render()`.
+
+## Tidak diubah
+
+- Hero Card (`.dashhub-hero*`), Quick Actions (`.dashhub-qa*`), Dashboard
+  Grid (`#dashboardHubGrid`/`.dashhub-cat*`/`.dashhub-feature*`),
+  Bottom Navigation, AI, Statistik, Widget Drag & Drop, Search — sama
+  sekali tidak disentuh (di luar cakupan Tahap 5).
+- `FEATURE_REGISTRY`, ADR-001, business logic, routing, database.
+- `app-bundle-a.min.js`, `app-bundle-b.min.js`, `sw.js`,
+  `docs/FILE-MAP.md`, versi aplikasi (`package.json` tidak berubah).
+- `scripts/build.js` **tidak dijalankan**.
+
+## Hasil test
+
+```
+node --test
+# tests 1252
+# pass 1252
+# fail 0
+```
+
+Tidak ada test lama yang gagal; tidak ada test yang dihapus. Hero Card,
+Quick Actions, dan seluruh fungsi Dashboard Grid (buka fitur, toggle
+favorit, search, LifeOS, Pinned Widgets) diverifikasi tetap tampil &
+berfungsi setelah perubahan ini.
+
+## Status
+
+Dashboard Summary Cards selesai, sesuai cakupan Sprint 1 Tahap 5. Sesuai
+instruksi, pengerjaan **berhenti di sini** — tidak melanjutkan ke Tahap 6
+(AI Insight/Statistik/dst), menunggu instruksi lebih lanjut.
+
+# Changelog — Sprint 1 Tahap 6: Modern Pinned Widgets
+
+Baseline: Sprint 1 Tahap 5 selesai (Hero Card + Quick Actions + Summary
+Cards + Modern Dashboard Grid), `node --test` 1252/1252 PASS. Lihat
+`PINNED-WIDGETS.md` untuk detail lengkap.
+
+## Diubah
+
+- **`styles.css`** — modernisasi visual 6 widget lama di dalam
+  `#dashboardHubPinnedWrap` (`advisorCard`, `lifeBalanceCard`,
+  `refleksiCard`, `dashFiCard`, `dashPensiunCard`, `dashAbsensiCard`):
+  radius diperbesar via token (`var(--r-2xl)`), padding/spacing lebih
+  lega (`--sp-7/8`), elevation shadow default + hover, header
+  (`.card-title`) diperjelas (font lebih besar, non-uppercase, garis
+  pemisah), + layout responsive (1 kolom mobile → 2 kolom tablet → 3
+  kolom desktop, urutan DOM tidak berubah). **Semua aturan di-scope
+  lewat descendant selector `#dashboardHubPinnedWrap ...`** — definisi
+  dasar `.card`/`.card-title` (dipakai ~40+ kartu lain di seluruh app)
+  **tidak diubah sama sekali**.
+
+## Ditambahkan
+
+- **`PINNED-WIDGETS.md`** — dokumentasi deliverable Tahap 6.
+- **`tests/dashboard-hub-pinnedwidgets.test.js`** — 11 test baru:
+  widget & urutan tidak berubah, markup/`data-action` tiap widget tidak
+  berubah, Hero/Quick Actions/Summary Cards/Grid tetap ada, `.card`/
+  `.card-title` dasar tidak diedit, override ter-scope dengan benar,
+  token CSS valid, breakpoint responsive ada.
+
+## Tidak diubah
+
+- `dashboard-hub.js`, `index.html`, `app_production.html` — **0 baris
+  berubah** (modernisasi murni CSS, isi/urutan/event/data widget tidak
+  disentuh; rendering isi widget sudah ditangani modul JS masing-masing
+  seperti sebelumnya).
+- Hero Card, Quick Actions, Summary Cards, Dashboard Grid — sama sekali
+  tidak disentuh (di luar cakupan Tahap 6).
+- `FEATURE_REGISTRY`, ADR-001, business logic, routing, database.
+- `app-bundle-a.min.js`, `app-bundle-b.min.js`, `sw.js`,
+  `docs/FILE-MAP.md`, versi aplikasi (`package.json` tidak berubah).
+- `scripts/build.js` **tidak dijalankan**.
+
+## Hasil test
+
+```
+node --test
+# tests 1263
+# pass 1263
+# fail 0
+```
+
+Tidak ada test lama yang gagal; tidak ada test yang dihapus. Hero Card,
+Quick Actions, Summary Cards, dan Dashboard Grid diverifikasi tetap
+tampil & berfungsi setelah perubahan CSS ini; 6 widget Pinned tetap
+tampil dengan konten/event/urutan yang sama, hanya lebih modern secara
+visual.
+
+## Status
+
+Modern Pinned Widgets selesai, sesuai cakupan Sprint 1 Tahap 6. Sesuai
+instruksi, pengerjaan **berhenti di sini** — tidak melanjutkan ke AI
+Insight, Dashboard Analytics, atau Drag & Drop, menunggu instruksi
+Sprint 1 Tahap 7.
+
+# Changelog — Sprint 1 Tahap 7: Dashboard Analytics
+
+Baseline: Sprint 1 Tahap 6 selesai (Hero Card + Quick Actions + Summary
+Cards + Modern Dashboard Grid + Modern Pinned Widgets), `node --test`
+1263/1263 PASS. Lihat `DASHBOARD-ANALYTICS.md` untuk detail lengkap.
+
+## Ditambahkan
+
+- **`dashboard-hub.js`** — fungsi baru murni-baca
+  `_dashHubAnalyticsMonthTx()` + object baru `DashboardHubAnalytics`
+  (render 5 kartu horizontal kecil: Transaksi Bulan Ini/Total Pemasukan/
+  Total Pengeluaran/Saldo Bersih/Pemasukan vs Pengeluaran (%) dari
+  `D.transactions` bulan berjalan), + 1 baris pemanggilan aditif
+  `if (typeof DashboardHubAnalytics !== 'undefined') DashboardHubAnalytics.render();`
+  di dalam `DashboardHub.render()`, tepat setelah pemanggilan
+  `DashboardHubSummary.render()`, pola sama dgn Tahap 5/6. Tidak ada
+  baris lama yang dihapus/diubah.
+- **`index.html`, `app_production.html`** — tambah blok
+  `<div class="dashhub-analytics-row" id="dashHubAnalyticsRow"></div>`
+  di dalam `#page-dashboard-hub`, tepat setelah `.dashhub-summary-grid`
+  (Summary Cards), sebelum `.dashhub-search-wrap` — sesuai instruksi
+  "setelah Summary Cards, sebelum Dashboard Grid". Kedua file tetap
+  identik satu sama lain (diverifikasi dengan `diff`).
+- **`styles.css`** — blok CSS baru scoped `.dashhub-analytics*` (5
+  deklarasi, baris horizontal scroll), 100% pakai token yang sudah ada
+  (`--sp-*`/`--r-xl`/`--fs-caption`/`--fs-title-sm`/`--surface2`/
+  `--border`) serta utility `.green`/`.red` yang sudah ada. Pola scroll
+  horizontal reuse dari `.trs-chip-row`/`.kasir-kat-chips` yang sudah
+  ada. Tidak ada deklarasi `.dashhub-*` lama yang diubah nilainya.
+- **`DASHBOARD-ANALYTICS.md`** — dokumentasi deliverable Tahap 7.
+- **`tests/dashboard-hub-analytics.test.js`** — 7 test baru untuk
+  `_dashHubAnalyticsMonthTx()`/`DashboardHubAnalytics` + 1 test
+  integrasi `DashboardHub.render()`.
+
+## Tidak diubah
+
+- Hero Card (`.dashhub-hero*`), Quick Actions (`.dashhub-qa*`), Summary
+  Cards (`.dashhub-summary*`), Dashboard Grid
+  (`#dashboardHubGrid`/`.dashhub-cat*`/`.dashhub-feature*`), Pinned
+  Widgets (`#dashboardHubPinnedWrap`) — sama sekali tidak disentuh (di
+  luar cakupan Tahap 7).
+- `FEATURE_REGISTRY`, ADR-001, business logic, routing, database.
+- `app-bundle-a.min.js`, `app-bundle-b.min.js`, `sw.js`,
+  `docs/FILE-MAP.md`, versi aplikasi (`package.json` tidak berubah).
+- `scripts/build.js` **tidak dijalankan**.
+
+## Hasil test
+
+```
+node --test
+# tests 1270
+# pass 1270
+# fail 0
+```
+
+Tidak ada test lama yang gagal; tidak ada test yang dihapus. Hero Card,
+Quick Actions, Summary Cards, Dashboard Grid, dan Pinned Widgets
+diverifikasi tetap tampil & berfungsi setelah perubahan ini; Dashboard
+Analytics tampil sebagai baris kartu horizontal baru di antara Summary
+Cards dan search bar.
+
+## Status
+
+Dashboard Analytics selesai, sesuai cakupan Sprint 1 Tahap 7. Sesuai
+instruksi, pengerjaan **berhenti di sini** — tidak melanjutkan ke AI
+Insight, Drag & Drop, atau Dashboard 3.0, menunggu Sprint 2.

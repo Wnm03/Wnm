@@ -53,7 +53,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Keluarga W</title>
-<link rel="stylesheet" href="styles.css?v=242">
+<link rel="stylesheet" href="styles.css?v=244">
 <script>
 /* Debug console (Eruda) — aktifkan sekali lewat ?debug=1 di URL, nempel via localStorage.
    Matikan lagi lewat ?debug=0. Tidak aktif buat user biasa. */
@@ -106,8 +106,8 @@ b.appendChild(closeBtn);
 }catch(_e){ console.error('Gagal tampilkan banner error modul:',_e); }
 };
 </script>
-<script src="app-bundle-a.min.js?v=242" onerror="window.__moduleLoadFail('app-bundle-a.min.js')"></script>
-<script src="smoke-test.js?v=242" defer></script>
+<script src="app-bundle-a.min.js?v=244" onerror="window.__moduleLoadFail('app-bundle-a.min.js')"></script>
+<script src="smoke-test.js?v=244" defer></script>
 <link rel="manifest" id="pwaManifestLink" href="manifest.json">
 </head>
 <body data-theme="dark">
@@ -1811,6 +1811,77 @@ b.appendChild(closeBtn);
     <div class="page-title">🧭 Dashboard Hub</div>
     <button class="qs-btn" data-onclick="showPage('settings',document.querySelectorAll('.nav-item')[6])" aria-label="Kembali ke Pengaturan">←</button>
   </div>
+  <!-- HERO CARD (Sprint 1 Tahap 2 — Dashboard 2.0, lihat HERO-CARD.md &
+       DASHBOARD-2.0-PLAN.md §11 "Mockup ASCII"). Murni tampilan ringkasan
+       dari data yang SUDAH ADA (D.profile.nama, totalSaldoAkun(), transaksi
+       bulan berjalan) — TIDAK ada business logic baru, tidak menyentuh
+       FEATURE_REGISTRY/ADR-001. Diisi oleh DashboardHubHero.render()
+       (dipanggil dari DashboardHub.render() di dashboard-hub.js), pola sama
+       dgn LifeOSHome.render()/DashboardHubFavoritView.render() di bawah:
+       tambahan murni, tidak mengubah baris lain yang sudah ada. -->
+  <div class="dashhub-hero" id="dashHubHeroCard">
+    <div class="dashhub-hero-greet" id="dashHubHeroGreet">Halo 👋</div>
+    <div class="dashhub-hero-date" id="dashHubHeroDate">-</div>
+    <div class="dashhub-hero-balance">
+      <div class="dashhub-hero-balance-label">Saldo Semua Akun</div>
+      <div class="dashhub-hero-balance-val" id="dashHubHeroSaldo">Rp 0</div>
+    </div>
+    <div class="dashhub-hero-stats">
+      <div>
+        <div class="dashhub-hero-stat-label">Pemasukan Bulan Ini</div>
+        <div class="dashhub-hero-stat-val green" id="dashHubHeroInc">Rp 0</div>
+      </div>
+      <div>
+        <div class="dashhub-hero-stat-label">Pengeluaran Bulan Ini</div>
+        <div class="dashhub-hero-stat-val red" id="dashHubHeroExp">Rp 0</div>
+      </div>
+    </div>
+  </div>
+  <!-- QUICK ACTIONS (Sprint 1 Tahap 3 — Dashboard 2.0, lihat QUICK-ACTIONS.md).
+       Baris tombol kartu kecil ala Material 3, tepat di bawah Hero Card. Setiap
+       tombol HANYA memanggil fungsi yang SUDAH ADA (openTxModal/openCatatan/
+       openBackupModal/showPage, dan focus native ke #dashHubSearchInput yang
+       sudah ada tepat di bawahnya) — tidak ada business logic baru, tidak
+       menyentuh FEATURE_REGISTRY/ADR-001. Tambahan murni, tidak mengubah baris
+       lain di atas/bawahnya. -->
+  <div class="dashhub-qa-row" id="dashHubQuickActions">
+    <button type="button" class="dashhub-qa-btn" data-onclick="openTxModal('expense')" aria-label="Tambah Transaksi">
+      <span class="dashhub-qa-icon">💰</span><span class="dashhub-qa-label">Transaksi</span>
+    </button>
+    <button type="button" class="dashhub-qa-btn" data-onclick="openCatatan('anak')" aria-label="Tambah Catatan">
+      <span class="dashhub-qa-icon">📝</span><span class="dashhub-qa-label">Catatan</span>
+    </button>
+    <button type="button" class="dashhub-qa-btn" data-onclick="openBackupModal()" aria-label="Backup">
+      <span class="dashhub-qa-icon">💾</span><span class="dashhub-qa-label">Backup</span>
+    </button>
+    <button type="button" class="dashhub-qa-btn" data-onclick="document.getElementById('dashHubSearchInput').focus()" aria-label="Cari">
+      <span class="dashhub-qa-icon">🔍</span><span class="dashhub-qa-label">Cari</span>
+    </button>
+    <button type="button" class="dashhub-qa-btn" data-onclick="showPage('ai',document.querySelectorAll('.nav-item')[3])" aria-label="Buka AI">
+      <span class="dashhub-qa-icon">🤖</span><span class="dashhub-qa-label">AI</span>
+    </button>
+  </div>
+  <!-- SUMMARY CARDS (Sprint 1 Tahap 5 — Dashboard 2.0, lihat DASHBOARD-SUMMARY.md).
+       Baris kartu ringkas kecil, tepat di bawah Quick Actions. Menampilkan angka
+       yang SUDAH ADA (pemasukan/pengeluaran/bersih/jumlah transaksi bulan
+       berjalan dari D.transactions, pola yang sama dipakai di banyak tempat
+       lain mis. FinCoach.renderDash()) — tidak ada business logic baru, tidak
+       menyentuh FEATURE_REGISTRY/ADR-001. Diisi oleh DashboardHubSummary.render()
+       (dipanggil dari DashboardHub.render() di dashboard-hub.js). Tambahan
+       murni, tidak mengubah baris lain di atas/bawahnya (Hero Card & Quick
+       Actions tidak tersentuh). -->
+  <div class="dashhub-summary-grid" id="dashHubSummaryGrid"></div>
+  <!-- DASHBOARD ANALYTICS (Sprint 1 Tahap 7 — Dashboard 2.0, lihat
+       DASHBOARD-ANALYTICS.md). Baris kartu horizontal kecil, tepat di bawah
+       Summary Cards & sebelum search bar. Menampilkan angka yang SUDAH bisa
+       dihitung dari D.transactions bulan berjalan (transaksi/pemasukan/
+       pengeluaran/saldo bersih/persentase pemasukan vs pengeluaran) — tidak
+       ada business logic baru, tidak menyentuh FEATURE_REGISTRY/ADR-001.
+       Diisi oleh DashboardHubAnalytics.render() (dipanggil dari
+       DashboardHub.render() di dashboard-hub.js). Tambahan murni, tidak
+       mengubah baris lain di atas/bawahnya (Hero Card, Quick Actions &
+       Summary Cards tidak tersentuh). -->
+  <div class="dashhub-analytics-row" id="dashHubAnalyticsRow"></div>
   <div class="dashhub-search-wrap">
     <input type="text" class="fi" id="dashHubSearchInput" placeholder="🔍 Cari fitur/menu... (mis. sewa kios, kasir, backup)" oninput="DashboardHubSearch.render(this.value)" aria-label="Cari fitur">
     <div class="dashhub-search-results u-dnone" id="dashHubSearchResults"></div>
@@ -2248,6 +2319,6 @@ b.appendChild(closeBtn);
 <script>document.write(MODAL_HTML[68]);</script><!-- modal:goldZakatModal (Analisa Emas & Zakat) -->
 <script>document.write(MODAL_HTML[69]);</script><!-- modal:importShopExcelModal (Import dari Excel Shop) -->
 
-<script src="app-bundle-b.min.js?v=242" onerror="window.__moduleLoadFail('app-bundle-b.min.js')"></script>
+<script src="app-bundle-b.min.js?v=244" onerror="window.__moduleLoadFail('app-bundle-b.min.js')"></script>
 </body>
 </html>
