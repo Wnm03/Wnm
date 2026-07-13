@@ -23,3 +23,20 @@ const LifeOSKnowledge = {
     LifeOSKnowledge.render();
   },
 };
+
+// BUG NYATA ditemukan saat audit (2026-07-13): sama seperti pola FinCoach
+// (2026-07-10) & DashboardHub/DashboardHubSearch (Tahap 2), modul-modul UI
+// Life OS ini TIDAK PERNAH ter-expose ke window -- dispatcher global
+// data-action (yang lookup lewat window[p]) tidak akan pernah menemukan
+// LifeOSHome.switchPanel / LifeOSProjects.open / LifeOSReview.startWeekly,
+// dst, jadi tombol-tombol terkait diam/error saat diklik. Fix: expose semua
+// modul UI Life OS di sini (file TERAKHIR yang dimuat di GROUP_A untuk
+// rumpun lifeos/ui/*, jadi keenamnya sudah pasti ada saat baris ini jalan).
+if (typeof window !== 'undefined') {
+  window.LifeOSHome = LifeOSHome;
+  window.LifeOSToday = LifeOSToday;
+  window.LifeOSGoals = LifeOSGoals;
+  window.LifeOSProjects = LifeOSProjects;
+  window.LifeOSReview = LifeOSReview;
+  window.LifeOSKnowledge = LifeOSKnowledge;
+}
