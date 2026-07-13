@@ -1,5 +1,5 @@
 
-const MODULE_CALC_VERSION='kw83-tahap0-feature-registry-9';
+const MODULE_CALC_VERSION='kw83-tahap0-feature-registry-17';
 const FI={
 assetScopeState:'zakatable',
 investmentAssetValue(){

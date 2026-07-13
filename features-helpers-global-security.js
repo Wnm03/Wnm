@@ -28,8 +28,8 @@ if(location.hostname==='localhost'||location.hostname==='127.0.0.1')return true;
 }catch(e){ /* anggap bukan dev mode kalau gagal deteksi */ }
 return false;
 }
-const APP_BUILD_VERSION = 'kw83-tahap0-feature-registry-9';
-const PRODUCTION_BUILD_SYNCED_VERSION = 'kw83-tahap0-feature-registry-9';
+const APP_BUILD_VERSION = 'kw83-tahap0-feature-registry-17';
+const PRODUCTION_BUILD_SYNCED_VERSION = 'kw83-tahap0-feature-registry-17';
 let D = {
 schemaVersion:SCHEMA_VERSION,
 transactions:[],cobek:[],products:[],produsen:[],cobekKategori:JSON.parse(JSON.stringify(DEFAULT_COBEK_KATEGORI)),targets:[],eduFunds:[],reminders:[],bills:[],billsArchive:[],
@@ -53,6 +53,7 @@ aiWidgetReport:null,
 budgets:[],
 notifSettings:{enabled:false,billDays:3,ldrDays:3},
 dashCardPrefs:{},
+favoritKeys:[],
 googleDrive:{clientId:'',fileId:null,lastSync:null,autoSync:false},
 googleSheets:{spreadsheetId:'',lastSync:null},
 archiveHistory:[],

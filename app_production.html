@@ -53,7 +53,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Keluarga W</title>
-<link rel="stylesheet" href="styles.css?v=234">
+<link rel="stylesheet" href="styles.css?v=242">
 <script>
 /* Debug console (Eruda) — aktifkan sekali lewat ?debug=1 di URL, nempel via localStorage.
    Matikan lagi lewat ?debug=0. Tidak aktif buat user biasa. */
@@ -106,8 +106,8 @@ b.appendChild(closeBtn);
 }catch(_e){ console.error('Gagal tampilkan banner error modul:',_e); }
 };
 </script>
-<script src="app-bundle-a.min.js?v=234" onerror="window.__moduleLoadFail('app-bundle-a.min.js')"></script>
-<script src="smoke-test.js?v=234" defer></script>
+<script src="app-bundle-a.min.js?v=242" onerror="window.__moduleLoadFail('app-bundle-a.min.js')"></script>
+<script src="smoke-test.js?v=242" defer></script>
 <link rel="manifest" id="pwaManifestLink" href="manifest.json">
 </head>
 <body data-theme="dark">
@@ -1815,6 +1815,22 @@ b.appendChild(closeBtn);
     <input type="text" class="fi" id="dashHubSearchInput" placeholder="🔍 Cari fitur/menu... (mis. sewa kios, kasir, backup)" oninput="DashboardHubSearch.render(this.value)" aria-label="Cari fitur">
     <div class="dashhub-search-results u-dnone" id="dashHubSearchResults"></div>
   </div>
+  <!-- FAVORIT (Tahap 3, ADR-001). Diisi oleh DashboardHubFavoritView.render()
+       (dipanggil dari DashboardHub.render() di dashboard-hub.js). Sengaja
+       u-dnone secara default & disembunyikan total lewat JS saat
+       D.favoritKeys kosong (lihat dashboard-hub-favorit-view.js) — bukan
+       cuma kosmetik CSS, supaya user yang belum pakai Favorit tidak melihat
+       section "kosong" mengganggu. -->
+  <div class="dashhub-cat u-dnone" id="dashHubFavoritSection">
+    <div class="dashhub-cat-head">
+      <div class="dashhub-cat-icon">⭐</div>
+      <div>
+        <div class="dashhub-cat-label">Favorit</div>
+        <div class="dashhub-cat-desc">Akses cepat fitur pilihan Anda</div>
+      </div>
+    </div>
+    <div class="dashhub-feature-grid" id="dashHubFavoritList"></div>
+  </div>
   <div class="dashhub-wrap" id="dashboardHubWrap">
     <div class="dashhub-grid" id="dashboardHubGrid"></div>
   </div>
@@ -2232,6 +2248,6 @@ b.appendChild(closeBtn);
 <script>document.write(MODAL_HTML[68]);</script><!-- modal:goldZakatModal (Analisa Emas & Zakat) -->
 <script>document.write(MODAL_HTML[69]);</script><!-- modal:importShopExcelModal (Import dari Excel Shop) -->
 
-<script src="app-bundle-b.min.js?v=234" onerror="window.__moduleLoadFail('app-bundle-b.min.js')"></script>
+<script src="app-bundle-b.min.js?v=242" onerror="window.__moduleLoadFail('app-bundle-b.min.js')"></script>
 </body>
 </html>

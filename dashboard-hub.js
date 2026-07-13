@@ -44,6 +44,15 @@ const PAJAK_TAB_IDX = { zakat: 0, pajak: 1 };
 // Resolve string action ("openTxModal" atau "WorthIt.open") jadi pemanggilan
 // fungsi nyata, dgn `this` yg benar kalau namespaced (pola sama dgn
 // dispatcher data-action global di features-helpers-global-security.js).
+// Tahap 3, Langkah 8 — helper murni baca-saja, dipakai render() utk state
+// awal ★ tiap kartu. Sengaja guarded (typeof check): file ini juga dipakai
+// tests/dashboard-hub.test.js tanpa DashboardHubFavorit di-inject, harus
+// tetap aman (dianggap "tidak ada yang difavoritkan"), bukan throw.
+function _dashHubIsFav(key) {
+  if (typeof DashboardHubFavorit === 'undefined') return false;
+  return DashboardHubFavorit.getFavoritKeys().indexOf(key) !== -1;
+}
+
 function _dashHubCallAction(name) {
   if (!name) return;
   const path = String(name).split('.');
@@ -121,6 +130,7 @@ const DashboardHub = {
         <div class="dashhub-feature-grid">
           ${cat.features.map(f => `
             <div class="dashhub-feature-card" data-action="DashboardHub.open" data-args='${escapeHtml(JSON.stringify([f.key]))}'>
+              <div class="dashhub-fav-star${_dashHubIsFav(f.key) ? ' is-fav' : ''}" data-stop data-action="DashboardHubFavoritView.toggle" data-args='${escapeHtml(JSON.stringify([f.key]))}'>★</div>
               <div class="dashhub-feature-name">${escapeHtml(f.label)}</div>
               <div class="dashhub-feature-desc">${escapeHtml(f.desc)}</div>
             </div>
@@ -133,14 +143,53 @@ const DashboardHub = {
     // app_production.html & lifeos/ui/lifeos-home.js). Tambahan murni —
     // tidak mengubah baris manapun di atas.
     if (typeof LifeOSHome !== 'undefined') LifeOSHome.render();
+
+    // Favorit (Tahap 3, Langkah 7-8, lihat dashboard-hub-favorit-view.js).
+    // Tambahan murni, pola sama dgn LifeOSHome.render() di atas — tidak
+    // mengubah baris manapun sebelum ini.
+    if (typeof DashboardHubFavoritView !== 'undefined') DashboardHubFavoritView.render();
   },
 
-  open(featureKey) {
+  // Kontrak resolusi ADR-001 §4 — SATU-SATUNYA entry point publik navigasi.
+  // Urutan (kategori dulu baru leaf) dipilih krn kategori himpunan lebih
+  // kecil & lebih murah dicek; invariant uniqueness key global (§2.1,
+  // dijaga tests/dashboard-hub-registry.test.js) menjamin urutan ini TIDAK
+  // mengubah hasil apa pun kalau dibalik — leaf & cat.key tidak pernah
+  // tabrakan. Parameter tetap diterima sbg "key" generik (bisa cat.key
+  // ATAUPUN f.key) — nama parameter berubah dari `featureKey` ke `key`
+  // murni penjelasan internal, bukan perubahan API publik (nama fungsi &
+  // arity `open(x)` sama persis, dipanggil sama persis dari markup lewat
+  // data-action="DashboardHub.open").
+  open(key) {
     if (typeof FEATURE_REGISTRY === 'undefined') return;
-    for (const cat of FEATURE_REGISTRY) {
-      const f = cat.features.find(x => x.key === featureKey);
+
+    // 1. Cari dulu di antara cat.key seluruh kategori.
+    const cat = FEATURE_REGISTRY.find((c) => c.key === key);
+    if (cat) {
+      if (cat.target) {
+        // Ketemu, dan kategori itu punya target -> "app-level open".
+        dashHubNavigateToFeature(cat.target);
+        return;
+      }
+      // Ketemu, tapi kategori itu TIDAK punya target -> key valid sbg
+      // identitas taksonomi (mis. 'personal', 'aset'), tapi bukan sesuatu
+      // yang bisa "dibuka". SENGAJA beda pesan dari "key tidak ditemukan"
+      // di bawah (§4 poin 1) supaya salah kurasi Favorit (pilih kategori
+      // tanpa target) gampang dibedakan dari salah ketik key.
+      console.warn('DashboardHub: kategori ini bukan target yang bisa dibuka langsung (belum diberi target):', key);
+      return;
+    }
+
+    // 2. Tidak ketemu di kategori -> cari di antara f.key seluruh
+    // cat.features di seluruh kategori (perilaku ini identik dgn
+    // DashboardHub.open() sebelum Langkah 3, tidak berubah).
+    for (const c of FEATURE_REGISTRY) {
+      const f = c.features.find((x) => x.key === key);
       if (f) { dashHubNavigateToFeature(f.target); return; }
     }
-    console.warn('DashboardHub: featureKey tidak ditemukan di FEATURE_REGISTRY:', featureKey);
+
+    // 3. Tidak ketemu di kategori maupun leaf -> key benar-benar tidak
+    // dikenal di registry manapun (perilaku lama, tidak berubah).
+    console.warn('DashboardHub: featureKey tidak ditemukan di FEATURE_REGISTRY:', key);
   },
 };

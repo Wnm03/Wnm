@@ -86,11 +86,21 @@
   // Modul WAJIB ada sebagai properti window, bukan cuma const lokal.)
   function extractDataActionPaths(src) {
     var re = /data-action=(['"])([A-Za-z0-9_.]+)\1/g;
+    // BUG NYATA ditemukan saat audit (2026-07-13, pra-existing sejak split
+    // chat-action.js 2026-07-12): komentar dokumentasi gaya
+    // `// ...data-action="..." di modal...` (mis. di aset-emas-impor.js)
+    // ikut ke-match regex di atas krn "." termasuk dlm character class,
+    // menghasilkan path palsu "..." (3 elemen kosong setelah displit "."),
+    // yang lalu dianggap "modul/fungsi tidak ke-expose" (false positive).
+    // Fix: setiap segmen hasil split HARUS berupa identifier JS yang valid
+    // (huruf/underscore/$ di awal), bukan cuma "length>=2".
+    var identifierRe = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
     var paths = {};
     var m;
     while ((m = re.exec(src))) {
       var parts = m[2].split('.');
-      if (parts.length >= 2) paths[m[2]] = parts; // hanya yang berbentuk Modul.method(.sub)
+      var allValid = parts.length >= 2 && parts.every(function (p) { return identifierRe.test(p); });
+      if (allValid) paths[m[2]] = parts; // hanya yang berbentuk Modul.method(.sub)
     }
     return paths;
   }

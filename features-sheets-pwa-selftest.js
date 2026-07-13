@@ -2045,6 +2045,10 @@ call:()=>{ Tukang.openJamHistory(); }},
 call:()=>{ EduFund.openModal(); }},
 {label:'Refleksi.open()',id:'refleksiModal',
 call:()=>{ Refleksi.open(); }},
+{label:'GoldImport.open()',id:'goldImportModal',
+call:()=>{ GoldImport.open(); }},
+{label:'GoldZakat.open()',id:'goldZakatModal',
+call:()=>{ GoldZakat.open(); }},
 ];
 function computeModalSweepCoverageResults(){
 const allIds=Array.from(document.querySelectorAll('.overlay,.qs-modal-overlay,.calc-overlay'))

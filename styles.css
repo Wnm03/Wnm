@@ -685,10 +685,18 @@ textarea.fi { resize: vertical; min-height: 80px; }
 .dashhub-cat-label{font-size:var(--fs-body-lg);font-weight:700;color:var(--text);}
 .dashhub-cat-desc{font-size:var(--fs-caption);color:var(--text2);margin-top:1px;}
 .dashhub-feature-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;}
-.dashhub-feature-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-lg);padding:11px 12px;cursor:pointer;user-select:none;transition:transform .12s ease, border-color .12s ease;}
+.dashhub-feature-card{position:relative;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-lg);padding:11px 12px;cursor:pointer;user-select:none;transition:transform .12s ease, border-color .12s ease;}
 .dashhub-feature-card:active{transform:scale(0.97);}
-.dashhub-feature-name{font-size:12.5px;font-weight:700;line-height:1.3;margin-bottom:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.dashhub-feature-name{font-size:12.5px;font-weight:700;line-height:1.3;margin-bottom:3px;padding-right:16px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .dashhub-feature-desc{font-size:var(--fs-caption);color:var(--text2);line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* Favorit (Tahap 3, ADR-001) — tombol toggle bintang di pojok kartu fitur,
+   dipakai ulang di grid Hub biasa, hasil Search, DAN section Favorit itu
+   sendiri (satu class, tiga tempat pakai — tidak ada style baru per tempat). */
+.dashhub-fav-star{width:22px;height:22px;line-height:22px;text-align:center;font-size:14px;color:var(--text2);opacity:.55;cursor:pointer;flex-shrink:0;}
+.dashhub-fav-star:active{transform:scale(0.9);}
+.dashhub-fav-star.is-fav{color:#f5a623;opacity:1;}
+.dashhub-feature-card .dashhub-fav-star{position:absolute;top:6px;right:6px;}
 
 /* Feature Search (Tahap 2 — blueprint-dashboard-hub.md §2/§4). Styling
    minimum, belum final (belum ada animasi) — cukup buat container,

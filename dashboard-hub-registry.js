@@ -63,6 +63,7 @@ const FEATURE_REGISTRY = [
     label: 'Dashboard',
     icon: '🏠',
     desc: 'Ringkasan personal & insight otomatis',
+    target: { page: 'dashboard-hub' },
     navIdx: 0,
     features: [
       { key: 'dash-penasihat', label: 'Penasihat AI', desc: 'Insight Cepat & Laporan AI', target: { page: 'dashboard-hub', goTo: 'advisorCard' } },
@@ -77,6 +78,7 @@ const FEATURE_REGISTRY = [
     label: 'Keuangan',
     icon: '💰',
     desc: 'Uang masuk/keluar, rencana, dan laporan',
+    target: { page: 'keuangan' },
     navIdx: 1,
     features: [
       { key: 'keu-transaksi', label: 'Transaksi (Masuk/Keluar/Transfer)', desc: 'Catat pemasukan, pengeluaran, transfer akun', target: { page: 'keuangan', tab: 'kelola', action: 'openTxModal' } },
@@ -116,6 +118,7 @@ const FEATURE_REGISTRY = [
     label: 'Kendaraan',
     icon: '🚗',
     desc: 'Car Notes: pajak, BBM, servis, sparepart',
+    target: { page: 'carnotes' },
     navIdx: 4,
     features: [
       { key: 'cn-pajak-sim', label: 'Pajak Kendaraan & SIM', desc: 'STNK, SPT Tahunan, SIM', target: { page: 'carnotes', goTo: 'vehTaxList' } },
@@ -129,6 +132,7 @@ const FEATURE_REGISTRY = [
     label: 'Pajak & Zakat',
     icon: '🕌',
     desc: 'Kewajiban ke negara & agama',
+    target: { page: 'pajak' },
     navIdx: 5,
     features: [
       { key: 'pz-zakat-penghasilan', label: 'Zakat Penghasilan (Profesi)', desc: 'Estimasi zakat profesi bulanan', target: { page: 'pajak', tab: 'zakat', goTo: 'zpStatusBox' } },
@@ -172,6 +176,7 @@ const FEATURE_REGISTRY = [
     label: 'AI',
     icon: '🤖',
     desc: 'Kecerdasan buatan lintas fitur',
+    target: { page: 'ai' },
     navIdx: 3,
     features: [
       { key: 'ai-chat', label: 'AI Asisten (chat)', desc: 'Tanya jawab & aksi lewat chat AI', target: { page: 'ai', goTo: 'chatBox' } },
@@ -184,6 +189,7 @@ const FEATURE_REGISTRY = [
     label: 'Backup',
     icon: '☁️',
     desc: 'Keamanan & portabilitas data',
+    target: { page: 'settings', group: 'stgGroup4' },
     navIdx: 6,
     features: [
       { key: 'bk-manual', label: 'Backup & Restore manual', desc: 'Backup/restore data lewat file', target: { page: 'settings', group: 'stgGroup4', goTo: 'restoreFileInput' } },
@@ -197,6 +203,7 @@ const FEATURE_REGISTRY = [
     label: 'Settings',
     icon: '⚙️',
     desc: 'Konfigurasi aplikasi murni',
+    target: { page: 'settings' },
     navIdx: 6,
     features: [
       { key: 'stg-profil', label: 'Profil', desc: 'Nama, gaji, kiriman, data pribadi', target: { page: 'settings', group: 'stgGroup1', goTo: 'sNama' } },
