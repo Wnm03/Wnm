@@ -49,6 +49,24 @@ function makeDashDocument(opts = {}) {
   };
 }
 
+// withConsoleWarnSpy — pasang spy sementara di console.warn (global host,
+// yang SAMA dgn console yang dipakai kode di dalam sandbox vm, krn
+// loadSource menaruh referensi `console` host langsung ke sandbox — lihat
+// tests/helpers/loadSource.js), jalankan fn, lalu SELALU kembalikan
+// console.warn asli di finally (aman walau fn melempar exception) — dipakai
+// test resolusi kategori Langkah 3 (ADR-001 §4) di bawah.
+function withConsoleWarnSpy(fn) {
+  const calls = [];
+  const original = console.warn;
+  console.warn = (...args) => calls.push(args);
+  try {
+    fn();
+  } finally {
+    console.warn = original;
+  }
+  return calls;
+}
+
 function makeHub(FEATURE_REGISTRY, opts = {}) {
   const fakeDocument = makeDashDocument(opts);
   const calls = { showPage: [], setKeuanganTab: [], setShopTab: [], setCnTab: [], setPajakTab: [], toggleStgGroup: [] };
@@ -82,6 +100,7 @@ function registry(overrides) {
     },
     {
       key: 'dashboard', label: 'Dashboard', icon: '🏠', desc: 'desc',
+      target: { page: 'dashboard' }, // ADR-001 §5/Langkah 2: kategori dgn target
       navIdx: 0,
       features: [
         { key: 'dash-fi', label: 'FI', desc: 'Kebebasan Finansial', target: { page: 'dashboard', goTo: 'dashFiCard' } },
@@ -210,4 +229,64 @@ test('DashboardHub.open() — featureKey tidak ditemukan: tidak error, tidak mem
   const { DashboardHub, calls } = makeHub(registry());
   assert.doesNotThrow(() => DashboardHub.open('key-tidak-ada'));
   assert.equal(calls.showPage.length, 0);
+});
+
+// ---------- Langkah 3 (ADR-001 §4): resolusi kategori di DashboardHub.open() ----------
+
+test('DashboardHub.open() — category key DENGAN target ("dashboard"): app-level open, showPage terpanggil dgn target kategori (bukan target salah satu leaf-nya)', () => {
+  const { DashboardHub, fakeDocument, calls } = makeHub(registry());
+  DashboardHub.open('dashboard');
+  assert.equal(calls.showPage.length, 1);
+  const [pageArg, elArg] = calls.showPage[0];
+  assert.equal(pageArg, 'dashboard');
+  assert.equal(elArg, fakeDocument.navItems[0], 'harus navItems[PAGE_NAV_IDX.dashboard]=navItems[0]');
+  // §4 poin 1: begitu cat.key ketemu & punya target, resolusi SELESAI di situ
+  // — tidak boleh lanjut cari 'dashboard' lagi sbg f.key (lagipula invariant
+  // uniqueness §2.1 menjamin tidak akan pernah ada f.key yang sama).
+  assert.equal(calls.showPage.length, 1, 'tidak boleh showPage terpanggil dobel dari lanjut ke pencarian leaf');
+});
+
+test('DashboardHub.open() — category key TANPA target ("personal"): console.warn sesuai kontrak ADR-001 §4 poin 1, TIDAK showPage, TIDAK error', () => {
+  const { DashboardHub, calls } = makeHub(registry());
+  let warnCalls;
+  assert.doesNotThrow(() => {
+    warnCalls = withConsoleWarnSpy(() => DashboardHub.open('personal'));
+  });
+  assert.equal(calls.showPage.length, 0, 'kategori tanpa target tidak boleh memicu navigasi apa pun');
+  assert.equal(warnCalls.length, 1);
+  assert.match(warnCalls[0][0], /bukan target yang bisa dibuka langsung/, 'pesan warn kategori-tanpa-target harus beda dari pesan "key tidak ditemukan" (§4 poin 1)');
+  assert.equal(warnCalls[0][1], 'personal');
+});
+
+test('DashboardHub.open() — key benar-benar tidak dikenal: console.warn "tidak ditemukan" (perilaku lama), PESANNYA BEDA dari kategori-tanpa-target', () => {
+  const { DashboardHub, calls } = makeHub(registry());
+  const warnCalls = withConsoleWarnSpy(() => DashboardHub.open('key-tidak-ada-sama-sekali'));
+  assert.equal(calls.showPage.length, 0);
+  assert.equal(warnCalls.length, 1);
+  assert.match(warnCalls[0][0], /tidak ditemukan di FEATURE_REGISTRY/);
+  assert.doesNotMatch(warnCalls[0][0], /bukan target yang bisa dibuka langsung/, 'key tak dikenal TIDAK BOLEH dipesankan sama dgn kategori-tanpa-target (§4 poin 1)');
+  assert.equal(warnCalls[0][1], 'key-tidak-ada-sama-sekali');
+});
+
+test('DashboardHub.open() — backward compat: seluruh f.key yang sudah ada di fixture tetap resolve ke leaf-nya (bukan ketabrak resolusi cat.key baru)', () => {
+  // Menjalankan ULANG semua skenario feature-key existing (transaksi modal,
+  // goTo, action modal-only, settings-group) lewat DashboardHub.open() yang
+  // BARU, memastikan Langkah 3 100% backward-compatible utk featureKey lama
+  // — bukan cuma re-run test lama yang sama persis, tapi re-assert eksplisit
+  // di sini supaya regresi kompatibilitas kelihatan lokal ke Langkah 3.
+  const openTxModal = [];
+  const WorthIt = { open(...a) { openTxModal.push(a); } };
+  const { DashboardHub, fakeDocument, calls } = makeHub(registry(), {
+    window: { openTxModal: (...a) => openTxModal.push(a), WorthIt },
+  });
+
+  DashboardHub.open('keu-transaksi');
+  assert.equal(calls.showPage[0][0], 'keuangan');
+  assert.equal(calls.setKeuanganTab.length, 1);
+
+  DashboardHub.open('dash-fi');
+  assert.deepEqual(fakeDocument.scrollCalls, ['dashFiCard']);
+
+  DashboardHub.open('per-worthit');
+  assert.equal(calls.showPage.length, 2, 'per-worthit modal-only tidak boleh memicu showPage tambahan');
 });

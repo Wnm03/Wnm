@@ -100,7 +100,74 @@ test('integrasi — query tidak cocok apa pun di FEATURE_REGISTRY asli => empty-
   assert.match(html, /Tidak ada fitur yang cocok/);
 });
 
-// ---------- guard: tidak mengubah Global Search ----------
+// ---------- Langkah 4 (ADR-001 §5): kategori ber-target ikut dicari ----------
+
+test('Langkah 4 — kategori BER-target ("AI") muncul di hasil search dgn format identik hasil fitur (key/label/desc/catKey/catLabel/catIcon/target)', () => {
+  const { ctx } = makeIntegration();
+
+  // "kecerdasan" cuma ada di cat.desc kategori AI ("Kecerdasan buatan lintas
+  // fitur"), tidak ada di label/desc fitur ai-chat/ai-kategorisasi/ai-scan-ocr
+  // manapun — query ini SENGAJA dipilih supaya cuma cocok ke entry kategori,
+  // bukan salah satu leaf-nya.
+  const results = ctx.DashboardHubSearch.search('kecerdasan');
+
+  assert.equal(results.length, 1, 'query ini seharusnya cuma cocok ke 1 entry: kategori AI itu sendiri');
+  // Objek hasil datang dari sandbox vm (realm beda dari host) — dibandingkan
+  // per-field, bukan assert.deepEqual (yang di mode strict = deepStrictEqual
+  // dan gagal krn prototype Object/Array beda realm meski isinya sama; lihat
+  // pola sama di tests/dashboard-hub.test.js utk PAGE_NAV_IDX).
+  const r = results[0];
+  assert.equal(r.key, 'ai');
+  assert.equal(r.label, 'AI');
+  assert.equal(r.desc, 'Kecerdasan buatan lintas fitur');
+  assert.equal(r.catKey, 'ai');
+  assert.equal(r.catLabel, 'AI');
+  assert.equal(r.catIcon, '🤖');
+  assert.deepEqual({ ...r.target }, { page: 'ai' });
+});
+
+test('Langkah 4 — select() atas hasil kategori memanggil DashboardHub.open(cat.key) & jalan sampai showPage() lewat target kategori (app-level open)', () => {
+  const { ctx, fakeDocument, calls } = makeIntegration();
+
+  ctx.DashboardHubSearch.render('kecerdasan');
+  const html = fakeDocument.getElementById('dashHubSearchResults').innerHTML;
+  const m = html.match(/data-args='(\[[^']+\])'/);
+  assert.ok(m, 'data-args tidak ditemukan di hasil render kategori');
+  const [key] = JSON.parse(m[1]);
+  assert.equal(key, 'ai', 'data-args hasil kategori harus berisi cat.key, bukan salah satu f.key di dalamnya');
+
+  ctx.DashboardHubSearch.select(key);
+
+  // DashboardHub.open('ai') -> cat 'ai' ketemu di cat.key & punya target
+  // {page:'ai'} (Langkah 2+3) -> app-level open -> showPage('ai', ...).
+  assert.equal(calls.showPage.length, 1);
+  assert.equal(calls.showPage[0][0], 'ai');
+
+  // Perilaku select() lama (tutup hasil pencarian) tetap berlaku, tidak
+  // diubah, sama utk hasil kategori maupun fitur.
+  const resultsEl = fakeDocument.getElementById('dashHubSearchResults');
+  assert.equal(resultsEl.innerHTML, '');
+  assert.equal(resultsEl.classList.contains('u-dnone'), true);
+});
+
+test('Langkah 4 — kategori TANPA target ("Personal") TIDAK PERNAH muncul di hasil search, walau query cocok ke label/desc kategori itu', () => {
+  const { ctx } = makeIntegration();
+
+  // "non-finansial" cuma ada di cat.desc kategori Personal ("Fitur
+  // non-finansial keluarga"), tidak ada di label/desc fitur per-* manapun —
+  // kalau kategori tanpa target IKUT ke-search, query ini akan menghasilkan
+  // >=1 match; yang benar HARUS 0 match sama sekali.
+  const results = ctx.DashboardHubSearch.search('non-finansial');
+  assert.equal(results.length, 0);
+});
+
+test('Langkah 4 — query yang cocok ke LABEL kategori tanpa target ("Personal") juga tidak memunculkan kategori itu (hanya fitur di dalamnya yang boleh cocok, kalau memang cocok)', () => {
+  const { ctx } = makeIntegration();
+  const results = ctx.DashboardHubSearch.search('personal');
+  for (const r of results) {
+    assert.notEqual(r.key, 'personal', 'kategori "personal" (tanpa target) tidak boleh muncul sbg entry hasil apa pun');
+  }
+});
 
 test('guard — Global Search (openGlobalSearch) tidak tersentuh: id/elemen berbeda dari Feature Search, fungsi tetap ada persis 1x', () => {
   const src = fs.readFileSync(path.join(ROOT, 'features-aiwidget-reminder-gdrive-search.js'), 'utf8');
