@@ -809,3 +809,276 @@ Cards dan search bar.
 Dashboard Analytics selesai, sesuai cakupan Sprint 1 Tahap 7. Sesuai
 instruksi, pengerjaan **berhenti di sini** — tidak melanjutkan ke AI
 Insight, Drag & Drop, atau Dashboard 3.0, menunggu Sprint 2.
+
+---
+
+# Changelog — Sprint 2 Tahap 1: FAB Halaman Keuangan (Finance 2.0)
+
+Baseline: diaudit ulang langsung dari source code (bukan dari laporan
+sebelumnya) — Sprint 1 Tahap 7 selesai, `node --test` **1271/1271
+PASS**. Tidak ditemukan artefak Finance 2.0 apa pun (FAB/CSS/test) di
+project sebelum Tahap ini; lihat `FINANCE-2.0.md` §0 untuk detail.
+
+## Ditambahkan
+
+- **`index.html`, `app_production.html`** — tambah blok `.keu-fab`
+  (FAB tambah transaksi cepat: 💚 Pemasukan / 🔴 Pengeluaran) di dalam
+  `#page-keuangan`, tepat setelah `.cn-tabs`, sebelum
+  `#keuanganTab-kelola` (supaya tampil di kedua tab Kelola & Laporan).
+  Reuse fungsi `openTxModal('income'|'expense')` yang sudah ada di
+  `transaksi.js` — **tidak ada fungsi JS baru**. Toggle buka/tutup pakai
+  mekanisme `data-onclick` generik yang sudah ada
+  (`features-helpers-global-security.js`, tidak diubah). Kedua file
+  tetap identik satu sama lain (diverifikasi dengan `diff`).
+- **`styles.css`** — blok CSS baru scoped `.keu-fab*` (append di akhir
+  file), 100% pakai token yang sudah ada (`--sp-*`/`--r-full`/
+  `--r-pill`/`--fs-icon*`/`--z-dropdown`/`--accent`/`--surface3`/
+  `--border2`/`--dur-fast`/`--ease-standard`). Tidak ada deklarasi lama
+  yang diubah nilainya.
+- **`FINANCE-2.0.md`** — dokumentasi deliverable Sprint 2 Tahap 1.
+- **`tests/finance-2.0-fab.test.js`** — 12 test struktural baru
+  (markup FAB ada & di posisi yang benar, reuse `openTxModal()`, reuse
+  `data-onclick`, parity `index.html`/`app_production.html`, CSS pakai
+  token yang sudah ada, guard `FEATURE_REGISTRY` & business logic tidak
+  disentuh).
+
+## Tidak diubah
+
+- Hero Dashboard, Dashboard, Dashboard Analytics (Tahap 7) — tidak
+  disentuh sama sekali.
+- Seluruh isi Halaman Keuangan yang sudah ada (Anggaran, Dana Pensiun,
+  Proyek Renovasi, Sewa Kios, dll.) — 0 baris berubah.
+- `FEATURE_REGISTRY` (`dashboard-hub-registry.js`), ADR-001, business
+  logic (`transaksi.js`, `modules-calc.js`, dll.), routing, database.
+- `app-bundle-a.min.js`, `app-bundle-b.min.js`, `sw.js`,
+  `docs/FILE-MAP.md`, versi aplikasi (`package.json` tidak berubah).
+- `scripts/build.js` **tidak dijalankan**.
+
+## Hasil test
+
+```
+node --test
+# tests 1283
+# pass 1283
+# fail 0
+```
+
+Tidak ada test lama yang gagal; tidak ada test yang dihapus/diubah.
+Hero Dashboard, Dashboard, dan Halaman Keuangan diverifikasi tetap
+tampil & berfungsi setelah perubahan ini; FAB tampil sebagai tombol
+mengambang baru di Halaman Keuangan.
+
+## Status
+
+FAB Halaman Keuangan selesai, sesuai cakupan Sprint 2 Tahap 1. Sesuai
+instruksi, pengerjaan **berhenti di sini** — tidak melanjutkan ke
+halaman Shop, Car Notes, atau Laporan, menunggu instruksi Sprint 2
+Tahap 2.
+
+---
+
+# Changelog — Sprint 2 Tahap 2: FAB Halaman Shop (Shop 2.0)
+
+Baseline: Sprint 2 Tahap 1 selesai, `node --test` **1283/1283 PASS**.
+
+## Ditambahkan
+
+- **`index.html`, `app_production.html`** — tambah blok `.keu-fab`
+  (FAB aksi cepat: 🛒 Transaksi Baru / 📦 Tambah Produk) di dalam
+  `#page-shop`, tepat setelah `.cn-tabs`, sebelum `#shopTab-kasir`
+  (supaya tampil di seluruh 6 tab Shop). Reuse **penuh** class CSS
+  `.keu-fab*` dari Sprint 2 Tahap 1 (tidak ada class baru) dan fungsi
+  `openOrderModal()`/`openProductModal()` yang sudah ada — **tidak ada
+  fungsi JS baru**. Toggle buka/tutup pakai mekanisme `data-onclick`
+  generik yang sudah ada. Kedua file tetap identik satu sama lain
+  (diverifikasi dengan `diff`).
+- **`styles.css`** — 1 rule aditif `#page-shop .keu-fab{bottom:150px;}`
+  supaya FAB Shop tidak tumpang tindih dengan `.kasir-floatbar` di tab
+  Kasir AI. Rule `.keu-fab` asli (Tahap 1) tidak diubah nilainya. Tidak
+  ada class `.shop-fab*` baru.
+- **`SHOP-2.0.md`** — dokumentasi deliverable Sprint 2 Tahap 2.
+- **`tests/shop-fab.test.js`** — 16 test struktural baru (markup FAB
+  ada & di posisi yang benar, reuse class `.keu-fab*`, reuse
+  `openOrderModal()`/`openProductModal()`, reuse `data-onclick`, parity
+  `index.html`/`app_production.html`, guard tidak ada class CSS baru,
+  guard rule `.keu-fab` asli tidak berubah, guard `cobek-io.js`/
+  `cobek-tx-cart.js`/`FEATURE_REGISTRY` tidak disentuh).
+
+## Tidak diubah
+
+- Hero Dashboard, Dashboard, Dashboard Analytics, Halaman Keuangan &
+  FAB-nya (Sprint 2 Tahap 1) — tidak disentuh sama sekali.
+- Seluruh isi Halaman Shop yang sudah ada (Kasir AI, Manual, Etalase,
+  Produsen, Riwayat, Pelanggan) — 0 baris berubah, tetap tampil &
+  berfungsi seperti sebelumnya.
+- `cobek-io.js` (`openOrderModal`, `setShopTab`), `cobek-tx-cart.js`
+  (`openProductModal`) — 0 baris berubah; hanya dipanggil ulang (reuse)
+  dari lokasi baru.
+- `FEATURE_REGISTRY` (`dashboard-hub-registry.js`), ADR-001, business
+  logic, routing, database.
+- `app-bundle-a.min.js`, `app-bundle-b.min.js`, `sw.js`,
+  `docs/FILE-MAP.md`, versi aplikasi (`package.json` tidak berubah).
+- `scripts/build.js` **tidak dijalankan**.
+
+## Hasil test
+
+```
+node --test
+# tests 1299
+# pass 1299
+# fail 0
+```
+
+Tidak ada test lama yang gagal/dihapus/diubah. Hero Dashboard,
+Dashboard, Halaman Keuangan+FAB, dan Halaman Shop diverifikasi tetap
+tampil & berfungsi setelah perubahan ini; FAB tampil sebagai tombol
+mengambang baru di seluruh tab Halaman Shop.
+
+## Status
+
+FAB Halaman Shop selesai, sesuai cakupan Sprint 2 Tahap 2. Sesuai
+instruksi, pengerjaan **berhenti di sini** — tidak melanjutkan ke
+Sprint 2 Tahap 3.
+
+---
+
+# Changelog — Sprint 2 Tahap 3: FAB Halaman Car Notes (Car Notes 2.0)
+
+Baseline: Sprint 2 Tahap 2 selesai, `node --test` **1299/1299 PASS**.
+
+## Ditambahkan
+
+- **`index.html`, `app_production.html`** — tambah blok `.keu-fab`
+  (FAB aksi cepat: ⛽ Isi BBM / 🔧 Servis) di dalam `#page-carnotes`,
+  tepat setelah `.cn-tabs`, sebelum komentar `<!-- BBM TAB -->` (supaya
+  tampil di kedua tab Car Notes). Reuse **penuh** class CSS `.keu-fab*`
+  dari Sprint 2 Tahap 1 (tidak ada class baru) dan fungsi
+  `openBbmModal()`/`openServisModal()` yang sudah ada — **tidak ada
+  fungsi JS baru**. Toggle buka/tutup pakai mekanisme `data-onclick`
+  generik yang sudah ada. Kedua file tetap identik satu sama lain
+  (diverifikasi dengan `diff`).
+- **`CAR-NOTES-2.0.md`** — dokumentasi deliverable Sprint 2 Tahap 3.
+- **`tests/car-notes-fab.test.js`** — 17 test struktural baru (markup
+  FAB ada & di posisi yang benar, reuse class `.keu-fab*`, reuse
+  `openBbmModal()`/`openServisModal()`, reuse `data-onclick`, parity
+  `index.html`/`app_production.html`, guard tidak ada class CSS baru
+  & tidak ada override posisi baru di `styles.css`, guard
+  `vehicle-core.js`/`sparepart-servis.js`/`FEATURE_REGISTRY`/
+  `dashboard-hub.js` tidak disentuh).
+
+## Tidak diubah
+
+- Hero Dashboard, Dashboard, Dashboard Analytics, Halaman Keuangan &
+  FAB-nya (Tahap 1), Halaman Shop & FAB-nya (Tahap 2) — tidak disentuh
+  sama sekali.
+- Seluruh isi Halaman Car Notes yang sudah ada (tab BBM & Servis,
+  spesifikasi kendaraan, pajak/SIM, sparepart, stok, import data) — 0
+  baris berubah, tetap tampil & berfungsi seperti sebelumnya.
+- `styles.css` — **tidak disentuh sama sekali** di Tahap 3 ini; FAB Car
+  Notes memakai posisi default `.keu-fab` tanpa override tambahan
+  (berbeda dari Tahap 2 yang butuh 1 override untuk Shop).
+- `vehicle-core.js` (`openBbmModal`, `setCnTab`), `sparepart-servis.js`
+  (`openServisModal`) — 0 baris berubah; hanya dipanggil ulang (reuse)
+  dari lokasi baru.
+- `FEATURE_REGISTRY` (`dashboard-hub-registry.js`), `dashboard-hub.js`,
+  ADR-001, business logic kendaraan, routing, database.
+- `app-bundle-a.min.js`, `app-bundle-b.min.js`, `sw.js`,
+  `docs/FILE-MAP.md`, versi aplikasi (`package.json` tidak berubah).
+- `scripts/build.js` **tidak dijalankan**.
+
+## Hasil test
+
+```
+node --test
+# tests 1316
+# pass 1316
+# fail 0
+```
+
+Tidak ada test lama yang gagal/dihapus/diubah. Hero Dashboard,
+Dashboard, Halaman Keuangan+FAB, Halaman Shop+FAB, dan Halaman Car
+Notes diverifikasi tetap tampil & berfungsi setelah perubahan ini; FAB
+tampil sebagai tombol mengambang baru di kedua tab Halaman Car Notes.
+
+## Status
+
+FAB Halaman Car Notes selesai, sesuai cakupan Sprint 2 Tahap 3. Sesuai
+instruksi, pengerjaan **berhenti di sini** — tidak melanjutkan ke
+Sprint 2 Tahap 4.
+
+---
+
+# Changelog — Sprint 2 Tahap 4: FAB Halaman Laporan (Reports 2.0)
+
+Baseline: Sprint 2 Tahap 3 selesai, `node --test` **1316/1316 PASS**.
+
+## Ditambahkan
+
+- **`index.html`, `app_production.html`** — tambah blok `.keu-fab`
+  baru (FAB aksi cepat: 🧾 Export PDF / 📄 Export CSV) di dalam
+  `#keuanganTab-laporan`, tepat setelah pembukaan div-nya, sebelum
+  `.page-settings-btn`. Audit menemukan bahwa Laporan adalah **tab**
+  di dalam `#page-keuangan`, bukan page terpisah — FAB baru ini
+  (`#laporanFab`) sengaja ditaruh **di dalam** tab Laporan (kontekstual,
+  beda dari `#keuFab` Tahap 1 yang ditaruh di luar kedua tab) supaya
+  hanya tampil saat tab Laporan aktif, murni lewat toggle `u-dnone`
+  yang **sudah ada** (`setKeuanganTab()`, `tx-list-cashflow.js`, tidak
+  disentuh) — **tidak ada JS baru sama sekali**. Reuse **penuh** class
+  CSS `.keu-fab*` dari Sprint 2 Tahap 1 (tidak ada class baru) dan
+  fungsi `exportLaporanPDF()`/`exportCSV()` yang sudah ada. `#keuFab`
+  (Tahap 1) tidak diubah, tetap tampil di kedua tab seperti sebelumnya.
+  Kedua file tetap identik satu sama lain (diverifikasi dengan `diff`).
+- **`styles.css`** — 1 rule aditif
+  `#keuanganTab-laporan .keu-fab{bottom:170px;}` supaya `#laporanFab`
+  tidak tumpang tindih dengan `#keuFab` saat tab Laporan aktif. Rule
+  `.keu-fab` asli (Tahap 1) dan override Shop (Tahap 2) tidak diubah
+  nilainya. Tidak ada class `.laporan-fab*`/`.reports-fab*` baru.
+- **`REPORTS-2.0.md`** — dokumentasi deliverable Sprint 2 Tahap 4.
+- **`tests/laporan-fab.test.js`** — 20 test struktural baru (markup FAB
+  ada & di posisi yang benar, penempatan kontekstual di dalam tab
+  Laporan, reuse class `.keu-fab*`, reuse
+  `exportLaporanPDF()`/`exportCSV()`, reuse `data-onclick`, parity
+  `index.html`/`app_production.html`, guard tidak ada class CSS baru &
+  guard override posisi, guard `tx-list-cashflow.js`/
+  `features-aiwidget-reminder-gdrive-search.js`/`backup-restore.js`/
+  `FEATURE_REGISTRY`/`dashboard-hub.js` tidak disentuh).
+
+## Tidak diubah
+
+- Hero Dashboard, Dashboard, Dashboard Analytics, Halaman Shop & FAB-nya
+  (Tahap 2), Halaman Car Notes & FAB-nya (Tahap 3) — tidak disentuh
+  sama sekali.
+- `#keuFab` (Tahap 1) dan seluruh isi tab Kelola & Laporan yang sudah
+  ada (filter, grafik, proyeksi arus kas, per kategori, daftar
+  transaksi, card export) — 0 baris berubah, tetap tampil & berfungsi
+  seperti sebelumnya.
+- `tx-list-cashflow.js` (`setKeuanganTab`),
+  `features-aiwidget-reminder-gdrive-search.js` (`exportLaporanPDF`),
+  `backup-restore.js` (`exportCSV`) — 0 baris berubah; hanya dipanggil
+  ulang (reuse) dari lokasi baru.
+- `FEATURE_REGISTRY` (`dashboard-hub-registry.js`), `dashboard-hub.js`,
+  ADR-001, business logic, routing, database.
+- `app-bundle-a.min.js`, `app-bundle-b.min.js`, `sw.js`,
+  `docs/FILE-MAP.md`, versi aplikasi (`package.json` tidak berubah).
+- `scripts/build.js` **tidak dijalankan**.
+
+## Hasil test
+
+```
+node --test
+# tests 1335
+# pass 1335
+# fail 0
+```
+
+Tidak ada test lama yang gagal/dihapus/diubah. Hero Dashboard,
+Dashboard, Halaman Keuangan+FAB (Kelola & Laporan), Halaman Shop+FAB,
+dan Halaman Car Notes+FAB diverifikasi tetap tampil & berfungsi setelah
+perubahan ini; FAB Laporan tampil sebagai tombol mengambang baru,
+kontekstual hanya di tab Laporan.
+
+## Status
+
+FAB tab Laporan selesai, sesuai cakupan Sprint 2 Tahap 4. Sesuai
+instruksi, pengerjaan **berhenti di sini** — tidak melanjutkan ke
+Sprint berikutnya.

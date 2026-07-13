@@ -287,6 +287,20 @@ b.appendChild(closeBtn);
     <button class="cn-tab" data-action="setKeuanganTab" data-args='["laporan", "$el"]'>📊 Laporan</button>
   </div>
 
+  <!-- Finance 2.0 Sprint 2 Tahap 1: FAB tambah transaksi cepat.
+       Aditif murni — reuse openTxModal() yang sudah ada (business logic
+       tidak disentuh), toggle buka/tutup lewat data-onclick generik yang
+       sudah dipakai di seluruh app (features-helpers-global-security.js).
+       Ditaruh di luar #keuanganTab-kelola/#keuanganTab-laporan supaya FAB
+       tetap tampil di kedua tab Keuangan (Kelola & Laporan). -->
+  <div class="keu-fab" id="keuFab">
+    <div class="keu-fab-actions">
+      <button type="button" class="keu-fab-action" data-onclick="document.getElementById('keuFab').classList.remove('open');document.getElementById('keuFabMain').setAttribute('aria-expanded','false');openTxModal('income')" aria-label="Tambah Pemasukan"><span class="keu-fab-action-icon">💚</span><span class="keu-fab-action-label">Pemasukan</span></button>
+      <button type="button" class="keu-fab-action" data-onclick="document.getElementById('keuFab').classList.remove('open');document.getElementById('keuFabMain').setAttribute('aria-expanded','false');openTxModal('expense')" aria-label="Tambah Pengeluaran"><span class="keu-fab-action-icon">🔴</span><span class="keu-fab-action-label">Pengeluaran</span></button>
+    </div>
+    <button type="button" class="keu-fab-main" id="keuFabMain" data-onclick="const _o=document.getElementById('keuFab').classList.toggle('open');this.setAttribute('aria-expanded', _o?'true':'false')" aria-label="Tambah transaksi cepat" aria-expanded="false"><span class="keu-fab-main-icon">＋</span></button>
+  </div>
+
   <!-- KELOLA -->
   <div id="keuanganTab-kelola">
   <div class="page-settings-btn">
@@ -533,6 +547,26 @@ b.appendChild(closeBtn);
 
   <!-- LAPORAN -->
   <div id="keuanganTab-laporan" class="u-dnone">
+  <!-- Sprint 2 Tahap 4: FAB Laporan, menyamakan standar UI dgn Finance 2.0
+       (Tahap 1), Shop FAB (Tahap 2) & Car Notes FAB (Tahap 3). Reuse PENUH
+       komponen CSS `.keu-fab*` yang sudah ada di styles.css (tidak ada
+       class CSS baru). Aksi FAB reuse exportLaporanPDF()/exportCSV() yang
+       sudah ada (features-aiwidget-reminder-gdrive-search.js/
+       backup-restore.js, tidak disentuh). Ditaruh DI DALAM
+       #keuanganTab-laporan (bukan di luar seperti #keuFab) supaya
+       kontekstual: hanya tampil saat tab Laporan aktif, otomatis ikut
+       ter-toggle 'u-dnone' oleh setKeuanganTab() yang sudah ada (tidak ada
+       JS baru sama sekali). #keuFab (Tahap 1) tetap tampil di kedua tab
+       seperti sebelumnya — 1 override posisi vertikal aditif ditambahkan
+       di styles.css supaya kedua FAB tidak tumpang tindih saat tab Laporan
+       aktif. -->
+  <div class="keu-fab" id="laporanFab">
+    <div class="keu-fab-actions">
+      <button type="button" class="keu-fab-action" data-onclick="document.getElementById('laporanFab').classList.remove('open');document.getElementById('laporanFabMain').setAttribute('aria-expanded','false');exportLaporanPDF()" aria-label="Export Laporan PDF"><span class="keu-fab-action-icon">🧾</span><span class="keu-fab-action-label">Export PDF</span></button>
+      <button type="button" class="keu-fab-action" data-onclick="document.getElementById('laporanFab').classList.remove('open');document.getElementById('laporanFabMain').setAttribute('aria-expanded','false');exportCSV()" aria-label="Export Laporan CSV"><span class="keu-fab-action-icon">📄</span><span class="keu-fab-action-label">Export CSV</span></button>
+    </div>
+    <button type="button" class="keu-fab-main" id="laporanFabMain" data-onclick="const _o=document.getElementById('laporanFab').classList.toggle('open');this.setAttribute('aria-expanded', _o?'true':'false')" aria-label="Aksi cepat Laporan" aria-expanded="false"><span class="keu-fab-main-icon">＋</span></button>
+  </div>
   <div class="page-settings-btn">
     <div class="page-title">📊 Laporan</div>
     <button class="qs-btn" data-action="openQS" data-args='["qsLaporan"]' aria-label="Buka menu cepat"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
@@ -660,6 +694,23 @@ b.appendChild(closeBtn);
     <button class="cn-tab tab-fixed-pad" data-action="setShopTab" data-args='["produsen", "$el"]'>🏭 Produsen</button>
     <button class="cn-tab tab-fixed-pad" data-action="setShopTab" data-args='["riwayat", "$el"]'>📋 Riwayat</button>
     <button class="cn-tab tab-fixed-pad" data-action="setShopTab" data-args='["pelanggan", "$el"]'>👤 Pelanggan</button>
+  </div>
+
+  <!-- Sprint 2 Tahap 2: FAB Shop, menyamakan standar UI dgn Finance 2.0
+       (Sprint 2 Tahap 1). Reuse PENUH komponen CSS `.keu-fab*` yang sudah
+       ada di styles.css (tidak ada class CSS baru dibuat — cukup 1 baris
+       override posisi `bottom` supaya tidak tumpang tindih dgn
+       `.kasir-floatbar` saat tab Kasir AI aktif & keranjang terisi).
+       Aksi FAB reuse openOrderModal()/openProductModal() yang sudah ada
+       (cobek-io.js/cobek-tx-cart.js, tidak disentuh). Ditaruh di luar
+       semua #shopTab-* supaya tetap tampil di seluruh tab Shop (pola
+       sama dgn #keuFab di #page-keuangan, tidak menyentuh setShopTab()). -->
+  <div class="keu-fab" id="shopFab">
+    <div class="keu-fab-actions">
+      <button type="button" class="keu-fab-action" data-onclick="document.getElementById('shopFab').classList.remove('open');document.getElementById('shopFabMain').setAttribute('aria-expanded','false');openOrderModal()" aria-label="Transaksi Baru"><span class="keu-fab-action-icon">🛒</span><span class="keu-fab-action-label">Transaksi Baru</span></button>
+      <button type="button" class="keu-fab-action" data-onclick="document.getElementById('shopFab').classList.remove('open');document.getElementById('shopFabMain').setAttribute('aria-expanded','false');openProductModal()" aria-label="Tambah Produk"><span class="keu-fab-action-icon">📦</span><span class="keu-fab-action-label">Tambah Produk</span></button>
+    </div>
+    <button type="button" class="keu-fab-main" id="shopFabMain" data-onclick="const _o=document.getElementById('shopFab').classList.toggle('open');this.setAttribute('aria-expanded', _o?'true':'false')" aria-label="Aksi cepat Shop" aria-expanded="false"><span class="keu-fab-main-icon">＋</span></button>
   </div>
 
   <!-- KASIR AI (baru, v127; redesign tampilan profesional di v196, kw196-kasir-pro-redesign) -->
@@ -847,6 +898,25 @@ b.appendChild(closeBtn);
   <div class="cn-tabs">
     <button class="cn-tab active" data-action="setCnTab" data-args='["bbm", "$el"]'>⛽ BBM</button>
     <button class="cn-tab" data-action="setCnTab" data-args='["servis", "$el"]'>🔧 Servis</button>
+  </div>
+
+  <!-- Sprint 2 Tahap 3: FAB Car Notes, menyamakan standar UI dgn Finance 2.0
+       (Sprint 2 Tahap 1) & Shop FAB (Sprint 2 Tahap 2). Reuse PENUH komponen
+       CSS `.keu-fab*` yang sudah ada di styles.css (tidak ada class CSS baru
+       & tidak ada override posisi — halaman Car Notes tidak punya elemen
+       fixed lain seperti `.kasir-floatbar` di Shop, jadi posisi default
+       `.keu-fab` sudah aman dipakai apa adanya). Aksi FAB reuse
+       openBbmModal()/openServisModal() yang sudah ada (vehicle-core.js/
+       sparepart-servis.js, tidak disentuh). Ditaruh di luar #cnTab-bbm dan
+       #cnTab-servis supaya tetap tampil di kedua tab Car Notes (pola sama
+       dgn #keuFab di #page-keuangan & #shopFab di #page-shop, tidak
+       menyentuh setCnTab()). -->
+  <div class="keu-fab" id="carNotesFab">
+    <div class="keu-fab-actions">
+      <button type="button" class="keu-fab-action" data-onclick="document.getElementById('carNotesFab').classList.remove('open');document.getElementById('carNotesFabMain').setAttribute('aria-expanded','false');openBbmModal()" aria-label="Catat Isi BBM"><span class="keu-fab-action-icon">⛽</span><span class="keu-fab-action-label">Isi BBM</span></button>
+      <button type="button" class="keu-fab-action" data-onclick="document.getElementById('carNotesFab').classList.remove('open');document.getElementById('carNotesFabMain').setAttribute('aria-expanded','false');openServisModal()" aria-label="Catat Servis/Sparepart"><span class="keu-fab-action-icon">🔧</span><span class="keu-fab-action-label">Servis</span></button>
+    </div>
+    <button type="button" class="keu-fab-main" id="carNotesFabMain" data-onclick="const _o=document.getElementById('carNotesFab').classList.toggle('open');this.setAttribute('aria-expanded', _o?'true':'false')" aria-label="Aksi cepat Car Notes" aria-expanded="false"><span class="keu-fab-main-icon">＋</span></button>
   </div>
 
   <!-- BBM TAB -->
