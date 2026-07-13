@@ -11,8 +11,8 @@
 > file tapi lupa `node build.js`), jalankan ulang generatornya, JANGAN diedit
 > tangan — editan manual bakal ketimpa lagi di build berikutnya.
 
-Terakhir digenerate: 2026-07-12T14:36:06.700Z
-Total file source: 62 · Total identifier global: 896
+Terakhir digenerate: 2026-07-13T03:31:05.283Z
+Total file source: 81 · Total identifier global: 946
 
 ## 1. Urutan load & ringkasan tiap file
 
@@ -32,7 +32,7 @@ bundler menggabungkan semua file jadi `app-bundle-a.min.js`/`app-bundle-b.min.js
 | 9 | `kasir.js` | 331 | Modul "🧠 Kasir AI" (v127, kw81-kasir-ai-pos): Tab checkout BARU utk halaman Bisnis Shop yang lebih cepat dari form "Transaksi Manual" (Order) lama: tap produk langsung dari grid (bukan pilih dari dropdown lalu klik "+ … |
 | 10 | `piutang-utang.js` | 352 | Domain Piutang & Utang: catatan piutang (uang dipinjamkan), utang (uang dipinjam) beserta status lunas/cicilan, dan DebtStrategy (simulasi strategi pelunasan Avalanche/Snowball). Juga berisi Bill (helper hubungkan … |
 | 11 | `pajak-pbb-zakat.js` | 343 | Kalkulator Pajak Bumi & Bangunan (PBB), Zakat (penghasilan, maal, fitrah), Referensi AI (cek harga emas/nisab via AI), Pajak UMKM, dan PPh 21 (Orang Pribadi) Dipisah dari: features-renovasi-pajak-aset-order.js (PBB, … |
-| 12 | `features-budget-laporan-carnotes-pelanggan.js` | 1494 | Budget & laporan keuangan, Car Notes (BBM/servis/torsi baut), aksi AI chat, data pelanggan PENTING: file ini HARUS dimuat sesuai urutan build.js (GROUP_A/GROUP_B) karena beberapa modul saling referensi. Urutan grup ini: … |
+| 12 | `features-budget-laporan-carnotes-pelanggan.js` | 1502 | Budget & laporan keuangan, Car Notes (BBM/servis/torsi baut), aksi AI chat, data pelanggan PENTING: file ini HARUS dimuat sesuai urutan build.js (GROUP_A/GROUP_B) karena beberapa modul saling referensi. Urutan grup ini: … |
 | 13 | `edukasi-dana.js` | 174 | Dana Pendidikan (EduFund): kalkulator target biaya sekolah/kuliah & nabung/bulan CATATAN: modul EduFund dipindah ke file baru ini dari features-edukasi-pajak-utang-sewakios.js (v60). EduFund.checkAI() masih memanggil … |
 | 14 | `sewakios.js` | 243 | Domain Sewa Kios: catat unit kios yang disewakan, riwayat tagihan sewa, ROI vs modal renovasi, laporan PDF. Dipisah dari: features-edukasi-pajak-utang-sewakios.js (lanjutan roadmap PEMISAHAN-FILE-ROADMAP.md, v58). … |
 | 15 | `hidup-seimbang.js` | 219 | Domain Skor Hidup Seimbang: skor gabungan dari Dana Darurat, DSR cicilan, No-Spend 30 hari, & keseimbangan kerja-istirahat, plus riwayat snapshot bulanan. Dipisah dari: features-edukasi-pajak-utang-sewakios.js (lanjutan … |
@@ -42,7 +42,7 @@ bundler menggabungkan semua file jadi `app-bundle-a.min.js`/`app-bundle-b.min.js
 | 19 | `aset-emas-impor.js` | 392 | FITUR BARU: GoldImport (impor massal nota emas via paste teks ATAU upload file .xlsx rekap nota) & GoldZakat (rekap emas utk zakat maal + analisa harga/gram & untung-rugi). CARA PASANG (lihat juga INTEGRASI-EMAS.md): 1. … |
 | 20 | `worthit.js` | 468 | Domain Worth It? & Prioritas Belanja: cek kondisi keuangan sebelum belanja + daftar prioritas barang yang mau dibeli CATATAN: modul WorthIt dipindah ke file baru ini dari features-renovasi-pajak-aset-order.js (v62). … |
 | 21 | `data-default.js` | 36 | Domain Data Default: kategori shop bawaan (DEFAULT_COBEK_KATEGORI), akun keuangan bawaan (DEFAULT_ACCOUNTS), kategori sparepart kendaraan bawaan (DEFAULT_SPAREPARTS). PENTING: file ini HARUS dimuat SEBELUM … |
-| 22 | `features-helpers-global-security.js` | 458 | Helper global (migrasi data, state D, save/load, event dispatcher) CATATAN: 3 konstanta default (DEFAULT_COBEK_KATEGORI/DEFAULT_ACCOUNTS/DEFAULT_SPAREPARTS) dipindah ke data-default.js (v79) — file itu HARUS dimuat … |
+| 22 | `features-helpers-global-security.js` | 459 | Helper global (migrasi data, state D, save/load, event dispatcher) CATATAN: 3 konstanta default (DEFAULT_COBEK_KATEGORI/DEFAULT_ACCOUNTS/DEFAULT_SPAREPARTS) dipindah ke data-default.js (v79) — file itu HARUS dimuat … |
 | 23 | `diagnostik-versi.js` | 77 | Domain Diagnostik & Sinkronisasi Versi: snapshot HTML utk self-test (getHtmlSnapshotForSelfTest), cek status sinkron versi produksi vs master (computeProductionSyncStatus), cek status sinkron versi antar file modul … |
 | 24 | `format-tema.js` | 34 | Domain Format Angka & Tema: format rupiah singkat (fmt, mis. "Rp 1.5 jt"), format rupiah penuh (fmtFull/fmtFullSigned), notifikasi toast di bawah layar (toast), dan ganti/terapkan tema warna app termasuk mode "auto" … |
 | 25 | `error-handler.js` | 38 | Domain Error Handler Global: tangkap error tak tertangani (uncaught error & unhandled promise rejection) di seluruh app, catat ke console utk debugging, dan tampilkan toast singkat yang ramah ke pengguna (dibatasi … |
@@ -79,10 +79,29 @@ bundler menggabungkan semua file jadi `app-bundle-a.min.js`/`app-bundle-b.min.js
 | 56 | `data-archive.js` | 161 | Storage usage estimate & Archive (export lalu hapus data lama per tahun). Dipisah dari tukang-absensi.js (2026-07-12, roadmap split file besar bagian ke-2) murni pengelompokan ulang file, BUKAN perubahan perilaku. … |
 | 57 | `sparepart-servis.js` | 520 | Domain Sparepart & Servis kendaraan: kategori & stok sparepart (Sparepart), catatan servis (wrapper ke Servis di features-budget-laporan-carnotes-pelanggan.js), interval servis per-kategori & override per-kendaraan, … |
 | 58 | `features-aiwidget-reminder-gdrive-search.js` | 1616 | Reminder, hari kerja, kendaraan (pajak/SIM/servis/BBM/sparepart), storage & arsip, skema Google Sheets (SHEETS_SCHEMAS/SHEETS_MODULES) CATATAN: SHEETS_SCHEMAS dipindah dari features-edukasi-pajak-utang-sewakios.js (v57) … |
-| 59 | `features-sheets-pwa-selftest.js` | 2369 | Settings, notifikasi, PWA setup, self-test/smoke-test rendering, pajak/zakat/aset/utang PENTING: file ini HARUS dimuat sesuai urutan build.js (GROUP_A/GROUP_B) karena beberapa modul saling referensi. Urutan grup ini: … |
-| 60 | `dashboard-hub-registry.js` | 215 | FEATURE_REGISTRY: sumber data tunggal taksonomi Dashboard Feature Hub (blueprint-dashboard-hub.md §1 & §7, Tahap 0). PENTING — file ini MURNI DATA, tidak ada logic render/navigasi apa pun. Tahap 0 blueprint: "Finalisasi … |
-| 61 | `dashboard-hub.js` | 136 | Dashboard Feature Hub, Tahap 1 (blueprint-dashboard-hub.md §5) Tahap 1: "Bangun Dashboard Hub sebagai halaman terpisah, belum jadi default." Halaman ini BUKAN pengganti page-dashboard existing — dibuka lewat entry … |
-| 62 | `dashboard-hub-search.js` | 103 | Feature Search: cari FITUR/MENU (bukan data transaksi) lintas kategori FEATURE_REGISTRY (blueprint-dashboard-hub.md §2 & §6). Berbeda tujuan dari Global Search existing (`openGlobalSearch`) yang mencari DATA milik user … |
+| 59 | `features-sheets-pwa-selftest.js` | 2373 | Settings, notifikasi, PWA setup, self-test/smoke-test rendering, pajak/zakat/aset/utang PENTING: file ini HARUS dimuat sesuai urutan build.js (GROUP_A/GROUP_B) karena beberapa modul saling referensi. Urutan grup ini: … |
+| 60 | `dashboard-hub-registry.js` | 222 | FEATURE_REGISTRY: sumber data tunggal taksonomi Dashboard Feature Hub (blueprint-dashboard-hub.md §1 & §7, Tahap 0). PENTING — file ini MURNI DATA, tidak ada logic render/navigasi apa pun. Tahap 0 blueprint: "Finalisasi … |
+| 61 | `dashboard-hub.js` | 196 | Dashboard Feature Hub (blueprint-dashboard-hub.md §5) STATUS (update v1.0-stabilization, build v234): sejak Tahap 4, halaman ini SUDAH jadi landing page default (satu-satunya class="page active" saat startup, lihat … |
+| 62 | `dashboard-hub-search.js` | 125 | Feature Search: cari FITUR/MENU (bukan data transaksi) lintas kategori FEATURE_REGISTRY (blueprint-dashboard-hub.md §2 & §6). Berbeda tujuan dari Global Search existing (`openGlobalSearch`) yang mencari DATA milik user … |
+| 63 | `dashboard-hub-favorit.js` | 38 | Favorit (Tahap 3, Langkah 6): storage + service MURNI (ADR-001 §3/§4/§5, blueprint Favorit final). Tidak ada DOM/render di file ini — itu ada di dashboard-hub-favorit-view.js (Langkah 7-8, sudah diimplementasikan; lihat … |
+| 64 | `dashboard-hub-favorit-view.js` | 112 | Favorit (Tahap 3, Langkah 7-8): render + toggle button wiring. Sengaja file TERPISAH dari dashboard-hub-favorit.js (storage murni, Langkah 6) supaya guard test "window.DashboardHubFavorit HANYA mengekspos getFavoritKeys … |
+| 65 | `lifeos/lifeos-store.js` | 51 | SATU-SATUNYA tempat Life OS boleh MENULIS. ATURAN WAJIB: - Tidak pernah menyentuh D. Tidak ada property baru di D, tidak ada perubahan struktur D sedikit pun. - Tidak pernah memanggil save() milik D. - Persist lewat … |
+| 66 | `lifeos/lifeos-registry.js` | 55 | taksonomi FUNGSIONAL Life OS (beda dari FEATURE_REGISTRY yang taksonomi NAVIGASI — keduanya sengaja terpisah, lihat personal-life-os-blueprint.md Langkah 1). PENTING: file ini MURNI DATA. Tidak ada logic, tidak ada … |
+| 67 | `lifeos/lifeos-link-registry.js` | 25 | relasi implisit-by-convention di D dibuat eksplisit di SATU tempat (Gap #9, personal-life-os-blueprint.md). PENTING: murni data deklaratif. `match`/lookup di sini hanya MEMBACA D — tidak pernah menulis. Dikonsumsi oleh … |
+| 68 | `lifeos/adapters/goal-adapter.js` | 46 | adapters/goal-adapter.js — READ-ONLY. Menyeragamkan 6 sumber goal lama (D.targets, D.eduFunds, D.pensiun, D.finansialFreedom, D.wishlist, D.debtStrategy) jadi satu bentuk "goal card". Tidak menyimpan apa pun, dihitung … |
+| 69 | `lifeos/adapters/project-adapter.js` | 30 | adapters/project-adapter.js — merge READ-ONLY antara dua sumber: 1. D.renovProjects (legacy, milik renovasi.js — tidak disentuh) 2. LifeOSStore.projects (generic, milik Life OS — lihat services/project-service.js untuk … |
+| 70 | `lifeos/adapters/today-adapter.js` | 34 | adapters/today-adapter.js — READ-ONLY. TODAY bukan penyimpanan sendiri, cuma lensa waktu di atas AREAS/PROJECTS/GOALS (lihat personal-life-os-blueprint.md Langkah 2). Depends on: lifeos-registry.js … |
+| 71 | `lifeos/adapters/review-adapter.js` | 26 | adapters/review-adapter.js — READ-ONLY. Menggabungkan histori pasif existing (D.wealthSnapshots, D.lifeBalanceSnapshots, D.assetAllocation) dengan sesi review Life OS sendiri (LifeOSStore.reviewLog). Tidak pernah … |
+| 72 | `lifeos/adapters/knowledge-adapter.js` | 20 | adapters/knowledge-adapter.js — READ-ONLY. D.catatan (catatan privat manual, milik keamanan-pin.js/refleksi-selfcare.js dll) dibaca sebagai REFERENSI saja — Knowledge base Life OS yang sebenarnya (insight AI tersimpan) … |
+| 73 | `lifeos/services/project-service.js` | 48 | services/project-service.js — SATU-SATUNYA tempat menulis LifeOSStore.projects (generic project). Tidak pernah menulis ke D.renovProjects atau array D.* lain — kalau butuh baca renovasi, pakai … |
+| 74 | `lifeos/services/review-service.js` | 34 | services/review-service.js — SATU-SATUNYA tempat menulis LifeOSStore.reviewLog. Boleh MEMBACA D.wealthSnapshots/ D.lifeBalanceSnapshots (lewat adapters/review-adapter.js) untuk menyimpan referensi id-nya, tapi tidak … |
+| 75 | `lifeos/services/knowledge-service.js` | 29 | services/knowledge-service.js — SATU-SATUNYA tempat menulis LifeOSStore.knowledge. Tidak pernah menulis ke D.catatan — kalau butuh baca catatan lama, pakai adapters/knowledge-adapter.js (knowledgeAdapterCatatanRef). |
+| 76 | `lifeos/ui/lifeos-home.js` | 71 | ui/lifeos-home.js — halaman masuk Life OS. Hanya membaca lewat adapter, menulis (kalau ada aksi) hanya lewat services/*.js. Tidak pernah akses D atau LifeOSStore langsung dari file UI — selalu lewat adapter/service. … |
+| 77 | `lifeos/ui/today.js` | 20 | ui/today.js — render-only lewat todayAdapterList(D). Aksi "selesaikan" tetap dispatch ke fungsi modul LAMA (mis. dismiss bill), Life OS tidak menduplikasi logic itu. |
+| 78 | `lifeos/ui/goals.js` | 23 | ui/goals.js — render-only lewat goalAdapterList(D). Tidak ada goal-service.js karena Goals tidak punya data tulis sendiri di Life OS (murni agregasi 6 sumber lama, lihat Gap #2). Aksi "tambah tabungan" dsb tetap … |
+| 79 | `lifeos/ui/projects.js` | 33 | ui/projects.js — render lewat projectAdapterList(D, store); aksi tulis (create/toggle checklist/dsb) HANYA lewat services/project-service.js. |
+| 80 | `lifeos/ui/review.js` | 32 | ui/review.js — render lewat review-adapter.js; aksi mulai/selesai sesi review HANYA lewat services/review-service.js. |
+| 81 | `lifeos/ui/knowledge.js` | 43 | ui/knowledge.js — render lewat knowledge-adapter.js; aksi simpan/hapus HANYA lewat services/knowledge-service.js. D.catatan ditampilkan sebagai referensi read-only, tidak pernah dimigrasikan ke sini. |
 
 ## 2. Index fungsi/variabel global → file (urut abjad)
 
@@ -103,6 +122,7 @@ bisa dipanggil sebagai "global" dari file manapun lewat bundel gabungan.
 | `_confirmModalAnswer` | `modal-navigasi.js` |
 | `_confirmResolve` | `modal-navigasi.js` |
 | `_dashHubCallAction` | `dashboard-hub.js` |
+| `_dashHubIsFav` | `dashboard-hub.js` |
 | `_deriveApiKeyCryptoKey` | `keamanan-pin.js` |
 | `_formatLockDuration` | `keamanan-pin.js` |
 | `_friendlyErrorNotice` | `error-handler.js` |
@@ -121,6 +141,7 @@ bisa dipanggil sebagai "global" dari file manapun lewat bundel gabungan.
 | `_lastNavSmokeData` | `features-sheets-pwa-selftest.js` |
 | `_lastSelfTestData` | `features-sheets-pwa-selftest.js` |
 | `_lastUid` | `features-helpers-global-security.js` |
+| `_lifeOSLoaded` | `lifeos/lifeos-store.js` |
 | `_ocrWorkerPromise` | `scan-ocr.js` |
 | `_pendingChatActions` | `chat-action.js` |
 | `_pinLockRemainingMs` | `keamanan-pin.js` |
@@ -307,6 +328,7 @@ bisa dipanggil sebagai "global" dari file manapun lewat bundel gabungan.
 | `DASH_CARD_DEFS` | `modules-render.js` |
 | `DASH_RENDER_ORDER` | `modules-render.js` |
 | `DashboardHub` | `dashboard-hub.js` |
+| `DashboardHubFavoritView` | `dashboard-hub-favorit-view.js` |
 | `DashboardHubSearch` | `dashboard-hub-search.js` |
 | `dashHubNavigateToFeature` | `dashboard-hub.js` |
 | `dashHubSearchFeatures` | `dashboard-hub-search.js` |
@@ -453,6 +475,7 @@ bisa dipanggil sebagai "global" dari file manapun lewat bundel gabungan.
 | `getCnRange` | `vehicle-core.js` |
 | `getCustomerOrders` | `cobek-io.js` |
 | `getEffectiveIntervalKm` | `sparepart-servis.js` |
+| `getFavoritKeys` | `dashboard-hub-favorit.js` |
 | `getHtmlSnapshotForSelfTest` | `diagnostik-versi.js` |
 | `getKeuFilters` | `filter-laporan.js` |
 | `getLaporanFilters` | `filter-laporan.js` |
@@ -468,6 +491,8 @@ bisa dipanggil sebagai "global" dari file manapun lewat bundel gabungan.
 | `getTxListRange` | `tx-list-cashflow.js` |
 | `getVehicleKm` | `vehicle-core.js` |
 | `getWeekRange` | `reset-gaji-mingguan.js` |
+| `goalAdapterFindOne` | `lifeos/adapters/goal-adapter.js` |
+| `goalAdapterList` | `lifeos/adapters/goal-adapter.js` |
 | `GoldImport` | `aset-emas-impor.js` |
 | `GoldZakat` | `aset-emas-impor.js` |
 | `goToList` | `filter-laporan.js` |
@@ -500,6 +525,7 @@ bisa dipanggil sebagai "global" dari file manapun lewat bundel gabungan.
 | `isBensinSubName` | `transaksi.js` |
 | `isDashCardOn` | `modules-render.js` |
 | `isDevMode` | `features-helpers-global-security.js` |
+| `isDueSoon` | `lifeos/adapters/today-adapter.js` |
 | `isKendaraanCatName` | `transaksi.js` |
 | `isShopStockCatName` | `tx-cobek.js` |
 | `isSparepartSubName` | `transaksi.js` |
@@ -507,10 +533,37 @@ bisa dipanggil sebagai "global" dari file manapun lewat bundel gabungan.
 | `Kasir` | `kasir.js` |
 | `Kekayaan` | `modules-calc.js` |
 | `KEU_TAB_IDX` | `dashboard-hub.js` |
+| `knowledgeAdapterByTag` | `lifeos/adapters/knowledge-adapter.js` |
+| `knowledgeAdapterCatatanRef` | `lifeos/adapters/knowledge-adapter.js` |
+| `knowledgeAdapterList` | `lifeos/adapters/knowledge-adapter.js` |
+| `knowledgeServiceDelete` | `lifeos/services/knowledge-service.js` |
+| `knowledgeServiceSave` | `lifeos/services/knowledge-service.js` |
+| `knowledgeServiceUpdateTags` | `lifeos/services/knowledge-service.js` |
 | `Laporan` | `cobek-order.js` |
 | `lapTxPage` | `filter-laporan.js` |
 | `learnCatFromItemName` | `scan-ocr.js` |
 | `LifeBalance` | `hidup-seimbang.js` |
+| `LIFEOS_AREAS` | `lifeos/lifeos-registry.js` |
+| `LIFEOS_GOAL_SOURCES` | `lifeos/lifeos-registry.js` |
+| `LIFEOS_KNOWLEDGE_REF_SOURCE` | `lifeos/lifeos-registry.js` |
+| `LIFEOS_LINK_REGISTRY` | `lifeos/lifeos-link-registry.js` |
+| `LIFEOS_PROJECT_LEGACY_SOURCE` | `lifeos/lifeos-registry.js` |
+| `LIFEOS_REVIEW_SOURCES` | `lifeos/lifeos-registry.js` |
+| `LIFEOS_STORE_DEFAULT` | `lifeos/lifeos-store.js` |
+| `LIFEOS_STORE_KEY` | `lifeos/lifeos-store.js` |
+| `LIFEOS_TODAY_SOURCES` | `lifeos/lifeos-registry.js` |
+| `lifeOSEnsureLoaded` | `lifeos/lifeos-store.js` |
+| `lifeOSFindLink` | `lifeos/lifeos-link-registry.js` |
+| `lifeOSGetStore` | `lifeos/lifeos-store.js` |
+| `LifeOSGoals` | `lifeos/ui/goals.js` |
+| `LifeOSHome` | `lifeos/ui/lifeos-home.js` |
+| `LifeOSKnowledge` | `lifeos/ui/knowledge.js` |
+| `lifeOSLoad` | `lifeos/lifeos-store.js` |
+| `LifeOSProjects` | `lifeos/ui/projects.js` |
+| `LifeOSReview` | `lifeos/ui/review.js` |
+| `lifeOSSave` | `lifeos/lifeos-store.js` |
+| `LifeOSStore` | `lifeos/lifeos-store.js` |
+| `LifeOSToday` | `lifeos/ui/today.js` |
 | `linkedAssetAccountIds` | `akun.js` |
 | `LinkTx` | `linktx.js` |
 | `load` | `features-helpers-global-security.js` |
@@ -647,6 +700,13 @@ bisa dipanggil sebagai "global" dari file manapun lewat bundel gabungan.
 | `Produsen` | `cobek-order.js` |
 | `profileJiwaKeluarga` | `profil-pengaturan.js` |
 | `profilePTKPStatus` | `profil-pengaturan.js` |
+| `projectAdapterFindOne` | `lifeos/adapters/project-adapter.js` |
+| `projectAdapterList` | `lifeos/adapters/project-adapter.js` |
+| `projectServiceAddChecklistItem` | `lifeos/services/project-service.js` |
+| `projectServiceCreate` | `lifeos/services/project-service.js` |
+| `projectServiceDelete` | `lifeos/services/project-service.js` |
+| `projectServiceSetStatus` | `lifeos/services/project-service.js` |
+| `projectServiceToggleChecklistItem` | `lifeos/services/project-service.js` |
 | `quickScanAsset` | `scan-ocr.js` |
 | `quickToggleInclude` | `akun.js` |
 | `recalcAccBalance` | `akun.js` |
@@ -764,9 +824,16 @@ bisa dipanggil sebagai "global" dari file manapun lewat bundel gabungan.
 | `resetShopStockCart` | `cobek-tx-cart.js` |
 | `resetTxPageAndRender` | `filter-laporan.js` |
 | `resetTxShopSaleCart` | `cobek-tx-cart.js` |
+| `resolveFavoritEntries` | `dashboard-hub-favorit-view.js` |
 | `resolveShopKategori` | `cobek-tx-cart.js` |
 | `resolveVehicleTxCategory` | `transaksi.js` |
 | `revertStockUsage` | `sparepart-servis.js` |
+| `reviewAdapterIsOverdue` | `lifeos/adapters/review-adapter.js` |
+| `reviewAdapterLatestSnapshots` | `lifeos/adapters/review-adapter.js` |
+| `reviewAdapterLogFor` | `lifeos/adapters/review-adapter.js` |
+| `reviewServiceAddActionItem` | `lifeos/services/review-service.js` |
+| `reviewServiceComplete` | `lifeos/services/review-service.js` |
+| `reviewServiceStartSession` | `lifeos/services/review-service.js` |
 | `RISKY_OPENER_SPECS` | `features-sheets-pwa-selftest.js` |
 | `runBackup` | `backup-restore.js` |
 | `runDataHealthCheck` | `features-aiwidget-reminder-gdrive-search.js` |
@@ -922,6 +989,7 @@ bisa dipanggil sebagai "global" dari file manapun lewat bundel gabungan.
 | `TimelineW` | `aset.js` |
 | `timeToMinutes` | `payroll-absensi.js` |
 | `toast` | `format-tema.js` |
+| `todayAdapterList` | `lifeos/adapters/today-adapter.js` |
 | `todayStr` | `features-helpers-global-security.js` |
 | `toggleAccInclude` | `akun.js` |
 | `toggleApiKeyHint` | `profil-pengaturan.js` |
@@ -934,6 +1002,7 @@ bisa dipanggil sebagai "global" dari file manapun lewat bundel gabungan.
 | `toggleCicilanSharedFields` | `cicilan.js` |
 | `toggleDashCardPref` | `modules-render.js` |
 | `toggleDebugConsole` | `debug-console.js` |
+| `toggleFavorit` | `dashboard-hub-favorit.js` |
 | `toggleKeuFilter` | `filter-laporan.js` |
 | `toggleMs` | `transaksi.js` |
 | `toggleNotifEnabled` | `features-aiwidget-reminder-gdrive-search.js` |

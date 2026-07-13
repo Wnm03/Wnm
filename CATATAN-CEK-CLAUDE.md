@@ -13,6 +13,36 @@
 
 ## SUDAH SELESAI (terverifikasi)
 
+- ✅ **[2026-07-13] Audit menyeluruh pasca-patch v205 (fitur impor emas/zakat) — build #238.**
+  Menjalankan ulang seluruh self-test (102/102), full modal-registry sweep (78/78 modal
+  ter-cover, 0 hilang), dan smoke-test browser (`getElementById`/`data-action` scan) di atas
+  Chrome headless nyata (bukan cuma baca kode) via Playwright + server statis lokal.
+  **2 bug nyata ditemukan & diperbaiki (surgical fix, tidak ada refactor):**
+  1. **Modul UI Life OS tidak ter-expose ke `window`** (`LifeOSHome`, `LifeOSToday`,
+     `LifeOSGoals`, `LifeOSProjects`, `LifeOSReview`, `LifeOSKnowledge`) — persis pola bug
+     FinCoach (2026-07-10) & DashboardHub (Tahap 2) yang pernah ditemukan sebelumnya: dispatcher
+     `data-action` global lookup lewat `window[...]`, tapi ke-6 modul ini cuma `const` lokal.
+     Akibatnya tombol `LifeOSHome.switchPanel`, `LifeOSProjects.open`,
+     `LifeOSReview.startWeekly` (dan yg lain di rumpun Life OS) diam/error saat diklik.
+     **Fix:** tambahkan `Object.assign`-style expose di akhir `lifeos/ui/knowledge.js` (file
+     TERAKHIR dari rumpun `lifeos/ui/*` yang dimuat build.js), meng-expose ke-6 modul sekaligus.
+  2. **False-positive pra-existing di `smoke-test.js`** (sudah dicatat di "BELUM DIKERJAKAN"
+     sejak 2026-07-12): regex `extractDataActionPaths` ikut men-scan komentar dokumentasi
+     `// ...data-action="..." di modal...` di `aset-emas-impor.js` krn `.` termasuk character
+     class regex, menghasilkan path palsu `"..."` yang dianggap modul tidak ke-expose.
+     **Fix:** setiap segmen hasil split path sekarang divalidasi sebagai identifier JS yang sah
+     (`/^[A-Za-z_$][A-Za-z0-9_$]*$/`), bukan cuma dicek `length>=2`.
+  **Hasil sebelum fix:** smoke-test browser melaporkan `❌ 4 masalah` (1 false-positive lama +
+  3 modul Life OS beneran putus). **Hasil sesudah fix:** `✅ OK — 1044 referensi getElementById()
+  & 69 data-action semuanya valid`, 0 masalah, 0 page error, 102/102 self-test tetap hijau,
+  modal sweep tetap 78/78, `npm test` tetap 1191/1191 (0 regresi, murni tambahan expose +
+  perketat 1 regex).
+  **File diubah:** `lifeos/ui/knowledge.js` (+18 baris expose), `smoke-test.js` (+9 baris
+  validasi identifier). Tidak ada file lain yang disentuh. Build #238, versi disamakan di
+  index.html/app_production.html/sw.js, kedua HTML tetap identik.
+  **Item lama yang masih belum dikerjakan** (tidak terkait audit ini, lihat "BELUM DIKERJAKAN"):
+  aria-label utk tombol `loadMoreBbmList` di BBM.renderList().
+
 - ✅ **[2026-07-12] Dashboard Feature Hub Tahap 2 (Final) — Integrasi UI Feature Search
   (build #227).** Lanjutan Tahap 1 (`dashboard-hub.js`/`dashboard-hub-registry.js`, build
   #224) & modul `dashboard-hub-search.js` yang sudah ada dari sesi sebelumnya (TIDAK diubah
@@ -735,18 +765,10 @@
   user (sudah ada sebelum sesi ini), belum diperbaiki krn di luar scope laporan user kali ini.
 
 - Smoke-test browser (`smoke-test.js`) melaporkan false-positive "data-action merujuk
-  modul/fungsi yang TIDAK ke-expose" untuk string literal `"..."` — akar masalah: regex
-  ekstraksi data-action ikut men-scan komentar dokumentasi `// ...dipanggil lewat
-  data-action="..." di modal...` di `aset-emas-impor.js` (baris ~389, gaya penulisan yang sama
-  juga mungkin ada di file lain, belum dicek menyeluruh) sebagai referensi asli. Perbaikan yang
-  benar kemungkinan: regex di `smoke-test.js` (fungsi `extractDataActionPaths`) perlu skip baris
-  yang berupa komentar (`//` atau `/* */`), ATAU ganti gaya penulisan komentar di kode sumber
-  jadi tidak persis meniru pola `data-action="..."`. Ditemukan saat verifikasi split
-  `chat-action.js` (2026-07-12) — BUKAN regresi dari split itu (dicek: bug ini pra-existing,
-  tidak terkait file yang diubah sesi itu), murni ketemu tidak sengaja. Belum diperbaiki krn di
-  luar scope sesi tsb.
+  modul/fungsi yang TIDAK ke-expose" untuk string literal `"..."` — **SUDAH DIPERBAIKI
+  2026-07-13, lihat "SUDAH SELESAI" di atas.**
 
-_(sisanya kosong — tidak ada item pending lain per 2026-07-12; roadmap split
+_(sisanya kosong — item lama lain sudah tuntas per 2026-07-13; roadmap split
 `features-tukang-kendaraan-storage.js` sudah TUNTAS 5/5 bagian, lihat "SUDAH SELESAI" di atas)_
 
 ## Cara jalanin pengecekan otomatis lagi (kalau perlu ulang dari nol)
