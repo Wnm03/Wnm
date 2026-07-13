@@ -11,8 +11,8 @@
 > file tapi lupa `node build.js`), jalankan ulang generatornya, JANGAN diedit
 > tangan — editan manual bakal ketimpa lagi di build berikutnya.
 
-Terakhir digenerate: 2026-07-13T03:31:05.283Z
-Total file source: 81 · Total identifier global: 946
+Terakhir digenerate: 2026-07-13T09:59:07.197Z
+Total file source: 81 · Total identifier global: 948
 
 ## 1. Urutan load & ringkasan tiap file
 
@@ -81,7 +81,7 @@ bundler menggabungkan semua file jadi `app-bundle-a.min.js`/`app-bundle-b.min.js
 | 58 | `features-aiwidget-reminder-gdrive-search.js` | 1616 | Reminder, hari kerja, kendaraan (pajak/SIM/servis/BBM/sparepart), storage & arsip, skema Google Sheets (SHEETS_SCHEMAS/SHEETS_MODULES) CATATAN: SHEETS_SCHEMAS dipindah dari features-edukasi-pajak-utang-sewakios.js (v57) … |
 | 59 | `features-sheets-pwa-selftest.js` | 2373 | Settings, notifikasi, PWA setup, self-test/smoke-test rendering, pajak/zakat/aset/utang PENTING: file ini HARUS dimuat sesuai urutan build.js (GROUP_A/GROUP_B) karena beberapa modul saling referensi. Urutan grup ini: … |
 | 60 | `dashboard-hub-registry.js` | 222 | FEATURE_REGISTRY: sumber data tunggal taksonomi Dashboard Feature Hub (blueprint-dashboard-hub.md §1 & §7, Tahap 0). PENTING — file ini MURNI DATA, tidak ada logic render/navigasi apa pun. Tahap 0 blueprint: "Finalisasi … |
-| 61 | `dashboard-hub.js` | 196 | Dashboard Feature Hub (blueprint-dashboard-hub.md §5) STATUS (update v1.0-stabilization, build v234): sejak Tahap 4, halaman ini SUDAH jadi landing page default (satu-satunya class="page active" saat startup, lihat … |
+| 61 | `dashboard-hub.js` | 254 | Dashboard Feature Hub (blueprint-dashboard-hub.md §5) STATUS (update v1.0-stabilization, build v234): sejak Tahap 4, halaman ini SUDAH jadi landing page default (satu-satunya class="page active" saat startup, lihat … |
 | 62 | `dashboard-hub-search.js` | 125 | Feature Search: cari FITUR/MENU (bukan data transaksi) lintas kategori FEATURE_REGISTRY (blueprint-dashboard-hub.md §2 & §6). Berbeda tujuan dari Global Search existing (`openGlobalSearch`) yang mencari DATA milik user … |
 | 63 | `dashboard-hub-favorit.js` | 38 | Favorit (Tahap 3, Langkah 6): storage + service MURNI (ADR-001 §3/§4/§5, blueprint Favorit final). Tidak ada DOM/render di file ini — itu ada di dashboard-hub-favorit-view.js (Langkah 7-8, sudah diimplementasikan; lihat … |
 | 64 | `dashboard-hub-favorit-view.js` | 112 | Favorit (Tahap 3, Langkah 7-8): render + toggle button wiring. Sengaja file TERPISAH dari dashboard-hub-favorit.js (storage murni, Langkah 6) supaya guard test "window.DashboardHubFavorit HANYA mengekspos getFavoritKeys … |
@@ -122,6 +122,7 @@ bisa dipanggil sebagai "global" dari file manapun lewat bundel gabungan.
 | `_confirmModalAnswer` | `modal-navigasi.js` |
 | `_confirmResolve` | `modal-navigasi.js` |
 | `_dashHubCallAction` | `dashboard-hub.js` |
+| `_dashHubHeroMonthTx` | `dashboard-hub.js` |
 | `_dashHubIsFav` | `dashboard-hub.js` |
 | `_deriveApiKeyCryptoKey` | `keamanan-pin.js` |
 | `_formatLockDuration` | `keamanan-pin.js` |
@@ -329,6 +330,7 @@ bisa dipanggil sebagai "global" dari file manapun lewat bundel gabungan.
 | `DASH_RENDER_ORDER` | `modules-render.js` |
 | `DashboardHub` | `dashboard-hub.js` |
 | `DashboardHubFavoritView` | `dashboard-hub-favorit-view.js` |
+| `DashboardHubHero` | `dashboard-hub.js` |
 | `DashboardHubSearch` | `dashboard-hub-search.js` |
 | `dashHubNavigateToFeature` | `dashboard-hub.js` |
 | `dashHubSearchFeatures` | `dashboard-hub-search.js` |
