@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preview — Dashboard V2 (visual inspection only)</title>
+
+<!--
+  preview-dashboard-v2.html — HANYA untuk preview visual Dashboard V2.
+
+  TIDAK mengubah file proyek apa pun:
+  - styles.css di-load APA ADANYA lewat <link>, tidak disalin/diedit.
+  - dashboard-v2-activation.js, dashboard-v2-data-adapter.js,
+    dashboard-v2-shell.js di-load APA ADANYA lewat <script src>, tidak
+    disalin/diedit/dibundle ulang.
+  - File ini harus diletakkan di FOLDER YANG SAMA dengan styles.css &
+    ketiga file JS di atas (folder hasil unzip project) supaya path
+    relatif di bawah ini valid.
+
+  Kenapa hanya 3 file JS ini (bukan seluruh app-bundle-a/b.min.js)?
+  dashboard-v2-shell.js cuma bergantung pada 2 hal dari luar dirinya
+  sendiri, keduanya lewat guard `typeof x === 'function'` (aman kalau
+  tidak ada):
+    1. isDashboardV2Enabled()/enableDashboardV2() — dari
+       dashboard-v2-activation.js (WAJIB dipanggil enableDashboardV2()
+       dulu, kalau tidak render() no-op sesuai kontrak aslinya).
+    2. getFinanceSummary()/getVehicleSummary()/getFamilySummary()/
+       getDocumentSummary() — dari dashboard-v2-data-adapter.js, yang
+       sendirinya cuma baca-saja dari `D` (state global app yang
+       sebenarnya, dideklarasikan di features-helpers-global-security.js
+       — TIDAK di-load di preview ini). Tanpa `D`, tiap fungsi adapter
+       otomatis return `null` (dijamin oleh _dashV2AdapterHasD() di
+       file itu sendiri) — shell lalu otomatis fallback ke placeholder
+       bawaannya sendiri ("-- (placeholder)"), TANPA perlu mock data
+       tambahan apa pun dari file preview ini.
+  Ini semua perilaku ASLI ketiga file itu, tidak dimodifikasi/dipatch.
+-->
+
+<!-- styles.css ASLI, tidak diubah -->
+<link rel="stylesheet" href="styles.css">
+
+<style>
+  /* Styling di bawah ini HANYA untuk bingkai preview (banner info +
+     status placeholder sebelum shell ter-mount) — sengaja diberi
+     namespace class unik (preview-*) supaya TIDAK bersinggungan dgn
+     satu pun selector di styles.css asli, dan sama sekali tidak
+     menyentuh file styles.css itu sendiri. */
+  .preview-banner{
+    position:fixed; top:0; left:0; right:0; z-index:9999;
+    background:#111; color:#fff; font:12px/1.4 system-ui,sans-serif;
+    padding:6px 12px; text-align:center;
+    border-bottom:2px solid #f0b429;
+  }
+  .preview-banner b{ color:#f0b429; }
+  .preview-status{
+    font:14px/1.5 system-ui,sans-serif; color:#888; padding:70px 16px 16px;
+  }
+  /* previewHost: container KHUSUS tempat Dashboard V2 di-mount (lewat
+     parameter opsional `init(hostEl)` yang memang sudah ada di API asli
+     dashboard-v2-shell.js - bukan hal baru). `.dashboard-v2-root` (dari
+     styles.css asli, TIDAK diubah) pakai `position:fixed;inset:0` yang
+     defaultnya relatif ke VIEWPORT - itu bikin ia numpuk tepat di
+     belakang/bawah banner preview di atas (0..~31px teratas ketutup).
+     `transform` di bawah ini (efek visualnya nihil - cuma translateZ(0))
+     sengaja dipasang supaya elemen ini jadi "containing block" utk
+     children `position:fixed` (aturan CSS standar), jadi `inset:0` milik
+     `.dashboard-v2-root` mengikuti kotak previewHost (yang sengaja
+     ditaruh mulai dari bawah banner), BUKAN viewport penuh - Dashboard
+     V2 sendiri sama sekali tidak tahu/tidak peduli soal ini. */
+  .preview-host{
+    position:fixed; top:32px; left:0; right:0; bottom:0;
+    transform:translateZ(0);
+  }
+</style>
+</head>
+<body data-theme="dark">
+
+<div class="preview-banner">
+  ⚠️ <b>PREVIEW MODE</b> — visual inspection only, bukan halaman app sesungguhnya (tidak ada data/routing/modul lain).
+</div>
+
+<div class="preview-status" id="previewStatus">Memuat Dashboard V2…</div>
+
+<div id="previewHost" class="preview-host"></div>
+
+<!-- JS Dashboard V2 ASLI, apa adanya, urutan sesuai dependensi -->
+<script src="dashboard-v2-activation.js"></script>
+<script src="dashboard-v2-data-adapter.js"></script>
+<script src="dashboard-v2-shell.js"></script>
+
+<script>
+  // Bootstrap preview murni: aktifkan flag, init + render shell.
+  // TIDAK ada logic baru yang meniru/menduplikasi Dashboard V2 — 3
+  // baris di bawah cuma memanggil API publik yang sudah ada di ketiga
+  // file di atas, persis seperti cara dashboard-hub.js aslinya
+  // memanggilnya (lihat DASHBOARD-V2-MOUNT.md).
+  (function () {
+    const statusEl = document.getElementById('previewStatus');
+    try {
+      if (typeof enableDashboardV2 !== 'function' || typeof DashboardV2Shell === 'undefined') {
+        throw new Error('dashboard-v2-activation.js / dashboard-v2-shell.js gagal ter-load. Pastikan file ini ada di folder yang sama dengan preview-dashboard-v2.html.');
+      }
+      enableDashboardV2();
+      DashboardV2Shell.init(document.getElementById('previewHost'));
+      DashboardV2Shell.render();
+
+      const root = document.querySelector('.dashboard-v2-root');
+      if (root && !root.hasAttribute('hidden')) {
+        statusEl.remove(); // shell berhasil tampil, banner status tidak diperlukan lagi
+      } else {
+        statusEl.textContent = 'Dashboard V2 ter-mount tapi masih dalam kondisi hidden — cek konsol untuk detail.';
+      }
+    } catch (err) {
+      statusEl.textContent = 'Gagal memuat preview: ' + err.message;
+      console.error('[preview-dashboard-v2]', err);
+    }
+  })();
+</script>
+
+</body>
+</html>
