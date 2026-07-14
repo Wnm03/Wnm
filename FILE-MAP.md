@@ -11,8 +11,8 @@
 > file tapi lupa `node build.js`), jalankan ulang generatornya, JANGAN diedit
 > tangan — editan manual bakal ketimpa lagi di build berikutnya.
 
-Terakhir digenerate: 2026-07-14T09:31:28.544Z
-Total file source: 84 · Total identifier global: 959
+Terakhir digenerate: 2026-07-14T14:09:44.650Z
+Total file source: 85 · Total identifier global: 964
 
 ## 1. Urutan load & ringkasan tiap file
 
@@ -86,25 +86,26 @@ bundler menggabungkan semua file jadi `app-bundle-a.min.js`/`app-bundle-b.min.js
 | 63 | `dashboard-hub-favorit.js` | 38 | Favorit (Tahap 3, Langkah 6): storage + service MURNI (ADR-001 §3/§4/§5, blueprint Favorit final). Tidak ada DOM/render di file ini — itu ada di dashboard-hub-favorit-view.js (Langkah 7-8, sudah diimplementasikan; lihat … |
 | 64 | `dashboard-hub-favorit-view.js` | 112 | Favorit (Tahap 3, Langkah 7-8): render + toggle button wiring. Sengaja file TERPISAH dari dashboard-hub-favorit.js (storage murni, Langkah 6) supaya guard test "window.DashboardHubFavorit HANYA mengekspos getFavoritKeys … |
 | 65 | `ai-command-center.js` | 141 | Sprint 3 Tahap 3.1: AI Command Center Foundation. SCOPE Tahap 3.1 (Foundation SAJA): Menyediakan satu registry netral tempat modul lain (Tahap 3.2+) MENDAFTARKAN "command" AI (aksi yang bisa dijalankan lewat command … |
-| 66 | `dashboard-v2-shell.js` | 2489 | Tahap V2.1: Dashboard V2 Layout Foundation (lihat DASHBOARD-V2-MIGRATION-RFC.md §4 "Tahap V2.1 — Layout Foundation"). SCOPE (persis sesuai RFC, BLOCKER "Shell V2.1 belum ada" dianggap selesai sesi ini): scaffold 5 … |
+| 66 | `dashboard-v2-shell.js` | 2562 | Tahap V2.1: Dashboard V2 Layout Foundation (lihat DASHBOARD-V2-MIGRATION-RFC.md §4 "Tahap V2.1 — Layout Foundation"). SCOPE (persis sesuai RFC, BLOCKER "Shell V2.1 belum ada" dianggap selesai sesi ini): scaffold 5 … |
 | 67 | `dashboard-v2-activation.js` | 68 | Tahap V2.14A: Dashboard V2 Activation Framework (lihat DASHBOARD-V2-ACTIVATION.md). TUJUAN: menyiapkan SATU feature flag internal in-memory supaya Dashboard V2 (dashboard-v2-shell.js, dkk — dormant sejak V2.1) BISA … |
-| 68 | `lifeos/lifeos-store.js` | 51 | SATU-SATUNYA tempat Life OS boleh MENULIS. ATURAN WAJIB: - Tidak pernah menyentuh D. Tidak ada property baru di D, tidak ada perubahan struktur D sedikit pun. - Tidak pernah memanggil save() milik D. - Persist lewat … |
-| 69 | `lifeos/lifeos-registry.js` | 55 | taksonomi FUNGSIONAL Life OS (beda dari FEATURE_REGISTRY yang taksonomi NAVIGASI — keduanya sengaja terpisah, lihat personal-life-os-blueprint.md Langkah 1). PENTING: file ini MURNI DATA. Tidak ada logic, tidak ada … |
-| 70 | `lifeos/lifeos-link-registry.js` | 25 | relasi implisit-by-convention di D dibuat eksplisit di SATU tempat (Gap #9, personal-life-os-blueprint.md). PENTING: murni data deklaratif. `match`/lookup di sini hanya MEMBACA D — tidak pernah menulis. Dikonsumsi oleh … |
-| 71 | `lifeos/adapters/goal-adapter.js` | 46 | adapters/goal-adapter.js — READ-ONLY. Menyeragamkan 6 sumber goal lama (D.targets, D.eduFunds, D.pensiun, D.finansialFreedom, D.wishlist, D.debtStrategy) jadi satu bentuk "goal card". Tidak menyimpan apa pun, dihitung … |
-| 72 | `lifeos/adapters/project-adapter.js` | 30 | adapters/project-adapter.js — merge READ-ONLY antara dua sumber: 1. D.renovProjects (legacy, milik renovasi.js — tidak disentuh) 2. LifeOSStore.projects (generic, milik Life OS — lihat services/project-service.js untuk … |
-| 73 | `lifeos/adapters/today-adapter.js` | 34 | adapters/today-adapter.js — READ-ONLY. TODAY bukan penyimpanan sendiri, cuma lensa waktu di atas AREAS/PROJECTS/GOALS (lihat personal-life-os-blueprint.md Langkah 2). Depends on: lifeos-registry.js … |
-| 74 | `lifeos/adapters/review-adapter.js` | 26 | adapters/review-adapter.js — READ-ONLY. Menggabungkan histori pasif existing (D.wealthSnapshots, D.lifeBalanceSnapshots, D.assetAllocation) dengan sesi review Life OS sendiri (LifeOSStore.reviewLog). Tidak pernah … |
-| 75 | `lifeos/adapters/knowledge-adapter.js` | 20 | adapters/knowledge-adapter.js — READ-ONLY. D.catatan (catatan privat manual, milik keamanan-pin.js/refleksi-selfcare.js dll) dibaca sebagai REFERENSI saja — Knowledge base Life OS yang sebenarnya (insight AI tersimpan) … |
-| 76 | `lifeos/services/project-service.js` | 48 | services/project-service.js — SATU-SATUNYA tempat menulis LifeOSStore.projects (generic project). Tidak pernah menulis ke D.renovProjects atau array D.* lain — kalau butuh baca renovasi, pakai … |
-| 77 | `lifeos/services/review-service.js` | 34 | services/review-service.js — SATU-SATUNYA tempat menulis LifeOSStore.reviewLog. Boleh MEMBACA D.wealthSnapshots/ D.lifeBalanceSnapshots (lewat adapters/review-adapter.js) untuk menyimpan referensi id-nya, tapi tidak … |
-| 78 | `lifeos/services/knowledge-service.js` | 29 | services/knowledge-service.js — SATU-SATUNYA tempat menulis LifeOSStore.knowledge. Tidak pernah menulis ke D.catatan — kalau butuh baca catatan lama, pakai adapters/knowledge-adapter.js (knowledgeAdapterCatatanRef). |
-| 79 | `lifeos/ui/lifeos-home.js` | 71 | ui/lifeos-home.js — halaman masuk Life OS. Hanya membaca lewat adapter, menulis (kalau ada aksi) hanya lewat services/*.js. Tidak pernah akses D atau LifeOSStore langsung dari file UI — selalu lewat adapter/service. … |
-| 80 | `lifeos/ui/today.js` | 20 | ui/today.js — render-only lewat todayAdapterList(D). Aksi "selesaikan" tetap dispatch ke fungsi modul LAMA (mis. dismiss bill), Life OS tidak menduplikasi logic itu. |
-| 81 | `lifeos/ui/goals.js` | 23 | ui/goals.js — render-only lewat goalAdapterList(D). Tidak ada goal-service.js karena Goals tidak punya data tulis sendiri di Life OS (murni agregasi 6 sumber lama, lihat Gap #2). Aksi "tambah tabungan" dsb tetap … |
-| 82 | `lifeos/ui/projects.js` | 33 | ui/projects.js — render lewat projectAdapterList(D, store); aksi tulis (create/toggle checklist/dsb) HANYA lewat services/project-service.js. |
-| 83 | `lifeos/ui/review.js` | 32 | ui/review.js — render lewat review-adapter.js; aksi mulai/selesai sesi review HANYA lewat services/review-service.js. |
-| 84 | `lifeos/ui/knowledge.js` | 43 | ui/knowledge.js — render lewat knowledge-adapter.js; aksi simpan/hapus HANYA lewat services/knowledge-service.js. D.catatan ditampilkan sebagai referensi read-only, tidak pernah dimigrasikan ke sini. |
+| 68 | `dashboard-v2-data-adapter.js` | 155 | Tahap V2.16: Dashboard V2 Data Adapter Layer (lihat DASHBOARD-V2-DATA-ADAPTER.md). TUJUAN: menyediakan SATU lapisan baca-saja (read-only) di atas state global `D` (dideklarasikan di features-helpers-global-security.js) … |
+| 69 | `lifeos/lifeos-store.js` | 51 | SATU-SATUNYA tempat Life OS boleh MENULIS. ATURAN WAJIB: - Tidak pernah menyentuh D. Tidak ada property baru di D, tidak ada perubahan struktur D sedikit pun. - Tidak pernah memanggil save() milik D. - Persist lewat … |
+| 70 | `lifeos/lifeos-registry.js` | 55 | taksonomi FUNGSIONAL Life OS (beda dari FEATURE_REGISTRY yang taksonomi NAVIGASI — keduanya sengaja terpisah, lihat personal-life-os-blueprint.md Langkah 1). PENTING: file ini MURNI DATA. Tidak ada logic, tidak ada … |
+| 71 | `lifeos/lifeos-link-registry.js` | 25 | relasi implisit-by-convention di D dibuat eksplisit di SATU tempat (Gap #9, personal-life-os-blueprint.md). PENTING: murni data deklaratif. `match`/lookup di sini hanya MEMBACA D — tidak pernah menulis. Dikonsumsi oleh … |
+| 72 | `lifeos/adapters/goal-adapter.js` | 46 | adapters/goal-adapter.js — READ-ONLY. Menyeragamkan 6 sumber goal lama (D.targets, D.eduFunds, D.pensiun, D.finansialFreedom, D.wishlist, D.debtStrategy) jadi satu bentuk "goal card". Tidak menyimpan apa pun, dihitung … |
+| 73 | `lifeos/adapters/project-adapter.js` | 30 | adapters/project-adapter.js — merge READ-ONLY antara dua sumber: 1. D.renovProjects (legacy, milik renovasi.js — tidak disentuh) 2. LifeOSStore.projects (generic, milik Life OS — lihat services/project-service.js untuk … |
+| 74 | `lifeos/adapters/today-adapter.js` | 34 | adapters/today-adapter.js — READ-ONLY. TODAY bukan penyimpanan sendiri, cuma lensa waktu di atas AREAS/PROJECTS/GOALS (lihat personal-life-os-blueprint.md Langkah 2). Depends on: lifeos-registry.js … |
+| 75 | `lifeos/adapters/review-adapter.js` | 26 | adapters/review-adapter.js — READ-ONLY. Menggabungkan histori pasif existing (D.wealthSnapshots, D.lifeBalanceSnapshots, D.assetAllocation) dengan sesi review Life OS sendiri (LifeOSStore.reviewLog). Tidak pernah … |
+| 76 | `lifeos/adapters/knowledge-adapter.js` | 20 | adapters/knowledge-adapter.js — READ-ONLY. D.catatan (catatan privat manual, milik keamanan-pin.js/refleksi-selfcare.js dll) dibaca sebagai REFERENSI saja — Knowledge base Life OS yang sebenarnya (insight AI tersimpan) … |
+| 77 | `lifeos/services/project-service.js` | 48 | services/project-service.js — SATU-SATUNYA tempat menulis LifeOSStore.projects (generic project). Tidak pernah menulis ke D.renovProjects atau array D.* lain — kalau butuh baca renovasi, pakai … |
+| 78 | `lifeos/services/review-service.js` | 34 | services/review-service.js — SATU-SATUNYA tempat menulis LifeOSStore.reviewLog. Boleh MEMBACA D.wealthSnapshots/ D.lifeBalanceSnapshots (lewat adapters/review-adapter.js) untuk menyimpan referensi id-nya, tapi tidak … |
+| 79 | `lifeos/services/knowledge-service.js` | 29 | services/knowledge-service.js — SATU-SATUNYA tempat menulis LifeOSStore.knowledge. Tidak pernah menulis ke D.catatan — kalau butuh baca catatan lama, pakai adapters/knowledge-adapter.js (knowledgeAdapterCatatanRef). |
+| 80 | `lifeos/ui/lifeos-home.js` | 71 | ui/lifeos-home.js — halaman masuk Life OS. Hanya membaca lewat adapter, menulis (kalau ada aksi) hanya lewat services/*.js. Tidak pernah akses D atau LifeOSStore langsung dari file UI — selalu lewat adapter/service. … |
+| 81 | `lifeos/ui/today.js` | 20 | ui/today.js — render-only lewat todayAdapterList(D). Aksi "selesaikan" tetap dispatch ke fungsi modul LAMA (mis. dismiss bill), Life OS tidak menduplikasi logic itu. |
+| 82 | `lifeos/ui/goals.js` | 23 | ui/goals.js — render-only lewat goalAdapterList(D). Tidak ada goal-service.js karena Goals tidak punya data tulis sendiri di Life OS (murni agregasi 6 sumber lama, lihat Gap #2). Aksi "tambah tabungan" dsb tetap … |
+| 83 | `lifeos/ui/projects.js` | 33 | ui/projects.js — render lewat projectAdapterList(D, store); aksi tulis (create/toggle checklist/dsb) HANYA lewat services/project-service.js. |
+| 84 | `lifeos/ui/review.js` | 32 | ui/review.js — render lewat review-adapter.js; aksi mulai/selesai sesi review HANYA lewat services/review-service.js. |
+| 85 | `lifeos/ui/knowledge.js` | 43 | ui/knowledge.js — render lewat knowledge-adapter.js; aksi simpan/hapus HANYA lewat services/knowledge-service.js. D.catatan ditampilkan sebagai referensi read-only, tidak pernah dimigrasikan ke sini. |
 
 ## 2. Index fungsi/variabel global → file (urut abjad)
 
@@ -131,6 +132,7 @@ bisa dipanggil sebagai "global" dari file manapun lewat bundel gabungan.
 | `_dashHubIsFav` | `dashboard-hub.js` |
 | `_dashHubSummaryMonthTx` | `dashboard-hub.js` |
 | `_dashHubV2SwitchHtml` | `dashboard-hub.js` |
+| `_dashV2AdapterHasD` | `dashboard-v2-data-adapter.js` |
 | `_deriveApiKeyCryptoKey` | `keamanan-pin.js` |
 | `_formatLockDuration` | `keamanan-pin.js` |
 | `_friendlyErrorNotice` | `error-handler.js` |
@@ -489,8 +491,11 @@ bisa dipanggil sebagai "global" dari file manapun lewat bundel gabungan.
 | `getCicilanSharedMine` | `cicilan.js` |
 | `getCnRange` | `vehicle-core.js` |
 | `getCustomerOrders` | `cobek-io.js` |
+| `getDocumentSummary` | `dashboard-v2-data-adapter.js` |
 | `getEffectiveIntervalKm` | `sparepart-servis.js` |
+| `getFamilySummary` | `dashboard-v2-data-adapter.js` |
 | `getFavoritKeys` | `dashboard-hub-favorit.js` |
+| `getFinanceSummary` | `dashboard-v2-data-adapter.js` |
 | `getHtmlSnapshotForSelfTest` | `diagnostik-versi.js` |
 | `getKeuFilters` | `filter-laporan.js` |
 | `getLaporanFilters` | `filter-laporan.js` |
@@ -505,6 +510,7 @@ bisa dipanggil sebagai "global" dari file manapun lewat bundel gabungan.
 | `getShopRange` | `cobek-io.js` |
 | `getTxListRange` | `tx-list-cashflow.js` |
 | `getVehicleKm` | `vehicle-core.js` |
+| `getVehicleSummary` | `dashboard-v2-data-adapter.js` |
 | `getWeekRange` | `reset-gaji-mingguan.js` |
 | `goalAdapterFindOne` | `lifeos/adapters/goal-adapter.js` |
 | `goalAdapterList` | `lifeos/adapters/goal-adapter.js` |

@@ -201,7 +201,10 @@ test('dashboard-v2-shell.js TIDAK mengintegrasikan FEATURE_REGISTRY, showPage(),
     .map((line) => line.replace(/\/\/.*$/, ''))
     .join('\n');
   assert.doesNotMatch(codeOnly, /FEATURE_REGISTRY/);
-  assert.doesNotMatch(codeOnly, /showPage\s*\(/);
+  // Tahap V2.43 (persetujuan eksplisit user): showPage() sekarang LEGIT
+  // dipakai di navigateTo() (lihat DASHBOARD-V2-BOTTOMNAV-WIREUP.md).
+  // Guard larangan showPage() dihapus dari sini; guard spesifik ada di
+  // tests/dashboard-v2-navigation.test.js.
   assert.doesNotMatch(codeOnly, /['"]nav-item['"]/);
   assert.doesNotMatch(codeOnly, /getElementById\(\s*['"]mainNav['"]\s*\)/);
   assert.doesNotMatch(codeOnly, /querySelector\(\s*['"]#mainNav['"]\s*\)/);

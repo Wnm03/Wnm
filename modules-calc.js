@@ -1,5 +1,5 @@
 
-const MODULE_CALC_VERSION='kw-v2-31-hero-real-data-3';
+const MODULE_CALC_VERSION='kw-v2-31-hero-real-data-8';
 const FI={
 assetScopeState:'zakatable',
 investmentAssetValue(){

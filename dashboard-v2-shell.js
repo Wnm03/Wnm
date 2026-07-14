@@ -467,25 +467,38 @@ const DashboardV2Shell = {
     return root;
   },
 
-  // _buildSidebar(document) — Tahap V2.5: Sidebar dgn 5 item navigasi
-  // placeholder (Dashboard, Finance, Vehicle, Reports, Settings). Semua
-  // tombol `disabled` (pola sama dgn FAB V2/tombol Header V2) — placeholder
-  // murni, tanpa onclick/routing (tidak memanggil showPage()). Namespace
-  // class baru `dashboard-v2-sidebar-item` (BUKAN `.nav-item` — RFC §5
-  // Risk Assessment, sama alasan dgn Bottom Navigation V2.1).
+  // _buildSidebar(document) — Tahap V2.5: dibangun sbg placeholder; Tahap
+  // V2.44: diwire ke navigasi nyata (lihat DASHBOARD-V2-SIDEBAR-WIREUP.md),
+  // pola identik `_buildBottomNav()` V2.43 — `data-action=
+  // "DashboardV2Shell.navigateTo"` + `data-args` (click-delegation global yg
+  // SUDAH ADA di features-helpers-global-security.js, BUKAN addEventListener
+  // baru). `navigateTo()` (tidak diubah sama sekali tahap ini) yg memanggil
+  // `showPage()` sungguhan. Namespace class tetap `dashboard-v2-sidebar-item`
+  // (BUKAN `.nav-item` — RFC §5 Risk Assessment, sama alasan sejak V2.1).
+  //
+  // Item "Reports" TIDAK memiliki halaman tujuan valid (tidak ada
+  // `#page-reports` di index.html/app_production.html — dikonfirmasi audit
+  // pra-patch tahap ini; pola `page: null` yg sama juga dipakai Quick
+  // Actions "Reports" di file ini). Karena itu Reports SENGAJA tetap
+  // `disabled`, tanpa `data-action`/`data-page` — tidak ada routing dummy,
+  // tidak ada halaman baru dibuat. Lihat CHANGELOG-V2_44.md utk detail.
   _buildSidebar(document) {
     const sidebar = document.createElement('aside');
     sidebar.id = 'dashboardV2Sidebar';
     sidebar.className = 'dashboard-v2-sidebar';
     sidebar.setAttribute('data-dashboard-v2-part', 'sidebar');
-    sidebar.setAttribute('aria-label', 'Navigasi Sidebar Dashboard V2 (placeholder, belum aktif)');
+    sidebar.setAttribute('aria-label', 'Navigasi Sidebar Dashboard V2');
 
+    // page: id halaman nyata (`#page-<id>`) yg dipanggil lewat showPage(),
+    // mapping SAMA PERSIS dgn `_buildBottomNav()` V2.43 utk key yg sama
+    // (dashboard/finance/vehicle/settings). `reports`: `page: null` sengaja
+    // (tidak ada `#page-reports` — lihat komentar di atas).
     const items = [
-      { key: 'dashboard', label: 'Dashboard' },
-      { key: 'finance', label: 'Finance' },
-      { key: 'vehicle', label: 'Vehicle' },
-      { key: 'reports', label: 'Reports' },
-      { key: 'settings', label: 'Settings' },
+      { key: 'dashboard', label: 'Dashboard', page: 'dashboard-hub' },
+      { key: 'finance', label: 'Finance', page: 'keuangan' },
+      { key: 'vehicle', label: 'Vehicle', page: 'carnotes' },
+      { key: 'reports', label: 'Reports', page: null },
+      { key: 'settings', label: 'Settings', page: 'settings' },
     ];
 
     const buttons = items.map((item) => {
@@ -494,8 +507,16 @@ const DashboardV2Shell = {
       btn.type = 'button';
       btn.className = 'dashboard-v2-sidebar-item';
       btn.setAttribute('data-dashboard-v2-part', `sidebar-item-${item.key}`);
-      btn.setAttribute('aria-label', `${item.label} (placeholder, belum aktif)`);
-      btn.disabled = true;
+      if (item.page) {
+        btn.setAttribute('data-dashboard-v2-page', item.page);
+        btn.setAttribute('aria-label', item.label);
+        btn.setAttribute('data-action', 'DashboardV2Shell.navigateTo');
+        btn.setAttribute('data-args', JSON.stringify([item.page, '$el']));
+        btn.disabled = false;
+      } else {
+        btn.setAttribute('aria-label', `${item.label} (belum ada halaman tujuan, placeholder)`);
+        btn.disabled = true;
+      }
       btn.textContent = item.label;
       return btn;
     });
@@ -509,26 +530,34 @@ const DashboardV2Shell = {
     return sidebar;
   },
 
-  // _buildBottomNav(document) — Tahap V2.5: Bottom Navigation V2 dgn 4 item
-  // navigasi placeholder (Home, Finance, Vehicle, More). Semua tombol
-  // `disabled`, namespace class baru `dashboard-v2-bottomnav-item` (BUKAN
-  // `.nav-item` — RFC §5 Risk Assessment, sama alasan sejak V2.1).
+  // _buildBottomNav(document) — Tahap V2.5: dibangun; Tahap V2.43: diwire
+  // ke navigasi nyata (lihat DASHBOARD-V2-BOTTOMNAV-WIREUP.md). 4 item
+  // (Home, Finance, Vehicle, More), namespace class tetap
+  // `dashboard-v2-bottomnav-item` (BUKAN `.nav-item` — RFC §5 Risk
+  // Assessment, sama alasan sejak V2.1: showPage()/dashHubNavigateToFeature()
+  // query global `.nav-item`, reuse class itu akan merusak highlight-state
+  // navigasi semua halaman existing).
+  //
+  // Tahap V2.43 (persetujuan eksplisit user): tombol TIDAK LAGI `disabled`.
+  // Dipakaikan `data-action="DashboardV2Shell.navigateTo"` + `data-args`
+  // (pola global click-delegation yg sudah ada di
+  // features-helpers-global-security.js — sama persis dgn `#mainNav` asli,
+  // BUKAN `addEventListener` baru). `navigateTo()` (lihat di bawah) yg
+  // memanggil `showPage()` sungguhan.
   _buildBottomNav(document) {
     const bottomNav = document.createElement('nav');
     bottomNav.id = 'dashboardV2BottomNav';
-    // Namespace baru sengaja dipakai (BUKAN "nav"/"nav-item") — RFC §5
-    // Risk Assessment: showPage()/dashHubNavigateToFeature() query global
-    // `.nav-item`, reuse class itu akan merusak highlight-state navigasi
-    // semua halaman existing.
     bottomNav.className = 'dashboard-v2-bottomnav';
     bottomNav.setAttribute('data-dashboard-v2-part', 'bottomnav');
-    bottomNav.setAttribute('aria-label', 'Navigasi Dashboard V2 (belum aktif)');
+    bottomNav.setAttribute('aria-label', 'Navigasi Dashboard V2');
 
+    // page: id halaman nyata (`#page-<id>`) yg dipanggil lewat showPage(),
+    // persis dgn yg dipakai `#mainNav` existing (lihat index.html ~2125).
     const items = [
-      { key: 'home', label: 'Home' },
-      { key: 'finance', label: 'Finance' },
-      { key: 'vehicle', label: 'Vehicle' },
-      { key: 'more', label: 'More' },
+      { key: 'home', label: 'Home', page: 'dashboard-hub' },
+      { key: 'finance', label: 'Finance', page: 'keuangan' },
+      { key: 'vehicle', label: 'Vehicle', page: 'carnotes' },
+      { key: 'more', label: 'More', page: 'settings' },
     ];
 
     const buttons = items.map((item) => {
@@ -537,8 +566,11 @@ const DashboardV2Shell = {
       btn.type = 'button';
       btn.className = 'dashboard-v2-bottomnav-item';
       btn.setAttribute('data-dashboard-v2-part', `bottomnav-item-${item.key}`);
-      btn.setAttribute('aria-label', `${item.label} (placeholder, belum aktif)`);
-      btn.disabled = true;
+      btn.setAttribute('data-dashboard-v2-page', item.page);
+      btn.setAttribute('aria-label', item.label);
+      btn.setAttribute('data-action', 'DashboardV2Shell.navigateTo');
+      btn.setAttribute('data-args', JSON.stringify([item.page, '$el']));
+      btn.disabled = false;
       btn.textContent = item.label;
       return btn;
     });
@@ -2392,6 +2424,47 @@ const DashboardV2Shell = {
       this._root.parentNode.removeChild(this._root);
     }
     this._root = null;
+  },
+
+  // navigateTo(pageName, el) — Tahap V2.43: satu-satunya cara Bottom
+  // Navigation V2 (`_buildBottomNav`) berpindah halaman, dipanggil lewat
+  // `data-action="DashboardV2Shell.navigateTo"` (global click-delegation
+  // yg sudah ada di features-helpers-global-security.js, BUKAN
+  // addEventListener baru). Kontrak (persetujuan eksplisit user, lihat
+  // DASHBOARD-V2-BOTTOMNAV-WIREUP.md):
+  //   - Selalu memanggil `showPage(pageName, el)` (fungsi global existing
+  //     di modal-navigasi.js) — routing SAMA PERSIS dgn `#mainNav` lama,
+  //     tidak ada logic routing baru/duplikat.
+  //   - Kalau tujuannya BUKAN 'dashboard-hub' (Finance/Vehicle/More):
+  //     Dashboard V2 sengaja DIKELUARKAN (disableDashboardV2() +
+  //     this.destroy()) supaya halaman tujuan yg sebenarnya terlihat —
+  //     tanpa ini, overlay penuh-layar Dashboard V2 (lihat
+  //     DASHBOARD-V2-OVERLAY-FIX.md, `position:fixed;inset:0`) akan tetap
+  //     menutupi halaman yg baru diaktifkan showPage(). Untuk kembali ke
+  //     Dashboard V2, user memakai toggle "Dashboard V2 aktif" yg sudah
+  //     ada di Dashboard Hub (tidak ada mekanisme re-entry baru dibuat
+  //     tahap ini).
+  //   - Kalau tujuannya 'dashboard-hub' (tombol Home): hanya showPage(),
+  //     Dashboard V2 TETAP aktif/terlihat (Home = Dashboard V2 itu
+  //     sendiri, tidak ada alasan menyembunyikannya).
+  //   - Toleran-guard: no-op aman kalau showPage()/disableDashboardV2()
+  //     belum ter-load (pola sama dgn guard lain di file ini).
+  navigateTo(pageName, el) {
+    if (typeof pageName !== 'string' || !pageName) return;
+    if (typeof showPage === 'function') {
+      showPage(pageName, el);
+    } else if (typeof window !== 'undefined' && typeof window.showPage === 'function') {
+      window.showPage(pageName, el);
+    }
+
+    if (pageName !== 'dashboard-hub') {
+      if (typeof disableDashboardV2 === 'function') {
+        disableDashboardV2();
+      } else if (typeof window !== 'undefined' && typeof window.disableDashboardV2 === 'function') {
+        window.disableDashboardV2();
+      }
+      this.destroy();
+    }
   },
 
   // refresh() — Tahap V2.28: perbarui ISI panel-panel yg memakai
