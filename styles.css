@@ -1767,9 +1767,16 @@ textarea.fi { resize: vertical; min-height: 80px; }
   cursor:pointer;
 }
 
-/* Sidebar item (V2.5): 5 tombol navigasi `disabled` anak Sidebar,
-   reuse pola tombol nonaktif standar (opacity turun) sama dgn Quick
-   Actions/Header V2 di atas. */
+/* Sidebar item (V2.5: shell disabled; V2.44: diaktifkan — lihat
+   DASHBOARD-V2-SIDEBAR-WIREUP.md). Pola sama persis dgn perubahan
+   `.dashboard-v2-bottomnav-item` di V2.43: dari style "nonaktif"
+   (`opacity:.5`) jadi style interaktif, token warna/spacing/durasi REUSE
+   yg sudah ada (`--text`, `--surface2`, `--accent`, `--dur-moderate`) —
+   tidak ada nilai baru. Layout tetap `display:block;width:100%` (list
+   vertikal Sidebar, BUKAN `flex:1` spt Bottom Nav horizontal). Item
+   "Reports" (tetap `disabled` — tidak ada halaman tujuan valid, lihat
+   dashboard-v2-shell.js) memakai rule `:disabled` di bawah utk tampilan
+   nonaktifnya, konsisten dgn sisa 4 item yg sekarang interaktif. */
 .dashboard-v2-sidebar-item{
   display:block;
   width:100%;
@@ -1783,22 +1790,61 @@ textarea.fi { resize: vertical; min-height: 80px; }
   font-family:inherit;
   font-size:var(--fs-body);
   text-align:left;
+  cursor:pointer;
+  opacity:1;
+  transition:color var(--dur-moderate), background var(--dur-moderate);
+}
+.dashboard-v2-sidebar-item:hover{
+  color:var(--text);
+  background:var(--surface2);
+}
+.dashboard-v2-sidebar-item:active{
+  transform:scale(0.98);
+}
+.dashboard-v2-sidebar-item.active{
+  color:var(--accent);
+}
+.dashboard-v2-sidebar-item:disabled{
   opacity:.5;
+  cursor:default;
+  pointer-events:none;
 }
 
-/* Bottom Nav item (V2.5): 4 tombol navigasi `disabled` anak Bottom Nav,
-   pola sama dgn Sidebar item di atas (namespace terpisah - RFC §5 Risk
-   Assessment - tapi style nonaktif identik). */
+/* Bottom Nav item (V2.5: shell disabled; V2.43: diaktifkan — lihat
+   DASHBOARD-V2-BOTTOMNAV-WIREUP.md). Layout `flex:1` sama pola dgn
+   `.nav-item` lama supaya 4 item rata lebar penuh container, tapi tetap
+   namespace class terpisah (RFC §5 Risk Assessment) & tanpa menyentuh
+   rule `.nav-item` itu sendiri. */
 .dashboard-v2-bottomnav-item{
-  display:inline-block;
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   padding:var(--sp-2) var(--sp-3);
-  margin-right:var(--sp-2);
   background:transparent;
   border:none;
   border-radius:var(--r-md);
-  color:var(--text2);
+  color:var(--text3);
   font-family:inherit;
   font-size:var(--fs-caption);
+  font-weight:600;
   text-align:center;
+  cursor:pointer;
+  opacity:1;
+  transition:color var(--dur-moderate), background var(--dur-moderate);
+}
+.dashboard-v2-bottomnav-item:hover{
+  color:var(--text);
+  background:var(--surface2);
+}
+.dashboard-v2-bottomnav-item:active{
+  transform:scale(0.95);
+}
+.dashboard-v2-bottomnav-item.active{
+  color:var(--accent);
+}
+.dashboard-v2-bottomnav-item:disabled{
   opacity:.5;
+  cursor:default;
+  pointer-events:none;
 }
