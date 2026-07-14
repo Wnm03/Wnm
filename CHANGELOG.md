@@ -1082,3 +1082,3055 @@ kontekstual hanya di tab Laporan.
 FAB tab Laporan selesai, sesuai cakupan Sprint 2 Tahap 4. Sesuai
 instruksi, pengerjaan **berhenti di sini** — tidak melanjutkan ke
 Sprint berikutnya.
+
+---
+
+# Changelog — Tahap 9: Perbaikan Kontras `--text3` (ROADMAP-v1.1.md #1)
+
+Baseline: Sprint 2 Tahap 4 selesai, `node --test` **1336/1336 PASS**.
+
+## Diubah
+
+- **`styles.css`** — 9 baris diubah (hanya value hex `--text3` per
+  tema: `dark`, `ocean`, `light`, `stone`, `slate`, `mono`, `sand`,
+  `ink`, `sage`), hue/saturation dipertahankan (adjust lightness saja)
+  agar kontras terhadap `--bg` dan `--surface2` mencapai ≥4.5:1 (WCAG
+  AA). Tidak ada token/class baru, tidak ada value lain per tema yang
+  berubah.
+
+## Ditambahkan
+
+- **`tests/theme-text3-contrast.test.js`** — 30 test struktural baru:
+  parsing token warna dari `styles.css` + verifikasi rasio kontras WCAG
+  tiap tema vs `--bg`/`--surface2`, plus guard tidak ada class baru &
+  token lain per tema tetap utuh.
+- **`THEME-CONTRAST-FIX.md`** — dokumentasi deliverable Tahap 9.
+
+## Tidak diubah
+
+- Hero Dashboard, Dashboard, Halaman Keuangan+FAB, Shop+FAB, Car
+  Notes+FAB, tab Laporan+FAB — tidak disentuh.
+- `FEATURE_REGISTRY`, `dashboard-hub.js`, ADR-001, business logic,
+  build system, service worker, `package.json`, `index.html`,
+  `app_production.html`.
+- Item lain di `ROADMAP-v1.1.md` (border-radius, shadow, transition
+  token, dll.) — menunggu tahap berikutnya.
+
+## Hasil test
+
+```
+node --test
+# tests 1366
+# pass 1366
+# fail 0
+```
+
+## Status
+
+Item #1 `ROADMAP-v1.1.md` selesai. Sesuai instruksi, pengerjaan
+**berhenti di sini** — tidak melanjutkan ke item roadmap berikutnya.
+
+## Tahap 10 — Exit/Closing Animation Overlay & Bottom Sheet
+
+ROADMAP-v1.1.md item #2 (High Priority, KNOWN-ISSUES.md §5.1).
+
+- **`styles.css`** — tambah `@keyframes overlayOut`/`slideDown` +
+  rule `.overlay.closing`/`.calc-overlay.closing` (reverse simetris
+  dari `overlayIn`/`slideUp` yang sudah ada, 100% token
+  `--dur-moderate`/`--dur-slow`/`--ease-standard`/`--ease-emphasized`).
+- **`modal-navigasi.js`** — `closeModal()` sekarang menunda pelepasan
+  class `open` lewat `animationend`+fallback `setTimeout`, dengan guard
+  re-open cepat & guard id modal tidak ditemukan. `openModal()` +1
+  baris (`classList.remove('closing')`).
+- **`tests/modal-close-animation.test.js`** — 10 test baru (7
+  struktural DOM + 3 struktural CSS).
+- **`MODAL-EXIT-ANIMATION.md`** — dokumentasi deliverable Tahap 10.
+
+## Tidak diubah
+
+- Hero Dashboard, Dashboard, Halaman Keuangan+FAB, Shop+FAB, Car
+  Notes+FAB, tab Laporan+FAB — tidak disentuh.
+- `FEATURE_REGISTRY`, `dashboard-hub.js`, ADR-001, business logic,
+  build system, service worker, `package.json`, `index.html`,
+  `app_production.html`.
+- Modal generik (confirm/prompt/choice/info/pinPrompt) & quick-switcher
+  (`openQS`/`closeQS`) — tidak lewat `closeModal()`, di luar scope.
+- Item lain di `ROADMAP-v1.1.md` — menunggu tahap berikutnya.
+
+## Hasil test
+
+```
+node --test
+# tests 1375
+# pass 1375
+# fail 0
+```
+
+## Status
+
+Item #2 `ROADMAP-v1.1.md` selesai. Sesuai instruksi, pengerjaan
+**berhenti di sini** — tidak melanjutkan ke item roadmap berikutnya.
+
+## Tahap 11 — Migrasi Token `border-radius`
+
+ROADMAP-v1.1.md item #4 (Medium Priority, KNOWN-ISSUES.md §2.1).
+
+- **`styles.css`** — 42 literal `border-radius` (16px/10px/20px/12px)
+  diganti `var(--r-2xl/--r-md/--r-pill/--r-lg)`, value-preserving.
+- **`tests/dashboard-hub-pinnedwidgets.test.js`** — 1 guard test
+  diupdate mengikuti representasi baru (nilai `.card` tetap 16px).
+- **`BORDER-RADIUS-TOKEN-MIGRATION.md`** — dokumentasi deliverable.
+
+## Tidak diubah
+
+- FEATURE_REGISTRY, Dashboard V2, Hero Dashboard, business logic,
+  build system, package.json, service worker.
+- Item lain di `ROADMAP-v1.1.md` — menunggu tahap berikutnya.
+
+## Hasil test
+
+```
+node --test
+# tests 1376
+# pass 1376
+# fail 0
+```
+
+## Status
+
+Item #4 `ROADMAP-v1.1.md` selesai.
+
+## Tahap 12 — Konsolidasi Token Durasi Transition
+
+ROADMAP-v1.1.md item #6 (Medium Priority, KNOWN-ISSUES.md §2.3).
+Item #5 (box-shadow token) dilewati: token `--shadow-*` yang disebut
+di roadmap ternyata belum pernah dibuat.
+
+- **`styles.css`** — 32 literal durasi transition (`0.2s`/`.2s`,
+  `0.15s`/`.15s`, `0.25s`/`.25s`) diganti `var(--dur-moderate)`/
+  `var(--dur-base)`/`var(--dur-slow)`, value-preserving (hanya nilai
+  match persis token yang dimigrasi).
+- **`TRANSITION-DURATION-TOKENS.md`** — dokumentasi deliverable.
+
+## Tidak diubah
+
+FEATURE_REGISTRY, Dashboard V2, Hero Dashboard, business logic, build
+system, package.json, service worker.
+
+## Hasil test
+
+```
+node --test
+# tests 1376
+# pass 1376
+# fail 0
+```
+
+## Status
+
+Item #6 `ROADMAP-v1.1.md` selesai.
+
+## Tahap 13 — Touch Target Padding .chip-btn/.qs-btn
+
+ROADMAP-v1.1.md item #7 (Medium Priority, KNOWN-ISSUES.md §1.2).
+
+- **`styles.css`** — padding vertikal `.chip-btn` (6px→11px) & `.qs-btn`
+  (7px→12px), font-size/warna/border tidak berubah.
+- **`tests/touch-target-padding.test.js`** — 3 test baru.
+- **`TOUCH-TARGET-PADDING.md`** — dokumentasi deliverable.
+
+## Tidak diubah
+
+FEATURE_REGISTRY, Dashboard V2, Hero Dashboard, business logic, build
+system, package.json, service worker.
+
+## Hasil test
+
+```
+node --test
+# tests 1379
+# pass 1379
+# fail 0
+```
+
+## Status
+
+Item #7 `ROADMAP-v1.1.md` selesai.
+
+## Tahap 14 — Migrasi Token font-size
+
+ROADMAP-v1.1.md item #9 (Low Priority, KNOWN-ISSUES.md §2.4).
+
+- **`styles.css`** — 51 literal `font-size` (11px/12px/13px) diganti
+  `var(--fs-caption/--fs-label/--fs-body)`, value-preserving.
+- **`tests/touch-target-padding.test.js`** — 1 guard diupdate mengikuti
+  representasi baru (nilai `.chip-btn` tetap 12px).
+- **`FONT-SIZE-TOKEN-MIGRATION.md`** — dokumentasi deliverable.
+
+## Tidak diubah
+
+FEATURE_REGISTRY, Dashboard V2, Hero Dashboard, business logic, build
+system, package.json, service worker.
+
+## Hasil test
+
+```
+node --test
+# tests 1379
+# pass 1379
+# fail 0
+```
+
+## Status
+
+Item #9 `ROADMAP-v1.1.md` selesai.
+
+## Tahap 15 — Container max-width Konsisten (.page)
+
+ROADMAP-v1.1.md item #10 (Low Priority, KNOWN-ISSUES.md §3.1).
+
+- **`styles.css`** — +1 rule aditif `.page{max-width:1080px}` di
+  `@media (min-width:1024px)`, reuse nilai existing dari
+  `#page-dashboard-hub` (tidak diubah, tetap menang via specificity ID).
+- **`tests/page-container-maxwidth.test.js`** — 3 test baru.
+- **`PAGE-CONTAINER-MAXWIDTH.md`** — dokumentasi deliverable.
+
+## Tidak diubah
+
+`#page-dashboard-hub` (Dashboard V2), FEATURE_REGISTRY, business logic,
+build system, package.json, service worker.
+
+## Hasil test
+
+```
+node --test
+# tests 1382
+# pass 1382
+# fail 0
+```
+
+## Status
+
+Item #10 `ROADMAP-v1.1.md` selesai.
+
+## Tahap 16 — Hover Elevation Tap-Target Sekunder
+
+ROADMAP-v1.1.md item #11 (Low Priority, KNOWN-ISSUES.md §5.3).
+
+- **`styles.css`** — +1 rule hover aditif (`.stat-box.clickable`,
+  `.cobek-stat.clickable`, `.bbm-stat.clickable`,
+  `.budget-sum-box.clickable`, `.budget-item.clickable`), reuse shadow
+  value `.card:hover`, di dalam media block existing.
+- **`tests/secondary-clickable-hover.test.js`** — 3 test baru.
+- **`SECONDARY-CLICKABLE-HOVER.md`** — dokumentasi deliverable.
+
+## Tidak diubah
+
+FEATURE_REGISTRY, Dashboard V2, Hero Dashboard, business logic, build
+system, package.json, service worker.
+
+## Hasil test
+
+```
+node --test
+# tests 1385
+# pass 1385
+# fail 0
+```
+
+## Status
+
+Item #11 selesai. ROADMAP-v1.1.md item CSS-only/additive/value-preserving
+**habis** — sisa #3 (FEATURE_REGISTRY, dilarang), #5 (butuh skala token
+baru), #8 (🔴 butuh JS) menunggu sesi terpisah dengan mandat eksplisit.
+
+## Sprint 3 Tahap 3.1 — AI Command Center Foundation
+
+Baseline diverifikasi langsung dari isi repository (bukan klaim sesi
+sebelumnya yang tidak konsisten dengan file ini): `node --test`
+1384/1384 PASS sebelum tahap ini dimulai.
+
+Foundation registry netral untuk command AI (aksi yang bisa dieksekusi
+langsung, dipakai command palette/asisten AI di tahap selanjutnya).
+Murni logic, tanpa DOM/UI, tanpa command bawaan apa pun — registry
+kosong sampai modul lain mendaftar di Tahap 3.2+. Terpisah dari
+FEATURE_REGISTRY (taksonomi navigasi) secara sengaja; tidak membaca
+maupun menulis FEATURE_REGISTRY.
+
+- **`ai-command-center.js`** — baru. `window.AICommandCenter`:
+  `registerCommand`, `unregisterCommand`, `getCommands`, `getCommand`,
+  `execute` (dibungkus try/catch, tidak pernah throw ke pemanggil),
+  `clear`.
+- **`tests/ai-command-center.test.js`** — 14 test baru.
+- **`scripts/build.js`** — +1 baris, daftarkan `ai-command-center.js` ke
+  `GROUP_B`. Logic build.js tidak diedit.
+- **`AI-COMMAND-CENTER-FOUNDATION.md`** — dokumentasi deliverable.
+
+## Tidak diubah
+
+FEATURE_REGISTRY, Dashboard V2, business logic modul manapun,
+`index.html`/`app_production.html`, `sw.js`, `package.json`.
+
+## Hasil test
+
+```
+node --test
+# tests 1398
+# pass 1398
+# fail 0
+```
+
+## Status
+
+Foundation Tahap 3.1 selesai. Registry aktif tapi kosong — pendaftaran
+command nyata & UI command palette adalah scope Tahap 3.2+, sesi
+terpisah dengan mandat eksplisit.
+
+## Sprint 3 → Dashboard V2 Migration — RFC Tahap V2.1 (Layout Foundation)
+
+**PLANNING ONLY — tidak ada file kode yang diubah.** `node --test` tetap
+1398/1398 PASS (baseline tidak berubah).
+
+Audit + Migration Plan + Dependency Map + Risk Assessment untuk migrasi
+Dashboard V2 (evolusi dari Hero Dashboard existing `#page-dashboard-hub`,
+BUKAN dashboard terpisah). Temuan audit: istilah "Dashboard V2" sudah
+dipakai 15 dokumen sebelumnya sebagai item yang eksplisit "tidak
+diubah"; bottom nav (`#mainNav`) & `showPage()` adalah chrome GLOBAL
+dipakai semua 8 halaman (termasuk Finance/Vehicle/Reports/Shop) sehingga
+tidak bisa diedit langsung tanpa melanggar constraint; tidak ada preseden
+Sidebar di codebase (app 100% mobile bottom-nav).
+
+Rencana Tahap V2.1: 5 komponen (Sidebar/Header V2/Main Content
+Container/Bottom Navigation V2/FAB V2) dibangun sebagai scaffold BARU,
+dormant, tidak wired ke routing/DOM live — tidak menyentuh `#mainNav`,
+`showPage()`, `FEATURE_REGISTRY`, atau business logic modul manapun.
+
+- **`DASHBOARD-V2-MIGRATION-RFC.md`** — dokumen RFC lengkap (audit,
+  dependency map, risk assessment, daftar file proyeksi implementasi).
+
+## Tidak diubah
+
+Seluruh file kode (0 file kode disentuh). FEATURE_REGISTRY,
+`dashboard-hub.js`, `#mainNav`, `showPage()`, business logic
+Finance/Vehicle/Reports/Shop, data layer.
+
+## Hasil test
+
+```
+node --test
+# tests 1398
+# pass 1398
+# fail 0
+```
+
+## Status
+
+RFC menunggu persetujuan eksplisit. Implementasi V2.1 (5 file kode
+proyeksi, lihat §6 RFC) BELUM dimulai.
+
+## Tahap V2.1 — Dashboard V2 Shell (Layout Foundation)
+
+Baseline: `node --test` 1399/1399 PASS. BLOCKER "Dashboard V2 Shell
+(V2.1) belum ada" dianggap selesai sesi ini — implementasi dieksekusi
+persis sesuai `DASHBOARD-V2-MIGRATION-RFC.md` §4.
+
+### Ditambahkan
+
+- **`dashboard-v2-shell.js`** (file baru) — `window.DashboardV2Shell`
+  dgn API `init()`/`render()`/`destroy()`. Scaffold 5 komponen layout
+  DORMANT (Sidebar, Header V2, Main Content Container, Bottom
+  Navigation V2, FAB V2), semua placeholder murni: tidak ada business
+  logic, tidak ada routing, tidak ada integrasi `FEATURE_REGISTRY`.
+  Root container (`#dashboardV2Root`) dibuat & di-mount lewat JS
+  (`document.createElement`/`appendChild`), bukan markup HTML statis —
+  0 baris `index.html`/`app_production.html` disentuh. Namespace class
+  baru `dashboard-v2-*` (bukan `.nav`/`.nav-item`) supaya tidak
+  bersinggungan dgn query global `showPage()`.
+- **`tests/dashboard-v2-shell.test.js`** — 15 test baru: API tersedia,
+  init/render/destroy idempotent, struktur 5 placeholder, FAB tidak
+  interaktif, namespace tidak bentrok `.nav-item`/`#mainNav`, regresi
+  Dashboard Hub existing & HTML tidak berubah.
+- **`styles.css`**: rule CSS aditif namespace `dashboard-v2-*` utk 5
+  komponen, 100% reuse token existing (`--sp-*`, `--fs-*`, `--bg`,
+  `--surface`, `--text`/`--text2`, `--border`, `--header-bg`),
+  breakpoint Sidebar desktop-only (`min-width:1024px`).
+- **`DASHBOARD-V2-SHELL.md`** — dokumentasi deliverable tahap ini.
+
+### Diubah (aditif)
+
+- **`scripts/build.js`**: +1 baris, daftarkan `dashboard-v2-shell.js`
+  ke `GROUP_B`. Logic build.js tidak diedit.
+
+### Tidak diubah
+
+`index.html`, `app_production.html`, `dashboard-hub.js`,
+`FEATURE_REGISTRY` (`dashboard-hub-registry.js`), `#mainNav`,
+`showPage()`, business logic Finance/Vehicle/Reports/Shop/Hero
+Dashboard, data layer.
+
+### Hasil test
+
+```
+node --test
+# tests 1414
+# pass 1414
+# fail 0
+```
+
+### Status
+
+V2.1 (Layout Foundation) selesai, dormant. V2.2+ (wire-up) tetap
+menunggu mandat eksplisit terpisah.
+
+## Tahap V2.2 — Dashboard V2: Header V2 & Hero V2
+
+Baseline: `node --test` 1414/1414 PASS (akhir Tahap V2.1). Tidak
+mengulang audit; melengkapi isi 2 placeholder existing di
+`dashboard-v2-shell.js` (Header, Main Content Container).
+
+### Ditambahkan
+
+- **`dashboard-v2-shell.js`** (diubah, aditif): Header V2 sekarang
+  merender 4 sub-placeholder (greeting, tombol search `disabled`,
+  tombol notification `disabled`, avatar `role="img"`). Main Content
+  Container sekarang membungkus Hero V2 (welcome title `<h2>`, Health
+  Score, Balance, Insight) — semua teks statis placeholder, dirender
+  sbg anak Main (bukan komponen top-level baru; struktur 5 komponen
+  V2.1 tidak berubah). Semua dibangun via `replaceChildren()`, tanpa
+  `innerHTML`. Atribut aksesibilitas: `role="banner"`/`role="img"`/
+  `role="region"` + `aria-label`/`aria-labelledby` sesuai konteks.
+- **`tests/dashboard-v2-hero.test.js`** — 12 test baru (Header/Hero
+  dirender, 4 placeholder Hero, idempotent, tetap dormant, regresi
+  isolasi dari `FEATURE_REGISTRY`/`showPage()`/`AICommandCenter`/data
+  layer/Dashboard Hub existing/HTML).
+- **`styles.css`**: rule CSS aditif utk sub-elemen Header V2 & Hero V2,
+  100% reuse token existing (`--sp-*`, `--r-pill`, `--r-full`, `--r-xl`,
+  `--fs-*`, `--text`/`--text2`, `--surface2`, `--accent-soft`).
+- **`DASHBOARD-V2-HERO.md`** — dokumentasi deliverable tahap ini.
+
+### Tidak diubah
+
+API `init()`/`render()`/`destroy()`, struktur top-level 5 komponen
+V2.1, `index.html`, `app_production.html`, `dashboard-hub.js`,
+`FEATURE_REGISTRY`, `showPage()`, `AICommandCenter`, business logic
+Finance/Vehicle/Reports/Shop/Hero Dashboard existing, `scripts/build.js`
+(tidak ada file baru yg perlu didaftarkan).
+
+### Hasil test
+
+```
+node --test
+# tests 1426
+# pass 1426
+# fail 0
+```
+
+### Status
+
+V2.2 selesai, dormant. V2.2.2+/V2.3 (wire-up nyata) tetap menunggu
+mandat eksplisit terpisah.
+
+## Tahap V2.3 — Dashboard V2: Summary Cards & Quick Actions
+
+Baseline: `node --test` 1426/1426 PASS (akhir Tahap V2.2). Tidak
+mengulang audit; melengkapi Main Content Container di
+`dashboard-v2-shell.js` dgn 2 sub-komponen baru, sejajar dgn Hero V2.
+
+### Ditambahkan
+
+- **`dashboard-v2-shell.js`** (diubah, aditif): Main Content Container
+  sekarang membungkus 3 anak berurutan — Hero V2 (tidak berubah),
+  Summary Cards (baru), Quick Actions (baru). Struktur top-level 5
+  komponen V2.1 & API `init()`/`render()`/`destroy()` tidak berubah.
+  - **Summary Cards** (`#dashboardV2SummaryCards`, `role="region"`):
+    4 kartu placeholder murni — Total Balance, Monthly Income, Monthly
+    Expense, Health Score. Semua teks statis `-- (placeholder)`, TIDAK
+    membaca `D.profile`/`D.transactions`/sumber data nyata apa pun.
+  - **Quick Actions** (`#dashboardV2QuickActions`, `role="region"`):
+    4 tombol placeholder — Tambah Transaksi, Catatan Kendaraan, Backup,
+    Laporan. **Semua `disabled`**, tanpa `onclick`/`addEventListener`,
+    tanpa routing (tidak memanggil `showPage()`), tanpa business logic
+    apa pun.
+  - Dibangun via `replaceChildren()` di semua level, tanpa `innerHTML`.
+    Atribut aksesibilitas: `role="region"` + `aria-label` per section
+    & per elemen anak.
+- **`tests/dashboard-v2-summary.test.js`** — 13 test baru (struktur
+  Main 3 anak berurutan, Summary Cards 4 kartu, Quick Actions 4 tombol
+  semua disabled, idempotent, tetap dormant, regresi isolasi dari
+  `FEATURE_REGISTRY`/`showPage()`/`AICommandCenter`/data layer/tanpa
+  event handler nyata/Dashboard Hub existing/HTML).
+- **`DASHBOARD-V2-SUMMARY.md`** — dokumentasi deliverable tahap ini.
+
+### Diubah (penyesuaian test lama, bukan regresi)
+
+- **`tests/dashboard-v2-hero.test.js`**: 1 assersi pada test
+  "render() tetap idempotent..." disesuaikan — sebelumnya mengasumsikan
+  Main Content Container hanya py 1 anak (Hero). Sejak Tahap V2.3, Main
+  py 3 anak (Hero + Summary Cards + Quick Actions); assersi diganti jadi
+  memastikan Hero tetap anak pertama & tidak menumpuk. Assersi lain di
+  file ini (Header 4 sub-placeholder, Hero 4 placeholder, dormant, dll)
+  tidak berubah dan tetap lulus.
+
+### Tidak diubah
+
+`index.html`, `app_production.html`, `dashboard-hub.js`,
+`FEATURE_REGISTRY`, `showPage()`, `AICommandCenter`, business logic
+Finance/Vehicle/Reports/Shop/Hero Dashboard existing, `scripts/build.js`
+(tidak ada file baru yg perlu didaftarkan), `styles.css` (tidak
+disentuh — Summary Cards/Quick Actions tahap ini murni struktur DOM,
+styling visual di luar scope).
+
+### Hasil test
+
+```
+node --test
+# tests 1439
+# pass 1439
+# fail 0
+```
+
+### Status
+
+V2.3 (Summary Cards + Quick Actions) selesai, dormant, tidak wired.
+Wire-up nyata (sumber data real, aktivasi tombol, integrasi
+FEATURE_REGISTRY/routing) tetap di luar scope, butuh mandat eksplisit
+terpisah.
+
+## Tahap V2.4 — Dashboard V2: Module Grid & Insight Panel
+
+Baseline: `node --test` 1439/1439 PASS (akhir Tahap V2.3). Melengkapi
+Main Content Container dgn 2 sub-komponen baru, sejajar dgn Hero V2/
+Summary Cards/Quick Actions.
+
+### Ditambahkan
+
+- **`dashboard-v2-shell.js`** (diubah, aditif): Main Content Container
+  sekarang membungkus 5 anak berurutan — Hero, Summary Cards, Quick
+  Actions (tidak berubah), Module Grid (baru), Insight Panel (baru).
+  - **Module Grid** (`#dashboardV2ModuleGrid`, `role="region"`): 6
+    kartu placeholder — Finance, Vehicle, Reports, Family, Documents,
+    Settings. Sekadar label statis, tanpa link/routing.
+  - **Insight Panel** (`#dashboardV2InsightPanel`, `role="region"`): 3
+    baris insight placeholder — "Backup belum dilakukan", "Saldo
+    stabil bulan ini", "Kendaraan akan servis". Teks statis, tidak
+    membaca data nyata.
+- **`tests/dashboard-v2-summary.test.js`**: assersi struktur Main
+  disesuaikan (5 anak, bukan 3) + 6 test baru (Module Grid section, 6
+  module card, Insight Panel section, 3 insight item, dormant check,
+  regresi tanpa routing/event).
+
+### Tidak diubah
+
+Struktur top-level 5 komponen V2.1, API `init()`/`render()`/`destroy()`,
+`index.html`, `app_production.html`, `dashboard-hub.js`,
+`FEATURE_REGISTRY`, `showPage()`, `AICommandCenter`, `styles.css`,
+`scripts/build.js`.
+
+### Hasil test
+
+```
+node --test
+# tests 1445
+# pass 1445
+# fail 0
+```
+
+### Status
+
+V2.4 (Module Grid + Insight Panel) selesai, dormant, tidak wired.
+
+## Tahap V2.5 — Dashboard V2: Sidebar Navigation & Bottom Navigation V2 items
+
+Baseline: `node --test` 1445/1445 PASS (akhir Tahap V2.4). Melengkapi
+ISI 2 placeholder top-level yg dari V2.1 masih teks polos (Sidebar,
+Bottom Navigation V2) — konsisten dgn pola `_buildHeader()` (V2.2):
+tiap komponen dipecah jadi method builder tersendiri.
+
+### Ditambahkan
+
+- **`dashboard-v2-shell.js`** (diubah, aditif): `render()` di-refactor
+  memanggil 2 method builder baru, `_buildSidebar()` dan
+  `_buildBottomNav()`, alih-alih membangun teks polos inline. Struktur
+  top-level 5 komponen & API `init()`/`render()`/`destroy()` tidak
+  berubah.
+  - **Sidebar** (`#dashboardV2Sidebar`): 5 item navigasi placeholder —
+    Dashboard, Finance, Vehicle, Reports, Settings. Semua
+    `<button type="button" disabled>`, namespace class baru
+    `dashboard-v2-sidebar-item` (BUKAN `.nav-item`).
+  - **Bottom Navigation V2** (`#dashboardV2BottomNav`): 4 item navigasi
+    placeholder — Home, Finance, Vehicle, More. Semua
+    `<button type="button" disabled>`, namespace class baru
+    `dashboard-v2-bottomnav-item`. Class induk `dashboard-v2-bottomnav`
+    tidak berubah.
+  - Semua tombol `disabled`, tanpa `onclick`/`addEventListener`, tanpa
+    routing (tidak memanggil `showPage()`), tanpa business logic apa
+    pun — murni placeholder navigasi, sama seperti FAB V2/tombol
+    Header V2. Dibangun via `replaceChildren()`, tanpa `innerHTML`.
+- **`tests/dashboard-v2-navigation.test.js`** — 10 test baru (root
+  tetap 5 komponen, Sidebar 5 item sesuai urutan & disabled, Bottom Nav
+  4 item sesuai urutan & disabled, idempotent, tetap dormant, regresi
+  isolasi dari `FEATURE_REGISTRY`/`showPage()`/`AICommandCenter`/
+  `.nav-item` global/Dashboard Hub existing/HTML).
+
+### Tidak diubah
+
+Struktur top-level 5 komponen V2.1, API `init()`/`render()`/`destroy()`,
+`index.html`, `app_production.html`, `dashboard-hub.js`,
+`FEATURE_REGISTRY`, `showPage()`, `AICommandCenter`, `styles.css`
+(tidak disentuh — item navigasi tahap ini murni struktur DOM, styling
+visual di luar scope), `scripts/build.js` (tidak ada file baru yg
+perlu didaftarkan), `tests/dashboard-v2-shell.test.js` (V2.1),
+`tests/dashboard-v2-hero.test.js` (V2.2), `tests/dashboard-v2-summary.test.js`
+(V2.3/V2.4) — tidak ada assersi yg terdampak, tetap 100% lulus tanpa
+perubahan.
+
+### Hasil test
+
+```
+node --test
+# tests 1456
+# pass 1456
+# fail 0
+```
+
+### Status
+
+V2.5 (Sidebar Navigation + Bottom Navigation V2 items) selesai,
+dormant, tidak wired. Kelima komponen top-level V2.1 kini py isi
+placeholder lengkap (Sidebar, Header, Main, Bottom Nav, FAB). Wire-up
+nyata (routing, aktivasi tombol, integrasi FEATURE_REGISTRY) tetap di
+luar scope, butuh mandat eksplisit terpisah.
+
+## Tahap V2.6 — Recent Activity
+
+Baseline: akhir Tahap V2.5 (`tests 1456 / pass 1456 / fail 0`).
+
+### Ditambahkan
+
+- **`dashboard-v2-shell.js`** — method baru `_buildRecentActivity()`,
+  di-wire ke `_buildMain()` sbg anak ke-6 (setelah Insight Panel V2.4).
+  Urutan Main sekarang: Hero -> Summary Cards -> Quick Actions ->
+  Module Grid -> Insight Panel -> **Recent Activity**.
+  - Recent Activity: 5 baris item aktivitas placeholder murni
+    (`dashboardV2RecentActivityItem1..5`, class induk
+    `dashboard-v2-recent-activity-item`) — teks statis semacam
+    "Transaksi tercatat (placeholder)", TIDAK membaca
+    `D.profile`/`D.transactions`/sumber data nyata apa pun. Pola identik
+    `_buildInsightPanel()` (V2.4): `role="region"` + `aria-label` pada
+    section, tiap item py `aria-label` sendiri, dibangun via
+    `replaceChildren()`, tanpa `innerHTML`.
+  - Tanpa `onclick`/`addEventListener`, tanpa routing (tidak memanggil
+    `showPage()`), tanpa business logic apa pun — sama seperti seluruh
+    sub-komponen Main tahap-tahap sebelumnya.
+- **`tests/dashboard-v2-activity.test.js`** — 11 test baru (Recent
+  Activity ditemukan sbg anak ke-6 Main + role/aria-label, tepat 5
+  item, urutan & isi 5 item sesuai, tetap dormant, idempotent, root
+  top-level tetap 5 komponen, regresi isolasi dari
+  `FEATURE_REGISTRY`/`showPage()`/`AICommandCenter`/`dashboard-hub.js`/
+  HTML markup).
+
+### Diubah
+
+- **`tests/dashboard-v2-summary.test.js`** — 2 assersi jumlah anak Main
+  disesuaikan dari 5 menjadi 6 (struktur Main sekarang py Recent
+  Activity sbg anak ke-6): test struktur Main berurutan, dan test
+  idempotensi `render()`. Tidak ada assersi lain yg terdampak — assersi
+  `root.children.length` (top-level, tetap 5) tidak diubah.
+
+### Tidak diubah
+
+Struktur top-level 5 komponen V2.1, API `init()`/`render()`/`destroy()`,
+`index.html`, `app_production.html`, `dashboard-hub.js`,
+`FEATURE_REGISTRY`, `showPage()`, `AICommandCenter`, `styles.css`
+(tidak disentuh), `scripts/build.js` (tidak ada file baru yg perlu
+didaftarkan), `tests/dashboard-v2-shell.test.js` (V2.1),
+`tests/dashboard-v2-hero.test.js` (V2.2),
+`tests/dashboard-v2-navigation.test.js` (V2.5) — tidak ada assersi yg
+terdampak, tetap 100% lulus tanpa perubahan.
+
+### Hasil test
+
+```
+node --test
+# tests 1467
+# pass 1467
+# fail 0
+```
+
+### Status
+
+V2.6 (Recent Activity) selesai, dormant, tidak wired. Main Content
+Container kini py 6 sub-komponen (Hero, Summary Cards, Quick Actions,
+Module Grid, Insight Panel, Recent Activity). Wire-up nyata (data
+aktivitas sungguhan, routing, integrasi FEATURE_REGISTRY) tetap di
+luar scope, butuh mandat eksplisit terpisah.
+
+## Tahap V2.7 — Statistics Panel
+
+Baseline: akhir Tahap V2.6 (`tests 1467 / pass 1467 / fail 0`).
+
+### Ditambahkan
+
+- **`dashboard-v2-shell.js`** — method baru `_buildStatisticsPanel()`,
+  di-wire ke `_buildMain()` sbg anak ke-7 (setelah Recent Activity
+  V2.6). Urutan Main sekarang: Hero -> Summary Cards -> Quick Actions
+  -> Module Grid -> Insight Panel -> Recent Activity ->
+  **Statistics Panel**.
+  - Statistics Panel: section `role="region"` + `aria-label="Statistics"`
+    berisi 4 kartu statistik placeholder (Income, Expense, Savings,
+    Active Vehicles — id `dashboardV2StatisticsCardIncome/Expense/
+    Savings/Vehicles`, class induk `dashboard-v2-statistics-card`).
+  - Tiap kartu adalah `<button type="button" disabled>` (pola `disabled`
+    sama dgn Quick Actions V2.3/Sidebar & Bottom Nav V2.5) berisi 4
+    sub-elemen placeholder statis: icon (`dashboard-v2-statistics-icon`),
+    title (`dashboard-v2-statistics-title`), value
+    (`dashboard-v2-statistics-value`, "-- (placeholder)"), trend
+    (`dashboard-v2-statistics-trend`, "-- (placeholder)").
+  - Semua teks statis, TIDAK membaca `D.profile`/`D.transactions`/
+    sumber data nyata apa pun. Dibangun via `replaceChildren()`, tanpa
+    `innerHTML`, tanpa `onclick`/`addEventListener`, tanpa routing
+    (tidak memanggil `showPage()`), tanpa integrasi
+    `FEATURE_REGISTRY`/`AICommandCenter`, tanpa `fetch`, tanpa state
+    baru — murni render-stub dormant, konsisten dgn seluruh
+    sub-komponen Main tahap-tahap sebelumnya.
+- **`tests/dashboard-v2-statistics.test.js`** — 13 test baru (Statistics
+  Panel ditemukan sbg anak ke-7 Main + role/aria-label "Statistics",
+  tepat 4 kartu, urutan & atribut `disabled` 4 kartu, isi 4 sub-elemen
+  tiap kartu (icon/title/value/trend), tetap dormant, idempotent, root
+  top-level tetap 5 komponen, regresi isolasi dari
+  `FEATURE_REGISTRY`/`showPage()`/`AICommandCenter`/`fetch`/
+  `dashboard-hub.js`/HTML markup).
+
+### Diubah
+
+- **`tests/dashboard-v2-summary.test.js`** — 2 assersi jumlah anak Main
+  disesuaikan dari 6 menjadi 7 (struktur Main sekarang py Statistics
+  Panel sbg anak ke-7): test struktur Main berurutan, dan test
+  idempotensi `render()` (ditambah cek `statisticsPanel.children.length`
+  = 4). Tidak ada assersi lain yg terdampak.
+- **`tests/dashboard-v2-activity.test.js`** — 1 assersi jumlah anak Main
+  di test idempotensi disesuaikan dari 6 menjadi 7 (assersi lain di
+  file ini — urutan/id 5 activity item, dormant, regresi — tidak
+  terdampak).
+
+### Tidak diubah
+
+Struktur top-level 5 komponen V2.1, API `init()`/`render()`/`destroy()`,
+`index.html`, `app_production.html`, `dashboard-hub.js`,
+`FEATURE_REGISTRY`, `showPage()`, `AICommandCenter`, `styles.css`
+(tidak disentuh), `scripts/build.js` (tidak ada file baru yg perlu
+didaftarkan), `tests/dashboard-v2-shell.test.js` (V2.1),
+`tests/dashboard-v2-hero.test.js` (V2.2),
+`tests/dashboard-v2-navigation.test.js` (V2.5) — tidak ada assersi yg
+terdampak, tetap 100% lulus tanpa perubahan.
+
+### Hasil test
+
+```
+node --test
+# tests 1480
+# pass 1480
+# fail 0
+```
+
+### Status
+
+V2.7 (Statistics Panel) selesai, dormant, tidak wired. Main Content
+Container kini py 7 sub-komponen (Hero, Summary Cards, Quick Actions,
+Module Grid, Insight Panel, Recent Activity, Statistics Panel). Wire-up
+nyata (data statistik sungguhan, aktivasi kartu, routing, integrasi
+`FEATURE_REGISTRY`) tetap di luar scope, butuh mandat eksplisit
+terpisah.
+
+## Tahap V2.8 — Upcoming Tasks
+
+Baseline: akhir Tahap V2.7 (`tests 1480 / pass 1480 / fail 0`).
+
+### Ditambahkan
+
+- **`dashboard-v2-shell.js`** — method baru `_buildUpcomingTasks()`,
+  di-wire ke `_buildMain()` sbg anak ke-8 (setelah Statistics Panel
+  V2.7). Urutan Main sekarang: Hero -> Summary Cards -> Quick Actions
+  -> Module Grid -> Insight Panel -> Recent Activity -> Statistics
+  Panel -> **Upcoming Tasks**.
+  - Upcoming Tasks: section `role="region"` + `aria-label="Upcoming
+    Tasks"` berisi 5 kartu tugas placeholder (Bayar Listrik, Servis
+    Kendaraan, Backup Data, Review Laporan, Perbarui Dokumen — id
+    `dashboardV2UpcomingTaskCardListrik/Servis/Backup/Laporan/Dokumen`,
+    class induk `dashboard-v2-upcoming-task-card`).
+  - Tiap kartu adalah `<button type="button" disabled>` (pola sama
+    persis dgn Statistics Panel V2.7) berisi 4 sub-elemen placeholder
+    statis: icon (`dashboard-v2-upcoming-task-icon`), title
+    (`dashboard-v2-upcoming-task-title`), due date
+    (`dashboard-v2-upcoming-task-due-date`, "-- (placeholder)"),
+    status (`dashboard-v2-upcoming-task-status`, "-- (placeholder)").
+  - Semua teks statis, TIDAK membaca `D.profile`/`D.transactions`/
+    sumber data nyata apa pun. Dibangun via `replaceChildren()`, tanpa
+    `innerHTML`, tanpa `onclick`/`addEventListener`, tanpa routing
+    (tidak memanggil `showPage()`), tanpa integrasi
+    `FEATURE_REGISTRY`/`AICommandCenter`, tanpa `fetch`, tanpa state
+    baru — murni render-stub dormant, konsisten dgn seluruh
+    sub-komponen Main tahap-tahap sebelumnya.
+- **`tests/dashboard-v2-upcoming.test.js`** — 13 test baru (Upcoming
+  Tasks ditemukan sbg anak ke-8 Main + role/aria-label "Upcoming
+  Tasks", tepat 5 kartu, urutan & atribut `disabled` 5 kartu, isi 4
+  sub-elemen tiap kartu (icon/title/due date/status), tetap dormant,
+  idempotent, root top-level tetap 5 komponen, regresi isolasi dari
+  `FEATURE_REGISTRY`/`showPage()`/`AICommandCenter`/`fetch`/
+  `dashboard-hub.js`/HTML markup).
+
+### Diubah
+
+- **`tests/dashboard-v2-summary.test.js`** — 2 assersi jumlah anak Main
+  disesuaikan dari 7 menjadi 8 (struktur Main sekarang py Upcoming
+  Tasks sbg anak ke-8): test struktur Main berurutan, dan test
+  idempotensi `render()` (ditambah cek `upcomingTasks.children.length`
+  = 5). Tidak ada assersi lain yg terdampak.
+- **`tests/dashboard-v2-activity.test.js`** — 1 assersi jumlah anak
+  Main di test idempotensi disesuaikan dari 7 menjadi 8 (assersi lain
+  di file ini tidak terdampak).
+- **`tests/dashboard-v2-statistics.test.js`** — 1 assersi jumlah anak
+  Main di test idempotensi disesuaikan dari 7 menjadi 8 (assersi lain
+  di file ini tidak terdampak).
+
+### Tidak diubah
+
+Struktur top-level 5 komponen V2.1, API `init()`/`render()`/`destroy()`,
+`index.html`, `app_production.html`, `dashboard-hub.js`,
+`FEATURE_REGISTRY`, `showPage()`, `AICommandCenter`, `styles.css`
+(tidak disentuh), `scripts/build.js` (tidak ada file baru yg perlu
+didaftarkan), `tests/dashboard-v2-shell.test.js` (V2.1),
+`tests/dashboard-v2-hero.test.js` (V2.2),
+`tests/dashboard-v2-navigation.test.js` (V2.5) — tidak ada assersi yg
+terdampak, tetap 100% lulus tanpa perubahan.
+
+### Hasil test
+
+```
+node --test
+# tests 1493
+# pass 1493
+# fail 0
+```
+
+### Status
+
+V2.8 (Upcoming Tasks) selesai, dormant, tidak wired. Main Content
+Container kini py 8 sub-komponen (Hero, Summary Cards, Quick Actions,
+Module Grid, Insight Panel, Recent Activity, Statistics Panel, Upcoming
+Tasks). Wire-up nyata (data tugas sungguhan, aktivasi kartu, routing,
+integrasi `FEATURE_REGISTRY`) tetap di luar scope, butuh mandat
+eksplisit terpisah.
+
+## Tahap V2.9 — Notifications Center
+
+Baseline: akhir Tahap V2.8 (`tests 1493 / pass 1493 / fail 0`).
+
+### Ditambahkan
+
+- **`dashboard-v2-shell.js`** — method baru `_buildNotifications()`,
+  di-wire ke `_buildMain()` sbg anak ke-9 (setelah Upcoming Tasks
+  V2.8). Urutan Main sekarang: Hero -> Summary Cards -> Quick Actions
+  -> Module Grid -> Insight Panel -> Recent Activity -> Statistics
+  Panel -> Upcoming Tasks -> **Notifications Center**.
+  - Notifications Center: section `role="region"` + `aria-label=
+    "Notifications"` berisi 5 kartu notifikasi placeholder (Backup
+    berhasil, Pengeluaran tinggi minggu ini, Jadwal servis mendekat,
+    Laporan bulanan siap, Sinkronisasi selesai — id
+    `dashboardV2NotificationCardBackup/Pengeluaran/Servis/Laporan/
+    Sinkronisasi`, class induk `dashboard-v2-notification-card`).
+  - Tiap kartu adalah `<button type="button" disabled>` (pola sama
+    persis dgn Upcoming Tasks V2.8/Statistics Panel V2.7) berisi 4
+    sub-elemen placeholder statis: icon
+    (`dashboard-v2-notification-icon`), title
+    (`dashboard-v2-notification-title`), description
+    (`dashboard-v2-notification-description`, "-- (placeholder)"),
+    timestamp (`dashboard-v2-notification-timestamp`,
+    "-- (placeholder)").
+  - Semua teks statis, TIDAK membaca `D.profile`/`D.transactions`/
+    sumber data nyata apa pun. Dibangun via `replaceChildren()`, tanpa
+    `innerHTML`, tanpa `onclick`/`addEventListener`, tanpa routing
+    (tidak memanggil `showPage()`), tanpa integrasi
+    `FEATURE_REGISTRY`/`AICommandCenter`, tanpa `fetch`, tanpa state
+    baru — murni render-stub dormant, konsisten dgn seluruh
+    sub-komponen Main tahap-tahap sebelumnya.
+- **`tests/dashboard-v2-notifications.test.js`** — 13 test baru
+  (Notifications ditemukan sbg anak ke-9 Main + role/aria-label
+  "Notifications", tepat 5 kartu, urutan & atribut `disabled` 5 kartu,
+  isi 4 sub-elemen tiap kartu (icon/title/description/timestamp),
+  tetap dormant, idempotent, root top-level tetap 5 komponen, regresi
+  isolasi dari `FEATURE_REGISTRY`/`showPage()`/`AICommandCenter`/
+  `fetch`/`dashboard-hub.js`/HTML markup).
+
+### Diubah
+
+- **`tests/dashboard-v2-summary.test.js`** — 2 assersi jumlah anak
+  Main disesuaikan dari 8 menjadi 9 (struktur Main sekarang py
+  Notifications Center sbg anak ke-9): test struktur Main berurutan
+  (ditambah cek `main.children[8].id === 'dashboardV2Notifications'`),
+  dan test idempotensi `render()`. Tidak ada assersi lain yg
+  terdampak.
+- **`tests/dashboard-v2-upcoming.test.js`** — 1 assersi jumlah anak
+  Main di test idempotensi disesuaikan dari 8 menjadi 9 (assersi lain
+  di file ini tidak terdampak).
+- **`tests/dashboard-v2-activity.test.js`** — 1 assersi jumlah anak
+  Main di test idempotensi disesuaikan dari 8 menjadi 9 (assersi lain
+  di file ini tidak terdampak).
+- **`tests/dashboard-v2-statistics.test.js`** — 1 assersi jumlah anak
+  Main di test idempotensi disesuaikan dari 8 menjadi 9 (assersi lain
+  di file ini tidak terdampak).
+
+### Tidak diubah
+
+Struktur top-level 5 komponen V2.1, API `init()`/`render()`/`destroy()`,
+`index.html`, `app_production.html`, `dashboard-hub.js`,
+`FEATURE_REGISTRY`, `showPage()`, `AICommandCenter`, `styles.css`
+(tidak disentuh), `scripts/build.js` (tidak ada file baru yg perlu
+didaftarkan), `tests/dashboard-v2-shell.test.js` (V2.1),
+`tests/dashboard-v2-hero.test.js` (V2.2),
+`tests/dashboard-v2-navigation.test.js` (V2.5) — tidak ada assersi yg
+terdampak, tetap 100% lulus tanpa perubahan.
+
+### Hasil test
+
+```
+node --test
+# tests 1506
+# pass 1506
+# fail 0
+```
+
+### Status
+
+V2.9 (Notifications Center) selesai, dormant, tidak wired. Main
+Content Container kini py 9 sub-komponen (Hero, Summary Cards, Quick
+Actions, Module Grid, Insight Panel, Recent Activity, Statistics
+Panel, Upcoming Tasks, Notifications Center). Wire-up nyata (data
+notifikasi sungguhan, aktivasi kartu, dismiss/read-state, routing,
+integrasi `FEATURE_REGISTRY`) tetap di luar scope, butuh mandat
+eksplisit terpisah.
+
+## Tahap V2.10 — AI Command Center UI
+
+Baseline: akhir Tahap V2.9 (`tests 1506 / pass 1506 / fail 0`).
+
+### Ditambahkan
+
+- **`dashboard-v2-shell.js`** — method baru `_buildAiCommandCenter()`,
+  di-wire ke `_buildMain()` sbg anak ke-10 (setelah Notifications
+  Center V2.9). Urutan Main sekarang: Hero -> Summary Cards -> Quick
+  Actions -> Module Grid -> Insight Panel -> Recent Activity ->
+  Statistics Panel -> Upcoming Tasks -> Notifications Center ->
+  **AI Command Center**.
+  - AI Command Center: section `role="region"` + `aria-label="AI
+    Command Center"` berisi 6 anak: 1 search field placeholder
+    (`<input type="text" readonly>`, id
+    `dashboardV2AiCommandCenterSearch`, class
+    `dashboard-v2-ai-search`), 4 kartu aksi placeholder (Analyze
+    Finance, Analyze Vehicle, Generate Report, Smart Assistant — id
+    `dashboardV2AiCommandCenterAction<Key>`, class
+    `dashboard-v2-ai-action-card`), dan 1 area saran placeholder (id
+    `dashboardV2AiCommandCenterSuggestion`, class
+    `dashboard-v2-ai-suggestion`, teks statis "-- (placeholder)").
+  - Search field murni `readonly` (bukan `disabled`, supaya tetap bisa
+    fokus/dibaca screen reader — namun tanpa input handler apa pun).
+    4 kartu aksi murni `<button type="button" disabled>` (pola sama
+    persis dgn Quick Actions V2.3). Area saran murni `<div>` teks
+    statis, bukan elemen interaktif.
+  - Semua teks statis, TIDAK ada AI/API/fetch sungguhan apa pun, TIDAK
+    membaca `D.profile`/`D.transactions`/sumber data nyata apa pun,
+    TIDAK menyentuh `ai-command-center.js` existing (modul AI
+    sungguhan tidak disentuh/direferensikan). Dibangun via
+    `replaceChildren()`, tanpa `innerHTML`, tanpa `onclick`/
+    `addEventListener`, tanpa routing (tidak memanggil `showPage()`),
+    tanpa integrasi `FEATURE_REGISTRY`, tanpa state baru — murni
+    render-stub dormant, konsisten dgn seluruh sub-komponen Main
+    tahap-tahap sebelumnya.
+  - Catatan penamaan: identifier kode (id/method) memakai
+    `AiCommandCenter` (bukan `AICommandCenter`) supaya tidak collide
+    scr string dgn nama modul `AICommandCenter` existing yg sengaja
+    diverifikasi TIDAK direferensikan oleh regresi test tahap-tahap
+    sebelumnya (V2.2–V2.9). Teks tampilan (`aria-label`) tetap "AI
+    Command Center" apa adanya.
+- **`tests/dashboard-v2-ai.test.js`** — 14 test baru (AI Command
+  Center ditemukan sbg anak ke-10 Main + role/aria-label "AI Command
+  Center", tepat 6 anak, search field readonly, urutan & atribut
+  `disabled` 4 kartu aksi, suggestion area & isi placeholder, tetap
+  dormant, idempotent, root top-level tetap 5 komponen, regresi
+  isolasi dari `FEATURE_REGISTRY`/`showPage()`/`AICommandCenter`/
+  `fetch`/`ai-command-center.js`/`dashboard-hub.js`/HTML markup).
+
+### Diubah
+
+- **`tests/dashboard-v2-summary.test.js`** — 2 assersi jumlah anak
+  Main disesuaikan dari 9 menjadi 10 (struktur Main sekarang py AI
+  Command Center sbg anak ke-10): test struktur Main berurutan
+  (ditambah cek `main.children[9].id === 'dashboardV2AiCommandCenter'`),
+  dan test idempotensi `render()`. Tidak ada assersi lain yg
+  terdampak.
+- **`tests/dashboard-v2-upcoming.test.js`** — 1 assersi jumlah anak
+  Main di test idempotensi disesuaikan dari 9 menjadi 10 (assersi lain
+  di file ini tidak terdampak).
+- **`tests/dashboard-v2-activity.test.js`** — 1 assersi jumlah anak
+  Main di test idempotensi disesuaikan dari 9 menjadi 10 (assersi lain
+  di file ini tidak terdampak).
+- **`tests/dashboard-v2-statistics.test.js`** — 1 assersi jumlah anak
+  Main di test idempotensi disesuaikan dari 9 menjadi 10 (assersi lain
+  di file ini tidak terdampak).
+- **`tests/dashboard-v2-notifications.test.js`** — 1 assersi jumlah
+  anak Main di test idempotensi disesuaikan dari 9 menjadi 10 (assersi
+  lain di file ini tidak terdampak).
+
+### Tidak diubah
+
+Struktur top-level 5 komponen V2.1, API `init()`/`render()`/`destroy()`,
+`index.html`, `app_production.html`, `dashboard-hub.js`,
+`ai-command-center.js`, `FEATURE_REGISTRY`, `showPage()`,
+`AICommandCenter`, `styles.css` (tidak disentuh), `scripts/build.js`
+(tidak ada file baru yg perlu didaftarkan), `tests/dashboard-v2-shell.test.js`
+(V2.1), `tests/dashboard-v2-hero.test.js` (V2.2),
+`tests/dashboard-v2-navigation.test.js` (V2.5) — tidak ada assersi yg
+terdampak, tetap 100% lulus tanpa perubahan.
+
+### Hasil test
+
+```
+node --test
+# tests 1520
+# pass 1520
+# fail 0
+```
+
+### Status
+
+V2.10 (AI Command Center UI) selesai, dormant, tidak wired. Main
+Content Container kini py 10 sub-komponen (Hero, Summary Cards, Quick
+Actions, Module Grid, Insight Panel, Recent Activity, Statistics
+Panel, Upcoming Tasks, Notifications Center, AI Command Center).
+Wire-up nyata (AI sungguhan, pemrosesan search, aktivasi kartu aksi,
+routing, integrasi `FEATURE_REGISTRY`/`AICommandCenter` existing)
+tetap di luar scope, butuh mandat eksplisit terpisah.
+
+## Tahap V2.11 — Dashboard V2 – Health Score Widget
+
+### Ditambahkan
+
+- **`dashboard-v2-shell.js`** — method builder baru `_buildHealthScore()`,
+  di-wire ke `_buildMain()` sbg anak ke-11 (setelah AI Command Center
+  V2.10). Section `role="region"` + `aria-label="Health Score"`, berisi
+  6 anak berurutan:
+  - 1 circular score placeholder (`dashboardV2HealthScoreCircle`, class
+    `dashboard-v2-health-score-circle`) membungkus 1 nilai skor statis
+    (`dashboardV2HealthScoreValue`, textContent `"--"`).
+  - 1 subtitle statis (`dashboardV2HealthScoreSubtitle`, class
+    `dashboard-v2-health-score-subtitle`, textContent "Overall System
+    Health").
+  - 4 kartu metrik (Finance, Vehicle, Documents, Family), pola identik
+    `_buildNotifications()`/`_buildAiCommandCenter()`: `<button
+    type="button" disabled>` (class `dashboard-v2-health-metric-card`),
+    masing2 berisi 3 anak — icon (`span`, class
+    `dashboard-v2-health-metric-icon`), title (`span`, class
+    `dashboard-v2-health-metric-title`), status placeholder (`span`,
+    class `dashboard-v2-health-metric-status`, textContent "--
+    (placeholder)").
+  - Semua teks statis, TIDAK ada AI/API/fetch sungguhan apa pun, TIDAK
+    membaca `D.profile`/`D.transactions`/sumber data nyata apa pun,
+    TIDAK menyentuh `ai-command-center.js`/`dashboard-hub.js`/
+    `FEATURE_REGISTRY` existing. Dibangun via `replaceChildren()`,
+    tanpa `innerHTML`, tanpa `onclick`/`addEventListener`, tanpa
+    routing (tidak memanggil `showPage()`), tanpa state baru — murni
+    render-stub dormant, konsisten dgn seluruh sub-komponen Main
+    tahap-tahap sebelumnya. Namespace class baru memakai konvensi
+    `dashboard-v2-health-*`, belum ada deklarasi CSS baru
+    (`styles.css` tidak disentuh).
+- **`tests/dashboard-v2-health.test.js`** — 13 test baru (Health Score
+  Widget ditemukan sbg anak ke-11 Main + role/aria-label "Health
+  Score", tepat 6 anak, circular score placeholder & subtitle,
+  urutan & atribut `disabled`/isi 4 kartu metrik, tetap dormant,
+  idempotent, root top-level tetap 5 komponen, regresi isolasi dari
+  `FEATURE_REGISTRY`/`showPage()`/`AICommandCenter`/`fetch`/
+  `dashboard-hub.js`/HTML markup).
+
+### Diubah
+
+- **`tests/dashboard-v2-summary.test.js`** — 2 assersi jumlah anak
+  Main disesuaikan dari 10 menjadi 11 (assersi lain di file ini tidak
+  terdampak).
+- **`tests/dashboard-v2-upcoming.test.js`** — 1 assersi jumlah anak
+  Main di test idempotensi disesuaikan dari 10 menjadi 11 (assersi
+  lain di file ini tidak terdampak).
+- **`tests/dashboard-v2-activity.test.js`** — 1 assersi jumlah anak
+  Main di test idempotensi disesuaikan dari 10 menjadi 11 (assersi
+  lain di file ini tidak terdampak).
+- **`tests/dashboard-v2-statistics.test.js`** — 1 assersi jumlah anak
+  Main di test idempotensi disesuaikan dari 10 menjadi 11 (assersi
+  lain di file ini tidak terdampak).
+- **`tests/dashboard-v2-notifications.test.js`** — 1 assersi jumlah
+  anak Main di test idempotensi disesuaikan dari 10 menjadi 11
+  (assersi lain di file ini tidak terdampak).
+- **`tests/dashboard-v2-ai.test.js`** — 1 assersi jumlah anak Main di
+  test idempotensi disesuaikan dari 10 menjadi 11 (assersi lain di
+  file ini tidak terdampak, termasuk assersi anak ke-10 AI Command
+  Center yg tetap benar).
+
+### Tidak diubah
+
+Struktur top-level 5 komponen V2.1, API `init()`/`render()`/`destroy()`,
+`index.html`, `app_production.html`, `dashboard-hub.js`,
+`ai-command-center.js`, `FEATURE_REGISTRY`, `showPage()`,
+`AICommandCenter`, `styles.css` (tidak disentuh), `scripts/build.js`
+(tidak ada file baru yg perlu didaftarkan), `tests/dashboard-v2-shell.test.js`
+(V2.1), `tests/dashboard-v2-hero.test.js` (V2.2),
+`tests/dashboard-v2-navigation.test.js` (V2.5) — tidak ada assersi yg
+terdampak, tetap 100% lulus tanpa perubahan.
+
+### Hasil test
+
+```
+node --test
+# tests 1533
+# pass 1533
+# fail 0
+```
+
+### Status
+
+V2.11 (Health Score Widget) selesai, dormant, tidak wired. Main
+Content Container kini py 11 sub-komponen (Hero, Summary Cards, Quick
+Actions, Module Grid, Insight Panel, Recent Activity, Statistics
+Panel, Upcoming Tasks, Notifications Center, AI Command Center, Health
+Score Widget). Wire-up nyata (kalkulasi skor sungguhan, integrasi data
+Finance/Vehicle/Documents/Family nyata, aktivasi kartu metrik, routing)
+tetap di luar scope, butuh mandat eksplisit terpisah.
+
+## Tahap V2.12 — Dashboard V2 – Predictive Insights
+
+### Ditambahkan
+
+- **`dashboard-v2-shell.js`** — method builder baru
+  `_buildPredictiveInsights()`, di-wire ke `_buildMain()` sbg anak
+  ke-12 (setelah Health Score Widget V2.11). Section `role="region"`
+  + `aria-label="Predictive Insights"`, berisi 5 kartu insight
+  prediktif berurutan (Cash Flow Forecast, Budget Trend, Vehicle
+  Maintenance Prediction, Family Schedule Prediction, Document
+  Expiration Prediction), pola identik
+  `_buildNotifications()`/`_buildAiCommandCenter()`/
+  `_buildHealthScore()`: `<button type="button" disabled>` (class
+  `dashboard-v2-predictive-card`), masing2 berisi 5 sub-elemen —
+  icon (`span`, class `dashboard-v2-predictive-icon`), title (`span`,
+  class `dashboard-v2-predictive-title`), prediction placeholder
+  (`span`, class `dashboard-v2-predictive-prediction`, textContent
+  `"--"`), confidence placeholder (`span`, class
+  `dashboard-v2-predictive-confidence`, textContent `"--"`), dan
+  recommendation placeholder (`span`, class
+  `dashboard-v2-predictive-recommendation`, textContent "--
+  (placeholder)").
+  - Semua teks statis, TIDAK ada AI/API/fetch sungguhan apa pun, TIDAK
+    membaca `D.profile`/`D.transactions`/sumber data nyata apa pun,
+    TIDAK ada perhitungan/prediksi sungguhan apa pun, TIDAK menyentuh
+    `ai-command-center.js`/`dashboard-hub.js`/`FEATURE_REGISTRY`
+    existing. Dibangun via `replaceChildren()` (di level section & di
+    level setiap kartu), tanpa `innerHTML`, tanpa `onclick`/
+    `addEventListener`, tanpa routing (tidak memanggil `showPage()`),
+    tanpa state baru — murni render-stub dormant, konsisten dgn
+    seluruh sub-komponen Main tahap-tahap sebelumnya. Namespace class
+    baru memakai konvensi `dashboard-v2-predictive-*`, belum ada
+    deklarasi CSS baru (`styles.css` tidak disentuh).
+- **`tests/dashboard-v2-predictive.test.js`** — 11 test baru
+  (Predictive Insights ditemukan sbg anak ke-12 Main +
+  role/aria-label "Predictive Insights", tepat 5 kartu, urutan &
+  atribut `disabled`/isi 5 kartu (icon/title/prediction/confidence/
+  recommendation), tetap dormant, idempotent, root top-level tetap 5
+  komponen, regresi isolasi dari
+  `FEATURE_REGISTRY`/`showPage()`/`AICommandCenter`/`fetch`/
+  `dashboard-hub.js`/HTML markup).
+
+### Diubah
+
+- **`tests/dashboard-v2-summary.test.js`** — 2 assersi jumlah anak
+  Main disesuaikan dari 11 menjadi 12 (assersi lain di file ini tidak
+  terdampak).
+- **`tests/dashboard-v2-upcoming.test.js`** — 1 assersi jumlah anak
+  Main di test idempotensi disesuaikan dari 11 menjadi 12 (assersi
+  lain di file ini tidak terdampak).
+- **`tests/dashboard-v2-activity.test.js`** — 1 assersi jumlah anak
+  Main di test idempotensi disesuaikan dari 11 menjadi 12 (assersi
+  lain di file ini tidak terdampak).
+- **`tests/dashboard-v2-statistics.test.js`** — 1 assersi jumlah anak
+  Main di test idempotensi disesuaikan dari 11 menjadi 12 (assersi
+  lain di file ini tidak terdampak).
+- **`tests/dashboard-v2-notifications.test.js`** — 1 assersi jumlah
+  anak Main di test idempotensi disesuaikan dari 11 menjadi 12
+  (assersi lain di file ini tidak terdampak).
+- **`tests/dashboard-v2-ai.test.js`** — 1 assersi jumlah anak Main di
+  test idempotensi disesuaikan dari 11 menjadi 12 (assersi lain di
+  file ini tidak terdampak).
+- **`tests/dashboard-v2-health.test.js`** — 1 assersi jumlah anak Main
+  di test idempotensi disesuaikan dari 11 menjadi 12 (assersi lain di
+  file ini tidak terdampak, termasuk assersi anak ke-11 Health Score
+  yg tetap benar).
+
+### Tidak diubah
+
+Struktur top-level 5 komponen V2.1, API `init()`/`render()`/`destroy()`,
+`index.html`, `app_production.html`, `dashboard-hub.js`,
+`ai-command-center.js`, `FEATURE_REGISTRY`, `showPage()`,
+`AICommandCenter`, `styles.css` (tidak disentuh), `scripts/build.js`
+(tidak ada file baru yg perlu didaftarkan), `tests/dashboard-v2-shell.test.js`
+(V2.1), `tests/dashboard-v2-hero.test.js` (V2.2),
+`tests/dashboard-v2-navigation.test.js` (V2.5) — tidak ada assersi yg
+terdampak, tetap 100% lulus tanpa perubahan.
+
+### Hasil test
+
+```
+node --test
+# tests 1544
+# pass 1544
+# fail 0
+```
+
+### Status
+
+V2.12 (Predictive Insights) selesai, dormant, tidak wired. Main
+Content Container kini py 12 sub-komponen (Hero, Summary Cards, Quick
+Actions, Module Grid, Insight Panel, Recent Activity, Statistics
+Panel, Upcoming Tasks, Notifications Center, AI Command Center, Health
+Score Widget, Predictive Insights). Wire-up nyata (perhitungan
+prediksi/forecast sungguhan, integrasi data Finance/Vehicle/Family/
+Documents nyata, aktivasi kartu, routing, styling visual) tetap di
+luar scope, butuh mandat eksplisit terpisah.
+
+## Tahap V2.13 — Dashboard V2 – Automation Center
+
+### Ditambahkan
+
+- **`dashboard-v2-shell.js`** — method builder baru
+  `_buildAutomationCenter()`, di-wire ke `_buildMain()` sbg anak ke-13
+  (setelah Predictive Insights V2.12). Section `role="region"` +
+  `aria-label="Automation Center"`, berisi 5 kartu automation
+  berurutan (Auto Backup, Monthly Report, Budget Reminder, Vehicle
+  Service Reminder, Document Renewal Reminder), pola identik
+  `_buildNotifications()`/`_buildAiCommandCenter()`/
+  `_buildHealthScore()`/`_buildPredictiveInsights()`: `<button
+  type="button" disabled>` (class `dashboard-v2-automation-card`),
+  masing2 berisi 5 sub-elemen — icon (`span`, class
+  `dashboard-v2-automation-icon`), title (`span`, class
+  `dashboard-v2-automation-title`), schedule placeholder (`span`,
+  class `dashboard-v2-automation-schedule`, textContent `"--"`),
+  status placeholder (`span`, class `dashboard-v2-automation-status`,
+  textContent `"Disabled"`), dan description placeholder (`span`,
+  class `dashboard-v2-automation-description`, teks statis per kartu).
+  - Semua teks statis, TIDAK ada AI/API/fetch sungguhan apa pun, TIDAK
+    membaca `D.profile`/`D.transactions`/sumber data nyata apa pun,
+    TIDAK ada scheduling/eksekusi automation sungguhan apa pun, TIDAK
+    menyentuh `ai-command-center.js`/`dashboard-hub.js`/
+    `FEATURE_REGISTRY` existing. Dibangun via `replaceChildren()` (di
+    level section & di level setiap kartu), tanpa `innerHTML`, tanpa
+    `onclick`/`addEventListener`, tanpa routing (tidak memanggil
+    `showPage()`), tanpa state baru — murni render-stub dormant,
+    konsisten dgn seluruh sub-komponen Main tahap-tahap sebelumnya.
+    Namespace class baru memakai konvensi
+    `dashboard-v2-automation-*`, belum ada deklarasi CSS baru
+    (`styles.css` tidak disentuh).
+- **`tests/dashboard-v2-automation.test.js`** — 11 test baru
+  (Automation Center ditemukan sbg anak ke-13 Main +
+  role/aria-label "Automation Center", tepat 5 kartu, urutan &
+  atribut `disabled`/isi 5 kartu (icon/title/schedule/status/
+  description), tetap dormant, idempotent, root top-level tetap 5
+  komponen, regresi isolasi dari
+  `FEATURE_REGISTRY`/`showPage()`/`AICommandCenter`/`fetch`/
+  `dashboard-hub.js`/HTML markup).
+
+### Diubah
+
+- **`tests/dashboard-v2-summary.test.js`** — 2 assersi jumlah anak
+  Main disesuaikan dari 12 menjadi 13 (assersi lain di file ini tidak
+  terdampak).
+- **`tests/dashboard-v2-upcoming.test.js`** — 1 assersi jumlah anak
+  Main di test idempotensi disesuaikan dari 12 menjadi 13 (assersi
+  lain di file ini tidak terdampak).
+- **`tests/dashboard-v2-activity.test.js`** — 1 assersi jumlah anak
+  Main di test idempotensi disesuaikan dari 12 menjadi 13 (assersi
+  lain di file ini tidak terdampak).
+- **`tests/dashboard-v2-statistics.test.js`** — 1 assersi jumlah anak
+  Main di test idempotensi disesuaikan dari 12 menjadi 13 (assersi
+  lain di file ini tidak terdampak).
+- **`tests/dashboard-v2-notifications.test.js`** — 1 assersi jumlah
+  anak Main di test idempotensi disesuaikan dari 12 menjadi 13
+  (assersi lain di file ini tidak terdampak).
+- **`tests/dashboard-v2-ai.test.js`** — 1 assersi jumlah anak Main di
+  test idempotensi disesuaikan dari 12 menjadi 13 (assersi lain di
+  file ini tidak terdampak).
+- **`tests/dashboard-v2-health.test.js`** — 1 assersi jumlah anak Main
+  di test idempotensi disesuaikan dari 12 menjadi 13 (assersi lain di
+  file ini tidak terdampak).
+- **`tests/dashboard-v2-predictive.test.js`** — 1 assersi jumlah anak
+  Main di test idempotensi disesuaikan dari 12 menjadi 13 (assersi
+  lain di file ini tidak terdampak, termasuk assersi anak ke-12
+  Predictive Insights yg tetap benar).
+
+### Tidak diubah
+
+Struktur top-level 5 komponen V2.1, API `init()`/`render()`/`destroy()`,
+`index.html`, `app_production.html`, `dashboard-hub.js`,
+`ai-command-center.js`, `FEATURE_REGISTRY`, `showPage()`,
+`AICommandCenter`, `styles.css` (tidak disentuh), `scripts/build.js`
+(tidak ada file baru yg perlu didaftarkan), `tests/dashboard-v2-shell.test.js`
+(V2.1), `tests/dashboard-v2-hero.test.js` (V2.2),
+`tests/dashboard-v2-navigation.test.js` (V2.5) — tidak ada assersi yg
+terdampak, tetap 100% lulus tanpa perubahan.
+
+### Hasil test
+
+```
+node --test
+# tests 1555
+# pass 1555
+# fail 0
+```
+
+### Status
+
+V2.13 (Automation Center) selesai, dormant, tidak wired. Main Content
+Container kini py 13 sub-komponen (Hero, Summary Cards, Quick Actions,
+Module Grid, Insight Panel, Recent Activity, Statistics Panel,
+Upcoming Tasks, Notifications Center, AI Command Center, Health Score
+Widget, Predictive Insights, Automation Center). Wire-up nyata
+(scheduling/eksekusi automation sungguhan, integrasi backup/laporan/
+reminder nyata, aktivasi kartu, routing, styling visual) tetap di luar
+scope, butuh mandat eksplisit terpisah.
+
+## Tahap V2.14A — Dashboard V2 Activation Framework
+
+### Ditambahkan
+
+- **`dashboard-v2-activation.js`** (file baru) — mekanisme feature flag
+  internal in-memory untuk Dashboard V2, terpisah sepenuhnya dari
+  `dashboard-v2-shell.js`:
+  - `isDashboardV2Enabled()` — baca state flag saat ini. Default `false`.
+  - `enableDashboardV2()` — set flag jadi `true`. Idempotent.
+  - `disableDashboardV2()` — set flag jadi `false`. Idempotent.
+  State disimpan di variabel closure top-level file (`_dashboardV2Enabled`),
+  in-memory saja (tidak localStorage/cookie/query-param), reset ke default
+  `false` setiap file di-load ulang. Tiga fungsi juga ditempel ke
+  `window` (pola sama dgn `window.DashboardV2Shell` di
+  `dashboard-v2-shell.js`) untuk pemakaian di browser.
+  File ini TIDAK membaca/menulis `FEATURE_REGISTRY`, TIDAK memanggil
+  `showPage()`, TIDAK menyentuh DOM sama sekali, TIDAK
+  meng-instantiate/memanggil `DashboardV2Shell`, TIDAK menghubungkan
+  data (`D.profile`/`D.transactions`/dst). Flag ini murni disiapkan
+  untuk dibaca oleh tahap wiring terpisah nanti — mengaktifkannya di
+  tahap ini SENDIRIAN tidak menampilkan apa pun karena belum ada kode
+  lain di repo yang membacanya.
+- **`tests/dashboard-v2-activation.test.js`** — 11 test baru: default
+  `false`, `enableDashboardV2()`, `disableDashboardV2()`, idempotensi
+  enable & disable, transisi berulang, isolasi state antar-instance
+  load, jaminan tidak menyentuh `document`/DOM, jaminan tidak memanggil
+  `showPage()`, jaminan tidak mengakses `FEATURE_REGISTRY`, serta cek
+  statis (grep) atas source file untuk memastikan tidak ada baris kode
+  aktif yang mereferensikan `showPage(`, `FEATURE_REGISTRY`, atau
+  `DashboardV2Shell`.
+- **`scripts/build.js`** — mendaftarkan `dashboard-v2-activation.js` di
+  daftar file bundle, tepat setelah `dashboard-v2-shell.js` (murni
+  administratif supaya file baru ikut ter-bundle; tidak mengubah urutan
+  atau entri lain).
+- **`DASHBOARD-V2-ACTIVATION.md`** (file baru) — dokumentasi tahap ini.
+
+### Tidak diubah
+
+`FEATURE_REGISTRY` (`dashboard-hub-registry.js`), `showPage()`,
+`dashboard-hub.js`, `index.html`, `app_production.html`,
+`dashboard-v2-shell.js`, seluruh business logic aplikasi (D.*), routing,
+serta seluruh test suite V2.1–V2.13 yang sudah ada — tidak ada satu
+baris pun di file-file tersebut yang tersentuh tahap ini. Dashboard
+lama (Dashboard Hub existing) tetap default & aktif sepenuhnya, tidak
+terpengaruh oleh flag ini.
+
+### Hasil test
+
+```
+node --test
+# tests 1566
+# pass 1566
+# fail 0
+```
+
+### Status
+
+Mekanisme aktivasi (feature flag) untuk Dashboard V2 sudah tersedia
+tapi belum dipakai di mana pun — Dashboard V2 tetap 100% dormant,
+Dashboard lama tetap default. Wiring nyata (mis. `dashboard-hub.js`
+atau titik lain membaca `isDashboardV2Enabled()` untuk memutuskan
+render Dashboard mana yang ditampilkan) tetap di luar scope, butuh
+mandat eksplisit terpisah (tahap integrasi berikutnya).
+
+## Tahap V2.14B — Dashboard V2 Activation Wiring (render, baca-saja)
+
+### Diubah
+
+- **`dashboard-v2-shell.js`** — `render()` sekarang membaca
+  `isDashboardV2Enabled()` (global dari `dashboard-v2-activation.js`,
+  V2.14A) satu kali di awal, untuk menentukan 2 atribut root yang sudah
+  ada sejak V2.1 (`hidden`, `data-dashboard-v2-state`):
+  - Flag `false` (default) → root tetap `hidden` + `data-dashboard-v2-state="dormant"` (perilaku identik V2.1–V2.13, tidak berubah).
+  - Flag `true` → atribut `hidden` dilepas (`removeAttribute`) +
+    `data-dashboard-v2-state="active"`.
+  Dipanggil via `typeof isDashboardV2Enabled === 'function'` guard, jadi
+  kalau `dashboard-v2-activation.js` belum ter-load di suatu environment,
+  `render()` tetap jalan tanpa error dan fallback ke dormant (tidak ada
+  perubahan perilaku dari sebelumnya). Struktur top-level 5 komponen,
+  API `init()`/`render()`/`destroy()`, dan seluruh sub-komponen Main
+  (Hero .. Automation Center) tidak berubah — satu-satunya perubahan
+  adalah blok baca-flag + toggle 2 atribut di awal `render()`.
+  Tidak ada `showPage()`, tidak ada `FEATURE_REGISTRY`, tidak ada
+  pembacaan data Finance/Vehicle/AI, tidak ada `fetch`, tidak ada
+  property state instance baru (`this.*`), tidak ada event listener baru.
+- **`tests/dashboard-v2-shell.test.js`** dan test V2.1–V2.13 lainnya —
+  **tidak diubah**. Karena sandbox test-test tersebut tidak menyuntik
+  `isDashboardV2Enabled`, guard `typeof` di `render()` otomatis fallback
+  ke `false` (dormant) — perilaku persis sama seperti sebelum tahap ini,
+  jadi tidak ada assertion yang perlu disesuaikan.
+
+### Ditambahkan
+
+- **`tests/dashboard-v2-activation-render.test.js`** (file baru) — 11
+  test: default (`isDashboardV2Enabled` tidak ada/`false`) tetap hidden
+  + dormant; setelah flag `true` → hidden dilepas + `active`; setelah
+  flag kembali `false` → hidden lagi + dormant; environment tanpa
+  `isDashboardV2Enabled` sama sekali tetap fallback ke dormant tanpa
+  error; idempotensi `render()` saat flag `true` maupun `false` (tetap 1
+  root, tetap 5 children, atribut konsisten); transisi berulang
+  `false → true → false → true`; jaminan `render()` tidak memanggil
+  `showPage()`; jaminan `render()` tidak mengakses `FEATURE_REGISTRY`;
+  jaminan `render()` hanya MEMBACA flag (tidak memanggil
+  `enableDashboardV2()`/`disableDashboardV2()` sendiri); serta cek
+  statis (grep atas source, di luar baris komentar) untuk memastikan
+  tidak ada referensi kode aktif ke `showPage(`/`FEATURE_REGISTRY`.
+  Flag activation di test ini disimulasikan lewat fungsi
+  `isDashboardV2Enabled` yang di-inject manual ke sandbox
+  `dashboard-v2-shell.js` (bukan menjalankan `dashboard-v2-activation.js`
+  sungguhan) — logic enable/disable itu sendiri sudah dites terpisah di
+  `tests/dashboard-v2-activation.test.js` (V2.14A).
+- **`DASHBOARD-V2-ACTIVATION-RENDER.md`** (file baru) — dokumentasi
+  tahap ini.
+
+### Tidak diubah
+
+`dashboard-v2-activation.js` (V2.14A, sudah final — tidak disentuh),
+`FEATURE_REGISTRY` (`dashboard-hub-registry.js`), `showPage()`,
+`dashboard-hub.js`, `index.html`, `app_production.html`, routing, dan
+seluruh business logic aplikasi (`D.*`). Dashboard lama tetap default
+& aktif sepenuhnya. Seluruh test suite V2.1–V2.14A yang sudah ada tidak
+diubah, tetap 100% lulus tanpa modifikasi assertion.
+
+### Hasil test
+
+```
+node --test
+# tests 1577
+# pass 1577
+# fail 0
+```
+
+### Status
+
+`DashboardV2Shell.render()` kini secara nyata terhubung ke activation
+flag (V2.14A) — tapi Dashboard V2 tetap dormant secara default & tidak
+ada satu pun titik lain di repo yang memanggil
+`enableDashboardV2()`/mengaktifkan flag ini. Dashboard lama tetap
+satu-satunya yang tampil ke pengguna. Wiring rendering nyata ke UI
+(kapan/bagaimana `DashboardV2Shell.init()`/`render()` benar-benar
+dipanggil dari titik masuk aplikasi, serta penggantian Dashboard lama)
+tetap di luar scope, butuh mandat eksplisit terpisah.
+
+## Tahap V2.14C — Dashboard V2 Mount (baca activation flag di DashboardHub.render())
+
+### Diubah
+
+- **`dashboard-hub.js`** — `DashboardHub.render()` menambah SATU blok
+  baru di akhir (pola sama persis dgn conditional render() opsional yg
+  sudah ada: `LifeOSHome.render()`, `DashboardHubFavoritView.render()`,
+  `DashboardHubHero.render()`, `DashboardHubSummary.render()`,
+  `DashboardHubAnalytics.render()`):
+  ```js
+  if (typeof isDashboardV2Enabled === 'function' && isDashboardV2Enabled() === true
+    && typeof DashboardV2Shell !== 'undefined') {
+    DashboardV2Shell.init();
+    DashboardV2Shell.render();
+  }
+  ```
+  Flag `false` (default) → blok ini no-op total, Dashboard lama berjalan
+  identik dgn sebelum tahap ini. Flag `true` → `DashboardV2Shell.init()`
+  lalu `DashboardV2Shell.render()` dipanggil (keduanya idempotent by
+  contract dari V2.1/V2.14B, jadi `DashboardHub.render()` dipanggil
+  berkali-kali tidak menumpuk root/children Dashboard V2). Tidak ada
+  perubahan lain di `dashboard-hub.js` — `showPage()`, `FEATURE_REGISTRY`,
+  `DashboardHub.open()`, dan seluruh logic render existing di atas blok
+  ini tidak tersentuh.
+- **12 file test lama** (`tests/dashboard-v2-shell.test.js`,
+  `tests/dashboard-v2-hero.test.js`, `tests/dashboard-v2-activity.test.js`,
+  `tests/dashboard-v2-statistics.test.js`,
+  `tests/dashboard-v2-notifications.test.js`,
+  `tests/dashboard-v2-upcoming.test.js`, `tests/dashboard-v2-ai.test.js`,
+  `tests/dashboard-v2-health.test.js`,
+  `tests/dashboard-v2-predictive.test.js`,
+  `tests/dashboard-v2-automation.test.js`,
+  `tests/dashboard-v2-navigation.test.js`,
+  `tests/dashboard-v2-summary.test.js`) — masing2 punya SATU assertion
+  peninggalan V2.1–V2.13 yg menjamin `dashboard-hub.js` **0 referensi**
+  ke `DashboardV2Shell` (`assert.doesNotMatch(hubSrc, /DashboardV2Shell/)`).
+  Assertion itu SENGAJA jadi usang di tahap ini (mount V2.14C memang
+  dimandatkan menyentuh `dashboard-hub.js`), jadi diperbarui: sekarang
+  menjamin referensi `DashboardV2Shell` di `dashboard-hub.js` muncul
+  **tepat 1x**, **di dalam guard `typeof DashboardV2Shell !== 'undefined'`**
+  (bukan unconditional / tersebar di banyak tempat). Tidak ada assertion
+  lain di file2 ini yg diubah.
+
+### Ditambahkan
+
+- **`tests/dashboard-v2-mount.test.js`** (file baru) — 11 test: default
+  (flag `false`) Dashboard lama tetap jalan & `DashboardV2Shell` sama
+  sekali tidak dipanggil; flag `true` → `init()` dipanggil; flag `true`
+  → `render()` dipanggil; flag `false` (disable) → Dashboard lama tetap,
+  `DashboardV2Shell` tidak dipanggil; `DashboardHub.render()` dipanggil
+  berkali-kali saat flag `true` → `init()`/`render()` Dashboard V2 ikut
+  1:1 (bukan dobel dalam satu panggilan); jaminan tidak dobel dalam satu
+  panggilan `DashboardHub.render()`; environment tanpa
+  `isDashboardV2Enabled` sama sekali → tidak error, tidak mount;
+  environment tanpa `DashboardV2Shell` sama sekali → tidak error walau
+  flag `true`; jaminan tidak memanggil `showPage()`; jaminan blok mount
+  tidak "memakai" `FEATURE_REGISTRY` dgn cara baru; serta cek statis
+  (grep atas potongan source di sekitar blok mount) memastikan blok itu
+  tidak mereferensikan `FEATURE_REGISTRY`/`showPage(` secara tekstual.
+- **`DASHBOARD-V2-MOUNT.md`** (file baru) — dokumentasi tahap ini.
+
+### Tidak diubah
+
+`dashboard-v2-shell.js` (V2.1–V2.14B), `dashboard-v2-activation.js`
+(V2.14A), `FEATURE_REGISTRY`/`dashboard-hub-registry.js`, `showPage()`,
+`index.html`, `app_production.html`, routing, dan seluruh business
+logic aplikasi (`D.*`, Finance/Vehicle/Reports/AI). Dashboard lama tetap
+default & aktif — mount Dashboard V2 hanya terjadi kalau flag activation
+diaktifkan secara eksplisit, dan tidak ada satu pun titik lain di repo
+yang melakukan itu.
+
+### Hasil test
+
+```
+node --test
+# tests 1588
+# pass 1588
+# fail 0
+```
+
+### Status
+
+Dashboard V2 kini bisa benar-benar ter-mount ke DOM (via
+`DashboardV2Shell.init()`+`render()`) setiap kali `DashboardHub.render()`
+dipanggil — TAPI hanya kalau activation flag (V2.14A) diaktifkan. Karena
+tidak ada kode produksi yang memanggil `enableDashboardV2()`, flag tetap
+`false` secara default dan Dashboard lama tetap satu-satunya yang
+tampil ke pengguna. Titik masuk nyata untuk mengaktifkan flag ini (mis.
+toggle developer/QA, query-param, atau UI settings) tetap di luar
+scope, butuh mandat eksplisit terpisah.
+
+## Tahap V2.14C+ — Guard Init-Once Dashboard V2 Mount
+
+Baseline: hasil akhir V2.14C (`node --test` → 1588/1588 PASS).
+
+### Ditambahkan
+
+- **Guard init-once** di `DashboardHub.render()` (blok mount Dashboard V2,
+  V2.14C): `DashboardV2Shell.init()` kini hanya dipanggil **sekali** (flag
+  internal `DashboardHub._dashHubV2Initialized`), sedangkan
+  `DashboardV2Shell.render()` tetap dipanggil setiap kali
+  `DashboardHub.render()` dipanggil, selama `isDashboardV2Enabled() ===
+  true`. Sebelumnya `init()` ikut terpanggil ulang tiap `DashboardHub.
+  render()` — aman (idempotent by contract), tapi kerja sia-sia.
+- **`tests/dashboard-v2-init-once.test.js`** (file baru) — 8 test baru:
+  init() sekali walau render() berkali-kali, render() tetap 1:1 dgn
+  jumlah panggilan `DashboardHub.render()`, disable→enable ulang tidak
+  memicu init() kedua, beberapa siklus disable/enable tetap 1x init,
+  Dashboard lama tetap normal saat flag false, environment tanpa
+  `DashboardV2Shell` tidak error, tidak memanggil `showPage()`, dan
+  jaminan statis blok guard tidak mereferensikan `FEATURE_REGISTRY`.
+- **`DASHBOARD-V2-INIT-ONCE.md`** — dokumentasi deliverable tahap ini.
+
+### Diubah
+
+- **`dashboard-hub.js`**: hanya blok mount Dashboard V2 di dalam
+  `DashboardHub.render()` (lihat V2.14C) yang disentuh — dibungkus guard
+  `if (!DashboardHub._dashHubV2Initialized) { ...init()... }`. Tidak ada
+  baris lain di file ini yang diubah.
+- **`tests/dashboard-v2-mount.test.js`**: 1 assertion pada test
+  `"DashboardHub.render() dipanggil berkali-kali saat flag true..."`
+  disesuaikan — sebelumnya menegaskan `init()` ikut bertambah di
+  panggilan `render()` ke-2 (perilaku V2.14C sebelum guard ini), kini
+  menegaskan `init()` tetap 1 sedangkan `render()` tetap bertambah.
+  Assertion lain di file yang sama tidak disentuh.
+
+### Tidak diubah
+
+`dashboard-v2-shell.js`, `dashboard-v2-activation.js`,
+`FEATURE_REGISTRY`/`dashboard-hub-registry.js`, `showPage()`,
+`index.html`, `app_production.html`, routing, dan seluruh business
+logic aplikasi. Dashboard lama tetap default & aktif; guard ini murni
+menghemat panggilan `init()` saat flag Dashboard V2 aktif — tidak
+mengubah kapan/apakah Dashboard V2 muncul.
+
+### Hasil test
+
+```
+node --test
+# tests 1596
+# pass 1596
+# fail 0
+```
+
+## Tahap V2.14D — Auto Destroy Dashboard V2 + Perbaikan Kontrak Test
+
+Baseline: hasil akhir Tahap "Guard Init-Once" (`node --test` → 1596/1596
+PASS).
+
+### Ditambahkan
+
+- **Blok auto-destroy** di `DashboardHub.render()` (setelah blok
+  mount/init-once V2.14C+): kalau `isDashboardV2Enabled() === false`
+  **dan** `DashboardV2Shell` tersedia **dan** `DashboardHub.
+  _dashHubV2Initialized === true` (pernah ter-init sebelumnya), maka
+  `DashboardV2Shell.destroy()` dipanggil TEPAT SEKALI, lalu
+  `_dashHubV2Initialized` di-reset ke `false`. Guard memakai pola
+  `typeof` yang sama dengan blok mount di atasnya.
+- **`DASHBOARD-V2-AUTO-DESTROY.md`** — dokumentasi deliverable tahap
+  ini.
+
+### Diubah
+
+- **`dashboard-hub.js`**: hanya method `DashboardHub.render()`, blok
+  setelah guard init-once — ditambah blok auto-destroy baru. Tidak ada
+  baris lain yang disentuh, `dashboard-v2-shell.js` tidak diubah.
+- **12 file test** (`tests/dashboard-v2-activity.test.js`,
+  `dashboard-v2-ai.test.js`, `dashboard-v2-automation.test.js`,
+  `dashboard-v2-health.test.js`, `dashboard-v2-hero.test.js`,
+  `dashboard-v2-mount.test.js`, `dashboard-v2-navigation.test.js`,
+  `dashboard-v2-notifications.test.js`, `dashboard-v2-predictive.test.js`,
+  `dashboard-v2-shell.test.js`, `dashboard-v2-statistics.test.js`,
+  `dashboard-v2-summary.test.js`, `dashboard-v2-upcoming.test.js`) — 1
+  assertion tiap file disesuaikan: sebelumnya menegaskan referensi tekstual
+  `typeof DashboardV2Shell !== 'undefined'` muncul TEPAT 1x di
+  `dashboard-hub.js`; sekarang menegaskan TEPAT 2x (1 guard mount/init +
+  1 guard auto-destroy), sesuai kontrak baru. Regression check TIDAK
+  dihapus — hanya angka & komentarnya diperbarui.
+- **`tests/dashboard-v2-init-once.test.js`**: mock `DashboardV2Shell`
+  ditambah `destroy()`. Dua test yang sebelumnya menegaskan "init()
+  hanya sekali selama umur aplikasi" ditulis ulang mengikuti kontrak
+  baru "init() sekali PER SIKLUS AKTIVASI": disable men-trigger
+  `destroy()` sekali, enable berikutnya boleh memanggil `init()` lagi.
+  Test "Dashboard lama (flag false dari awal)" ditambah assertion
+  `destroy() === 0` (belum pernah init, jadi destroy tidak boleh
+  terpanggil). Test lain di file ini tidak berubah logikanya.
+
+### Tidak diubah
+
+`dashboard-v2-shell.js`, `dashboard-hub-registry.js`
+(`FEATURE_REGISTRY`), `showPage()`, `index.html`,
+`app_production.html`, routing, dan seluruh business logic aplikasi.
+Dashboard lama tetap default & aktif.
+
+### Hasil test
+
+```
+node --test tests/dashboard-v2-init-once.test.js
+# tests 8
+# pass 8
+# fail 0
+
+node --test
+# tests 1596
+# pass 1596
+# fail 0
+```
+
+## Tahap V2.15 — Dashboard V2 Activation Switch
+
+Baseline: hasil akhir Tahap V2.14D — Auto Destroy (`node --test` →
+1596/1596 PASS).
+
+### Ditambahkan
+
+- **Blok Activation Switch** (`_dashHubV2SwitchHtml()`, fungsi baru) di
+  `dashboard-hub.js`: merender satu blok toggle UI (checkbox + label
+  "Dashboard V2 aktif/nonaktif") di bagian atas `#dashboardHubGrid`,
+  HANYA kalau `isDashboardV2Enabled`/`enableDashboardV2`/
+  `disableDashboardV2` (dari `dashboard-v2-activation.js`, V2.14A)
+  semuanya tersedia sbg function — pola guard `typeof` yang sama dengan
+  blok mount/init-once/auto-destroy. Kalau salah satu tidak tersedia,
+  blok ini no-op total (tidak ada markup switch sama sekali).
+- **`DashboardHub.toggleDashboardV2()`** (method baru): dipanggil lewat
+  `data-action="DashboardHub.toggleDashboardV2"` pada checkbox switch
+  (pola sama dgn `data-action="DashboardHub.open"` yang sudah ada). Baca
+  state sekarang lewat `isDashboardV2Enabled()`, panggil
+  `disableDashboardV2()` kalau sedang `true` / `enableDashboardV2()`
+  kalau sedang `false` (keduanya fungsi existing V2.14A, tidak diubah),
+  lalu panggil `DashboardHub.render()` supaya switch dan seluruh blok
+  mount/init-once/auto-destroy (V2.14C/V2.14D, tidak diubah) langsung
+  mengikuti state baru.
+- **`tests/dashboard-v2-activation-switch.test.js`** (file baru) — 11
+  test: switch tidak dirender tanpa API aktivasi, switch dirender saat
+  API tersedia, checkbox mengikuti `isDashboardV2Enabled()`, label
+  "Dashboard V2" muncul, `toggleDashboardV2()` memanggil
+  `enableDashboardV2()`/`disableDashboardV2()` sesuai arah flip,
+  `toggleDashboardV2()` memanggil `DashboardHub.render()` tepat 1x,
+  tidak memanggil `showPage()`, jaminan statis tidak mereferensikan
+  `FEATURE_REGISTRY`, aman tanpa `DashboardV2Shell`, dan idempotent saat
+  dipanggil berulang.
+- **`DASHBOARD-V2-ACTIVATION-SWITCH.md`** — dokumentasi deliverable
+  tahap ini.
+
+### Diubah
+
+- **`dashboard-hub.js`**: satu fungsi baru (`_dashHubV2SwitchHtml()`)
+  ditambahkan sebelum deklarasi `const DashboardHub`; `el.innerHTML` di
+  `DashboardHub.render()` diubah dari
+  `FEATURE_REGISTRY.map(...).join('')` menjadi
+  `_dashHubV2SwitchHtml() + FEATURE_REGISTRY.map(...).join('')`; satu
+  method baru (`toggleDashboardV2()`) ditambahkan ke objek `DashboardHub`
+  setelah `render()`, sebelum `open()`. Tidak ada baris lain yang
+  disentuh — blok mount/init-once/auto-destroy (V2.14C/V2.14D) persis
+  sama, `dashboard-v2-shell.js` dan `dashboard-v2-activation.js` tidak
+  diubah.
+
+### Tidak diubah
+
+`dashboard-v2-shell.js`, `dashboard-v2-activation.js`,
+`FEATURE_REGISTRY`/`dashboard-hub-registry.js`, `showPage()`,
+`index.html`, `app_production.html`, routing, seluruh business logic
+aplikasi, dan seluruh file test lama (tidak ada assertion di file test
+manapun yang diubah pada tahap ini — hanya 1 file test baru). Dashboard
+lama tetap default & aktif; switch murni menambah cara MENGUBAH flag
+lewat UI, tidak mengubah kapan/apakah Dashboard V2 muncul untuk flag
+yang sama.
+
+### Hasil test
+
+```
+node --test tests/dashboard-v2-activation-switch.test.js
+# tests 11
+# pass 11
+# fail 0
+
+node --test
+# tests 1607
+# pass 1607
+# fail 0
+```
+
+## Tahap V2.16 — Dashboard V2 Data Adapter Layer
+
+Baseline: hasil akhir Tahap V2.15 — Activation Switch (`node --test` →
+1607/1607 PASS).
+
+### Ditambahkan
+
+- **`dashboard-v2-data-adapter.js`** (file baru, satu-satunya file
+  produksi baru tahap ini) — lapisan baca-saja (read-only) di atas state
+  global `D` (features-helpers-global-security.js), empat fungsi murni:
+  - `getFinanceSummary()` — `accountCount`/`totalBalance` dari
+    `D.accounts`, `transactionCount` dari `D.transactions`.
+  - `getVehicleSummary()` — `vehicleCount` dari `D.vehicles`,
+    `bbmLogCount` dari `D.bbmLogs`, `servisLogCount` dari `D.servisLogs`.
+  - `getFamilySummary()` — `anakCount` dari `D.catatan.anak`,
+    `milestoneDoneCount`/`milestoneTotalCount` dari `D.milestones`,
+    `reminderCount` dari `D.reminders`.
+  - `getDocumentSummary()` — `simCount` dari `D.simList`,
+    `vehicleTaxDocCount` dari field dokumen pajak per kendaraan
+    (`pajakTahunanTgl`/`pajakLimaTahunTgl`/`ujiKelayakanTgl` di tiap
+    elemen `D.vehicles`, ditulis `vehicle-core.js`).
+  Semua fungsi: guard `typeof D` (return `null` kalau `D` belum
+  ter-load), tanpa `fetch`, tanpa state baru (tidak ada `let`/`var`
+  top-level), tanpa mutasi `D`, tanpa routing/`showPage()`/
+  `FEATURE_REGISTRY`.
+- **`tests/dashboard-v2-data-adapter.test.js`** (file baru) — 18 test:
+  perhitungan tiap fungsi ringkasan, penanganan data kosong/tidak
+  lengkap, guard saat `D` belum ter-load/`null`, jaminan read-only lewat
+  `Proxy` yang melarang `set`/`deleteProperty` pada `D`, tidak menyentuh
+  `document`/`showPage()`/`FEATURE_REGISTRY`, dan jaminan statis tidak
+  ada `let`/`var` top-level maupun referensi tekstual `fetch(`/
+  `DashboardV2Shell`.
+- **`DASHBOARD-V2-DATA-ADAPTER.md`** — dokumentasi deliverable tahap
+  ini, termasuk hasil inspeksi sumber data existing per domain.
+
+### Diubah
+
+Tidak ada. Tahap ini murni menambah file baru — `dashboard-hub.js`,
+`dashboard-v2-shell.js`, `dashboard-v2-activation.js`, dan seluruh file
+test lama TIDAK disentuh.
+
+### Tidak diubah
+
+Dashboard lama, business logic (`D.*` writer: `transaksi.js`,
+`vehicle-core.js`, `akun.js`, dst), `FEATURE_REGISTRY`/
+`dashboard-hub-registry.js`, `showPage()`, `index.html`,
+`app_production.html`, routing. Dashboard V2 BELUM memakai adapter ini
+di tahap ini — tidak ada satu pun titik lain di repo yang memanggil
+`getFinanceSummary()`/`getVehicleSummary()`/`getFamilySummary()`/
+`getDocumentSummary()`. Wiring pemakaian oleh Dashboard V2 di luar
+scope tahap ini.
+
+### Hasil test
+
+```
+node --test tests/dashboard-v2-data-adapter.test.js
+# tests 18
+# pass 18
+# fail 0
+
+node --test
+# tests 1625
+# pass 1625
+# fail 0
+```
+
+## Tahap V2.17 — Dashboard V2 Hero Data Integration
+
+Baseline: hasil akhir Tahap V2.16 — Dashboard V2 Data Adapter Layer
+(`node --test` → 1625/1625 PASS).
+
+### Diubah
+
+- **`dashboard-v2-shell.js`** — `_buildHero()` (satu-satunya fungsi yang
+  disentuh tahap ini) sekarang mulai memakai
+  `dashboard-v2-data-adapter.js` (V2.16), TAPI HANYA di Hero. 4 elemen
+  baru ditambah sbg anak Hero (additive, di bawah 4 elemen lama Tahap
+  V2.2 yang TIDAK diubah):
+  - `dashboardV2HeroFinanceSummary` — dari `getFinanceSummary()`.
+  - `dashboardV2HeroVehicleSummary` — dari `getVehicleSummary()`.
+  - `dashboardV2HeroFamilySummary` — dari `getFamilySummary()`.
+  - `dashboardV2HeroDocumentSummary` — dari `getDocumentSummary()`.
+
+  Setiap fungsi adapter dipanggil lewat guard `typeof fn === 'function'`
+  (pola sama dgn `isDashboardV2Enabled()`, Tahap V2.14B) — shell TIDAK
+  membaca `D` langsung sama sekali, satu-satunya jalur baca data tetap
+  lewat adapter. Kalau fungsi adapter tidak tersedia ATAU return `null`
+  (mis. `D` belum ter-load — guard internal adapter sendiri), elemen
+  fallback ke teks placeholder ("Keuangan: -- (placeholder)" dst) — 4
+  elemen baru ini SELALU ada & SELALU punya teks, tidak pernah
+  kosong/`undefined`. Summary Cards, Module Grid, Statistics, Activity,
+  Notifications, Automation, AI, Predictive, Health — semua di luar Hero
+  — TIDAK disentuh sama sekali.
+
+### Ditambahkan
+
+- **`tests/dashboard-v2-hero-data.test.js`** (file baru) — 17 test:
+  4 elemen data summary baru tampil dgn fallback placeholder saat
+  adapter tidak di-load/return `null`; 4 elemen lama (title/healthScore/
+  balance/insight) tidak berubah; masing-masing dari 4 fungsi adapter
+  menampilkan ringkasan sungguhan saat tersedia & ada data (di-mock per
+  fungsi); integrasi sungguhan end-to-end (adapter ASLI + shell dalam
+  satu sandbox, `D` tiruan) untuk kasus ada data, `D` belum ter-load, dan
+  idempotency `render()`; aksesibilitas (`aria-label` di 4 elemen baru);
+  constraint statis (tanpa `fetch(`/`showPage(`/`FEATURE_REGISTRY`, tanpa
+  `D.` langsung di shell, tanpa `innerHTML`, adapter tetap 4 fungsi yang
+  sama tanpa `let`/`var` top-level baru, guard `typeof` dipakai utk
+  ke-4 fungsi); `dashboard-hub.js`/`index.html`/`app_production.html`
+  tetap tidak tersentuh.
+- **`DASHBOARD-V2-HERO-DATA.md`** — dokumentasi deliverable tahap ini.
+
+### Tidak diubah
+
+`dashboard-v2-data-adapter.js` (dijamin identik dgn baseline V2.16 —
+diverifikasi `diff` & test tanda tangan API), `dashboard-hub.js`,
+`dashboard-v2-activation.js`, Summary Cards/Module Grid/Statistics
+Panel/Recent Activity/Notifications Center/Automation Center/AI Command
+Center/Predictive Insights/Health Score Widget (semua sub-komponen Main
+selain Hero), `FEATURE_REGISTRY`/`dashboard-hub-registry.js`,
+`showPage()`, routing, `index.html`, `app_production.html`. Tidak ada
+fetch, tidak ada business logic baru (murni interpolasi field yang
+sudah dihitung adapter), tidak ada state instance baru. Seluruh 94 file
+test lama (baseline V2.16) tidak satu pun diubah — hanya 1 file test
+baru ditambahkan.
+
+### Hasil test
+
+```
+node --test tests/dashboard-v2-hero-data.test.js
+# tests 17
+# pass 17
+# fail 0
+
+node --test
+# tests 1642
+# pass 1642
+# fail 0
+```
+
+## Tahap V2.18 — Summary Cards Data Integration
+
+Baseline: 1642/1642 PASS (akhir Tahap V2.17).
+
+### Diubah
+
+- **`dashboard-v2-shell.js`** — HANYA `_buildSummaryCards()` diedit.
+  Mengikuti pola persis Tahap V2.17 (`_buildHero`): 4 elemen baru
+  ditambah sbg anak Summary Cards, satu per fungsi
+  `dashboard-v2-data-adapter.js` (getFinanceSummary/getVehicleSummary/
+  getFamilySummary/getDocumentSummary), dgn fallback placeholder bila
+  adapter tidak tersedia/return `null`. 4 kartu lama (Total Balance/
+  Monthly Income/Monthly Expense/Health Score) TIDAK berubah. Summary
+  Cards jadi 8 anak (4 lama + 4 baru).
+- **`tests/dashboard-v2-summary.test.js`** — 2 assertion lama
+  (`cards.children.length`) disesuaikan dari `4` ke `8` (satu-satunya
+  perubahan: jumlah anak Summary Cards bertambah akibat penambahan
+  additive tahap ini).
+
+### Ditambahkan
+
+- **`tests/dashboard-v2-summary-data.test.js`** — 18 test baru:
+  adapter tidak di-load → 4 elemen baru tetap ada dgn fallback
+  placeholder; 4 kartu lama tidak berubah; fungsi adapter tersedia tapi
+  return `null` → tetap fallback placeholder; masing-masing dari 4
+  fungsi adapter menampilkan ringkasan sungguhan saat tersedia & ada
+  data (di-mock per fungsi); integrasi sungguhan end-to-end (adapter
+  ASLI + shell dalam satu sandbox, `D` tiruan) untuk kasus ada data, `D`
+  belum ter-load, dan idempotency `render()`; aksesibilitas
+  (`aria-label` di 4 elemen baru); constraint statis (tanpa
+  `fetch(`/`showPage(`/`FEATURE_REGISTRY`, tanpa `D.` langsung di
+  shell, tanpa `innerHTML`, adapter tetap 4 fungsi yang sama tanpa
+  `let`/`var` top-level baru, guard `typeof` dipakai utk ke-4 fungsi
+  tepat 2x — Hero + Summary Cards); Hero (V2.17) tidak ikut berubah;
+  `dashboard-hub.js`/`index.html`/`app_production.html` tetap tidak
+  tersentuh.
+- **`DASHBOARD-V2-SUMMARY-DATA.md`** — dokumentasi deliverable tahap
+  ini.
+
+### Tidak diubah
+
+`dashboard-v2-data-adapter.js` (dijamin identik dgn baseline V2.16 —
+diverifikasi `diff` & test tanda tangan API), `dashboard-hub.js`,
+`dashboard-v2-activation.js`, Hero, Quick Actions/Module Grid/Insight
+Panel/Recent Activity/Statistics Panel/Upcoming Tasks/Notifications
+Center/AI Command Center/Health Score Widget/Predictive Insights/
+Automation Center (semua sub-komponen Main selain Summary Cards),
+`FEATURE_REGISTRY`/`dashboard-hub-registry.js`, `showPage()`, routing,
+`index.html`, `app_production.html`. Tidak ada fetch, tidak ada
+business logic baru (murni interpolasi field yang sudah dihitung
+adapter), tidak ada state instance baru. Seluruh file test lama
+(baseline V2.17) tidak satu pun diubah selain 2 assertion di
+`tests/dashboard-v2-summary.test.js` (jumlah child berubah) — hanya
+1 file test baru ditambahkan.
+
+### Hasil test
+
+```
+node --test tests/dashboard-v2-summary-data.test.js
+# tests 18
+# pass 18
+# fail 0
+
+node --test
+# tests 1660
+# pass 1660
+# fail 0
+```
+
+## Tahap V2.19 — Module Grid Data Integration
+
+Baseline: 1660/1660 PASS (akhir Tahap V2.18).
+
+### Diubah
+
+- **`dashboard-v2-shell.js`** — HANYA `_buildModuleGrid()` diedit.
+  Mengikuti pola persis Tahap V2.17/V2.18: 4 elemen baru ditambah sbg
+  anak Module Grid, satu per fungsi `dashboard-v2-data-adapter.js`
+  (getFinanceSummary/getVehicleSummary/getFamilySummary/
+  getDocumentSummary), dgn fallback placeholder bila adapter tidak
+  tersedia/return `null`. 6 kartu lama (Finance/Vehicle/Reports/
+  Family/Documents/Settings) TIDAK berubah. Module Grid jadi 10 anak
+  (6 lama + 4 baru). Reports & Settings sengaja tidak dapat elemen data
+  baru (tidak ada fungsi adapter utk domain itu).
+- **`tests/dashboard-v2-summary.test.js`** — 2 assertion lama
+  (`moduleGrid.children.length`/`grid.children.length`) disesuaikan
+  dari `6` ke `10` (satu-satunya perubahan: jumlah anak Module Grid
+  bertambah akibat penambahan additive tahap ini).
+- **`tests/dashboard-v2-summary-data.test.js`** — 1 assertion constraint
+  (jumlah guard `typeof fn === 'function'` per fungsi adapter)
+  disesuaikan dari `2x` ke `3x`, karena `_buildModuleGrid()` menambah 1
+  titik pemanggilan guard baru per fungsi.
+
+### Ditambahkan
+
+- **`tests/dashboard-v2-module-grid-data.test.js`** — 18 test baru:
+  adapter tidak di-load → 4 elemen baru tetap ada dgn fallback
+  placeholder; 6 kartu lama tidak berubah; fungsi adapter tersedia tapi
+  return `null` → tetap fallback placeholder; masing-masing dari 4
+  fungsi adapter menampilkan ringkasan sungguhan saat tersedia & ada
+  data (di-mock per fungsi); integrasi sungguhan end-to-end (adapter
+  ASLI + shell dalam satu sandbox, `D` tiruan) untuk kasus ada data, `D`
+  belum ter-load, dan idempotency `render()`; aksesibilitas
+  (`aria-label` di 4 elemen baru); constraint statis (tanpa
+  `fetch(`/`showPage(`/`FEATURE_REGISTRY`, tanpa `D.` langsung di
+  shell, tanpa `innerHTML`, adapter tetap 4 fungsi yang sama tanpa
+  `let`/`var` top-level baru, guard `typeof` dipakai utk ke-4 fungsi
+  tepat 3x — Hero + Summary Cards + Module Grid); Hero (V2.17) &
+  Summary Cards (V2.18) tidak ikut berubah;
+  `dashboard-hub.js`/`index.html`/`app_production.html` tetap tidak
+  tersentuh.
+- **`DASHBOARD-V2-MODULE-GRID-DATA.md`** — dokumentasi deliverable
+  tahap ini.
+
+### Tidak diubah
+
+`dashboard-v2-data-adapter.js` (dijamin identik dgn baseline V2.16 —
+diverifikasi `diff` & test tanda tangan API), `dashboard-hub.js`,
+`dashboard-v2-activation.js`, Hero, Summary Cards, Quick Actions/
+Insight Panel/Recent Activity/Statistics Panel/Upcoming Tasks/
+Notifications Center/AI Command Center/Health Score Widget/Predictive
+Insights/Automation Center (semua sub-komponen Main selain Module
+Grid), `FEATURE_REGISTRY`/`dashboard-hub-registry.js`, `showPage()`,
+routing, `index.html`, `app_production.html`. Tidak ada fetch, tidak
+ada business logic baru (murni interpolasi field yang sudah dihitung
+adapter), tidak ada state instance baru. Seluruh file test lama
+(baseline V2.18) tidak satu pun diubah selain 2 assertion child-count
+di `tests/dashboard-v2-summary.test.js` dan 1 assertion guard-count di
+`tests/dashboard-v2-summary-data.test.js` — hanya 1 file test baru
+ditambahkan.
+
+### Hasil test
+
+```
+node --test tests/dashboard-v2-module-grid-data.test.js
+# tests 18
+# pass 18
+# fail 0
+
+node --test
+# tests 1678
+# pass 1678
+# fail 0
+```
+
+## Tahap V2.20 — Statistics Panel Data Integration
+
+Baseline: 1678/1678 PASS (akhir Tahap V2.19).
+
+### Diubah
+
+- **`dashboard-v2-shell.js`** — HANYA `_buildStatisticsPanel()`
+  diedit. Mengikuti pola persis Tahap V2.17/V2.18/V2.19: 4 elemen baru
+  ditambah sbg anak Statistics Panel, satu per fungsi
+  `dashboard-v2-data-adapter.js` (getFinanceSummary/getVehicleSummary/
+  getFamilySummary/getDocumentSummary), dgn fallback placeholder bila
+  adapter tidak tersedia/return `null`. 4 kartu lama (Income/Expense/
+  Savings/Active Vehicles) TIDAK berubah. Statistics Panel jadi 8 anak
+  (4 lama + 4 baru).
+- **`tests/dashboard-v2-statistics.test.js`** — 2 assertion lama
+  (`panel.children.length`) disesuaikan dari `4` ke `8` (satu-satunya
+  perubahan: jumlah anak Statistics Panel bertambah akibat penambahan
+  additive tahap ini).
+- **`tests/dashboard-v2-summary.test.js`** — 1 assertion lama
+  (`statisticsPanel.children.length`) disesuaikan dari `4` ke `8`,
+  alasan yang sama.
+- **`tests/dashboard-v2-summary-data.test.js`** &
+  **`tests/dashboard-v2-module-grid-data.test.js`** — masing-masing 1
+  assertion constraint (jumlah guard `typeof fn === 'function'` per
+  fungsi adapter) disesuaikan dari `3x` ke `4x`, karena
+  `_buildStatisticsPanel()` menambah 1 titik pemanggilan guard baru per
+  fungsi.
+
+### Ditambahkan
+
+- **`tests/dashboard-v2-statistics-data.test.js`** — 18 test baru:
+  adapter tidak di-load → 4 elemen baru tetap ada dgn fallback
+  placeholder; 4 kartu lama tidak berubah; fungsi adapter tersedia tapi
+  return `null` → tetap fallback placeholder; masing-masing dari 4
+  fungsi adapter menampilkan ringkasan sungguhan saat tersedia & ada
+  data (di-mock per fungsi); integrasi sungguhan end-to-end (adapter
+  ASLI + shell dalam satu sandbox, `D` tiruan) untuk kasus ada data, `D`
+  belum ter-load, dan idempotency `render()`; aksesibilitas
+  (`aria-label` di 4 elemen baru); constraint statis (tanpa
+  `fetch(`/`showPage(`/`FEATURE_REGISTRY`, tanpa `D.` langsung di
+  shell, tanpa `innerHTML`, adapter tetap 4 fungsi yang sama tanpa
+  `let`/`var` top-level baru, guard `typeof` dipakai utk ke-4 fungsi
+  tepat 4x — Hero + Summary Cards + Module Grid + Statistics Panel);
+  Hero (V2.17), Summary Cards (V2.18) & Module Grid (V2.19) tidak ikut
+  berubah; `dashboard-hub.js`/`index.html`/`app_production.html` tetap
+  tidak tersentuh.
+- **`DASHBOARD-V2-STATISTICS-DATA.md`** — dokumentasi deliverable
+  tahap ini.
+
+### Tidak diubah
+
+`dashboard-v2-data-adapter.js` (dijamin identik dgn baseline V2.16 —
+diverifikasi `diff` & test tanda tangan API), `dashboard-hub.js`,
+`dashboard-v2-activation.js`, Hero, Summary Cards, Quick Actions,
+Module Grid, Insight Panel, Recent Activity, Upcoming Tasks,
+Notifications Center, AI Command Center, Health Score Widget,
+Predictive Insights, Automation Center (semua sub-komponen Main selain
+Statistics Panel), `FEATURE_REGISTRY`/`dashboard-hub-registry.js`,
+`showPage()`, routing, `index.html`, `app_production.html`. Tidak ada
+fetch, tidak ada business logic baru (murni interpolasi field yang
+sudah dihitung adapter), tidak ada state instance baru. Seluruh file
+test lama (baseline V2.19) tidak satu pun diubah selain 2 assertion
+child-count di `tests/dashboard-v2-statistics.test.js`, 1 assertion
+child-count di `tests/dashboard-v2-summary.test.js`, dan 2 assertion
+guard-count di `tests/dashboard-v2-summary-data.test.js` &
+`tests/dashboard-v2-module-grid-data.test.js` — hanya 1 file test baru
+ditambahkan.
+
+### Hasil test
+
+```
+node --test tests/dashboard-v2-statistics-data.test.js
+# tests 18
+# pass 18
+# fail 0
+
+node --test
+# tests 1696
+# pass 1696
+# fail 0
+```
+
+## Tahap V2.21 — Recent Activity Data Integration
+
+Baseline: 1696/1696 PASS (akhir Tahap V2.20).
+
+### Diubah
+
+- **`dashboard-v2-shell.js`** — HANYA `_buildRecentActivity()` diedit.
+  Mengikuti pola persis Tahap V2.17/V2.18/V2.19/V2.20: 4 elemen baru
+  ditambah sbg anak Recent Activity, satu per fungsi
+  `dashboard-v2-data-adapter.js` (getFinanceSummary/getVehicleSummary/
+  getFamilySummary/getDocumentSummary), dgn fallback placeholder bila
+  adapter tidak tersedia/return `null`. 5 baris lama (item1-item5)
+  TIDAK berubah. Recent Activity jadi 9 anak (5 lama + 4 baru).
+- **`tests/dashboard-v2-activity.test.js`** — 2 assertion lama
+  (`activity.children.length`) disesuaikan dari `5` ke `9`
+  (satu-satunya perubahan: jumlah anak Recent Activity bertambah
+  akibat penambahan additive tahap ini).
+- **`tests/dashboard-v2-summary.test.js`** — 1 assertion lama
+  (`recentActivity.children.length`) disesuaikan dari `5` ke `9`,
+  alasan yang sama.
+- **`tests/dashboard-v2-summary-data.test.js`**,
+  **`tests/dashboard-v2-module-grid-data.test.js`** &
+  **`tests/dashboard-v2-statistics-data.test.js`** — masing-masing 1
+  assertion constraint (jumlah guard `typeof fn === 'function'` per
+  fungsi adapter) disesuaikan dari `4x` ke `5x`, karena
+  `_buildRecentActivity()` menambah 1 titik pemanggilan guard baru per
+  fungsi.
+
+### Ditambahkan
+
+- **`tests/dashboard-v2-recent-activity-data.test.js`** — 18 test baru:
+  adapter tidak di-load → 4 elemen baru tetap ada dgn fallback
+  placeholder; 5 baris lama tidak berubah; fungsi adapter tersedia tapi
+  return `null` → tetap fallback placeholder; masing-masing dari 4
+  fungsi adapter menampilkan ringkasan sungguhan saat tersedia & ada
+  data (di-mock per fungsi); integrasi sungguhan end-to-end (adapter
+  ASLI + shell dalam satu sandbox, `D` tiruan) untuk kasus ada data, `D`
+  belum ter-load, dan idempotency `render()`; aksesibilitas
+  (`aria-label` di 4 elemen baru); constraint statis (tanpa
+  `fetch(`/`showPage(`/`FEATURE_REGISTRY`, tanpa `D.` langsung di
+  shell, tanpa `innerHTML`, adapter tetap 4 fungsi yang sama tanpa
+  `let`/`var` top-level baru, guard `typeof` dipakai utk ke-4 fungsi
+  tepat 5x — Hero + Summary Cards + Module Grid + Statistics Panel +
+  Recent Activity); Hero (V2.17), Summary Cards (V2.18), Module Grid
+  (V2.19) & Statistics Panel (V2.20) tidak ikut berubah;
+  `dashboard-hub.js`/`index.html`/`app_production.html` tetap tidak
+  tersentuh.
+- **`DASHBOARD-V2-RECENT-ACTIVITY-DATA.md`** — dokumentasi deliverable
+  tahap ini.
+
+### Tidak diubah
+
+`dashboard-v2-data-adapter.js` (dijamin identik dgn baseline V2.16 —
+diverifikasi `diff` & test tanda tangan API), `dashboard-hub.js`,
+`dashboard-v2-activation.js`, Hero, Summary Cards, Quick Actions,
+Module Grid, Insight Panel, Statistics Panel, Upcoming Tasks,
+Notifications Center, AI Command Center, Health Score Widget,
+Predictive Insights, Automation Center (semua sub-komponen Main selain
+Recent Activity), `FEATURE_REGISTRY`/`dashboard-hub-registry.js`,
+`showPage()`, routing, `index.html`, `app_production.html`. Tidak ada
+fetch, tidak ada business logic baru (murni interpolasi field yang
+sudah dihitung adapter), tidak ada state instance baru. Seluruh file
+test lama (baseline V2.20) tidak satu pun diubah selain 2 assertion
+child-count di `tests/dashboard-v2-activity.test.js`, 1 assertion
+child-count di `tests/dashboard-v2-summary.test.js`, dan 3 assertion
+guard-count di `tests/dashboard-v2-summary-data.test.js`,
+`tests/dashboard-v2-module-grid-data.test.js` &
+`tests/dashboard-v2-statistics-data.test.js` — hanya 1 file test baru
+ditambahkan.
+
+### Hasil test
+
+```
+node --test tests/dashboard-v2-recent-activity-data.test.js
+# tests 18
+# pass 18
+# fail 0
+
+node --test
+# tests 1714
+# pass 1714
+# fail 0
+```
+
+## Tahap V2.22 — Upcoming Tasks Data Integration
+
+Baseline: 1714/1714 PASS (akhir Tahap V2.21).
+
+### Diubah
+
+- **`dashboard-v2-shell.js`** — HANYA `_buildUpcomingTasks()` diedit.
+  Mengikuti pola persis Tahap V2.17/V2.18/V2.19/V2.20/V2.21: 4 elemen
+  baru ditambah sbg anak Upcoming Tasks, satu per fungsi
+  `dashboard-v2-data-adapter.js` (getFinanceSummary/getVehicleSummary/
+  getFamilySummary/getDocumentSummary), dgn fallback placeholder bila
+  adapter tidak tersedia/return `null`. 5 kartu lama (listrik/servis/
+  backup/laporan/dokumen) TIDAK berubah. Upcoming Tasks jadi 9 anak (5
+  lama + 4 baru).
+- **`tests/dashboard-v2-upcoming.test.js`** — 2 assertion lama
+  (`section.children.length`) disesuaikan dari `5` ke `9`
+  (satu-satunya perubahan: jumlah anak Upcoming Tasks bertambah akibat
+  penambahan additive tahap ini).
+- **`tests/dashboard-v2-summary.test.js`** — 1 assertion lama
+  (`upcomingTasks.children.length`) disesuaikan dari `5` ke `9`, alasan
+  yang sama.
+- **`tests/dashboard-v2-summary-data.test.js`**,
+  **`tests/dashboard-v2-module-grid-data.test.js`**,
+  **`tests/dashboard-v2-statistics-data.test.js`** &
+  **`tests/dashboard-v2-recent-activity-data.test.js`** — masing-masing
+  1 assertion constraint (jumlah guard `typeof fn === 'function'` per
+  fungsi adapter) disesuaikan dari `5x` ke `6x`, karena
+  `_buildUpcomingTasks()` menambah 1 titik pemanggilan guard baru per
+  fungsi.
+
+### Ditambahkan
+
+- **`tests/dashboard-v2-upcoming-tasks-data.test.js`** — 18 test baru:
+  adapter tidak di-load → 4 elemen baru tetap ada dgn fallback
+  placeholder; 5 kartu lama tidak berubah; fungsi adapter tersedia tapi
+  return `null` → tetap fallback placeholder; masing-masing dari 4
+  fungsi adapter menampilkan ringkasan sungguhan saat tersedia & ada
+  data (di-mock per fungsi); integrasi sungguhan end-to-end (adapter
+  ASLI + shell dalam satu sandbox, `D` tiruan) untuk kasus ada data, `D`
+  belum ter-load, dan idempotency `render()`; aksesibilitas
+  (`aria-label` di 4 elemen baru); constraint statis (tanpa
+  `fetch(`/`showPage(`/`FEATURE_REGISTRY`, tanpa `D.` langsung di
+  shell, tanpa `innerHTML`, adapter tetap 4 fungsi yang sama tanpa
+  `let`/`var` top-level baru, guard `typeof` dipakai utk ke-4 fungsi
+  tepat 6x — Hero + Summary Cards + Module Grid + Statistics Panel +
+  Recent Activity + Upcoming Tasks); Hero (V2.17), Summary Cards
+  (V2.18), Module Grid (V2.19), Statistics Panel (V2.20) & Recent
+  Activity (V2.21) tidak ikut berubah; `dashboard-hub.js`/
+  `index.html`/`app_production.html` tetap tidak tersentuh.
+- **`DASHBOARD-V2-UPCOMING-TASKS-DATA.md`** — dokumentasi deliverable
+  tahap ini.
+
+### Tidak diubah
+
+`dashboard-v2-data-adapter.js` (dijamin identik dgn baseline V2.16 —
+diverifikasi `diff` & test tanda tangan API), `dashboard-hub.js`,
+`dashboard-v2-activation.js`, Hero, Summary Cards, Quick Actions,
+Module Grid, Insight Panel, Statistics Panel, Recent Activity,
+Notifications Center, AI Command Center, Health Score Widget,
+Predictive Insights, Automation Center (semua sub-komponen Main selain
+Upcoming Tasks), `FEATURE_REGISTRY`/`dashboard-hub-registry.js`,
+`showPage()`, routing, `index.html`, `app_production.html`. Tidak ada
+fetch, tidak ada business logic baru (murni interpolasi field yang
+sudah dihitung adapter), tidak ada state instance baru. Seluruh file
+test lama (baseline V2.21) tidak satu pun diubah selain 2 assertion
+child-count di `tests/dashboard-v2-upcoming.test.js`, 1 assertion
+child-count di `tests/dashboard-v2-summary.test.js`, dan 4 assertion
+guard-count di `tests/dashboard-v2-summary-data.test.js`,
+`tests/dashboard-v2-module-grid-data.test.js`,
+`tests/dashboard-v2-statistics-data.test.js` &
+`tests/dashboard-v2-recent-activity-data.test.js` — hanya 1 file test
+baru ditambahkan.
+
+### Hasil test
+
+```
+node --test tests/dashboard-v2-upcoming-tasks-data.test.js
+# tests 18
+# pass 18
+# fail 0
+
+node --test
+# tests 1732
+# pass 1732
+# fail 0
+```
+
+## Tahap V2.23 — Notifications Data Integration
+
+Baseline: 1732/1732 PASS (akhir Tahap V2.22).
+
+### Diubah
+
+- **`dashboard-v2-shell.js`** — HANYA `_buildNotifications()` diedit.
+  Mengikuti pola persis Tahap V2.17/V2.18/V2.19/V2.20/V2.21/V2.22: 4
+  elemen baru ditambah sbg anak Notifications, satu per fungsi
+  `dashboard-v2-data-adapter.js` (getFinanceSummary/getVehicleSummary/
+  getFamilySummary/getDocumentSummary), dgn fallback placeholder bila
+  adapter tidak tersedia/return `null`. 5 kartu lama (backup/
+  pengeluaran/servis/laporan/sinkronisasi) TIDAK berubah. Notifications
+  jadi 9 anak (5 lama + 4 baru).
+- **`tests/dashboard-v2-notifications.test.js`** — 2 assertion lama
+  (`section.children.length`) disesuaikan dari `5` ke `9`
+  (satu-satunya perubahan: jumlah anak Notifications bertambah akibat
+  penambahan additive tahap ini).
+- **`tests/dashboard-v2-summary-data.test.js`**,
+  **`tests/dashboard-v2-module-grid-data.test.js`**,
+  **`tests/dashboard-v2-statistics-data.test.js`**,
+  **`tests/dashboard-v2-recent-activity-data.test.js`** &
+  **`tests/dashboard-v2-upcoming-tasks-data.test.js`** — masing-masing
+  1 assertion constraint (jumlah guard `typeof fn === 'function'` per
+  fungsi adapter) disesuaikan dari `6x` ke `7x`, karena
+  `_buildNotifications()` menambah 1 titik pemanggilan guard baru per
+  fungsi.
+
+### Ditambahkan
+
+- **`tests/dashboard-v2-notifications-data.test.js`** — 18 test baru:
+  adapter tidak di-load → 4 elemen baru tetap ada dgn fallback
+  placeholder; 5 kartu lama tidak berubah; fungsi adapter tersedia tapi
+  return `null` → tetap fallback placeholder; masing-masing dari 4
+  fungsi adapter menampilkan ringkasan sungguhan saat tersedia & ada
+  data (di-mock per fungsi); integrasi sungguhan end-to-end (adapter
+  ASLI + shell dalam satu sandbox, `D` tiruan) untuk kasus ada data, `D`
+  belum ter-load, dan idempotency `render()`; aksesibilitas
+  (`aria-label` di 4 elemen baru); constraint statis (tanpa
+  `fetch(`/`showPage(`/`FEATURE_REGISTRY`, tanpa `D.` langsung di
+  shell, tanpa `innerHTML`, adapter tetap 4 fungsi yang sama tanpa
+  `let`/`var` top-level baru, guard `typeof` dipakai utk ke-4 fungsi
+  tepat 7x — Hero + Summary Cards + Module Grid + Statistics Panel +
+  Recent Activity + Upcoming Tasks + Notifications); Hero (V2.17),
+  Summary Cards (V2.18), Module Grid (V2.19), Statistics Panel
+  (V2.20), Recent Activity (V2.21) & Upcoming Tasks (V2.22) tidak ikut
+  berubah; `dashboard-hub.js`/`index.html`/`app_production.html` tetap
+  tidak tersentuh.
+- **`DASHBOARD-V2-NOTIFICATIONS-DATA.md`** — dokumentasi deliverable
+  tahap ini.
+
+### Tidak diubah
+
+`dashboard-v2-data-adapter.js` (dijamin identik dgn baseline V2.16 —
+diverifikasi `diff` & test tanda tangan API), `dashboard-hub.js`,
+`dashboard-v2-activation.js`, Hero, Summary Cards, Quick Actions,
+Module Grid, Insight Panel, Recent Activity, Statistics Panel,
+Upcoming Tasks, AI Command Center, Health Score Widget, Predictive
+Insights, Automation Center (semua sub-komponen Main selain
+Notifications), `FEATURE_REGISTRY`/`dashboard-hub-registry.js`,
+`showPage()`, routing, `index.html`, `app_production.html`. Tidak ada
+fetch, tidak ada business logic baru (murni interpolasi field yang
+sudah dihitung adapter), tidak ada state instance baru. Seluruh file
+test lama (baseline V2.22) tidak satu pun diubah selain 2 assertion
+child-count di `tests/dashboard-v2-notifications.test.js`, dan 5
+assertion guard-count di `tests/dashboard-v2-summary-data.test.js`,
+`tests/dashboard-v2-module-grid-data.test.js`,
+`tests/dashboard-v2-statistics-data.test.js`,
+`tests/dashboard-v2-recent-activity-data.test.js` &
+`tests/dashboard-v2-upcoming-tasks-data.test.js` — hanya 1 file test
+baru ditambahkan.
+
+### Hasil test
+
+```
+node --test tests/dashboard-v2-notifications-data.test.js
+# tests 18
+# pass 18
+# fail 0
+
+node --test
+# tests 1750
+# pass 1750
+# fail 0
+```
+
+## Tahap V2.24 — Automation Center Data Integration
+
+Baseline: 1750/1750 PASS (akhir Tahap V2.23).
+
+### Diubah
+
+- **`dashboard-v2-shell.js`** — HANYA `_buildAutomationCenter()`
+  diedit. Mengikuti pola persis Tahap
+  V2.17/V2.18/V2.19/V2.20/V2.21/V2.22/V2.23: 4 elemen baru ditambah sbg
+  anak Automation Center, satu per fungsi
+  `dashboard-v2-data-adapter.js` (getFinanceSummary/getVehicleSummary/
+  getFamilySummary/getDocumentSummary), dgn fallback placeholder bila
+  adapter tidak tersedia/return `null`. 5 kartu lama (autoBackup/
+  monthlyReport/budgetReminder/vehicleServiceReminder/
+  documentRenewalReminder) TIDAK berubah. Automation Center jadi 9
+  anak (5 lama + 4 baru).
+- **`tests/dashboard-v2-automation.test.js`** — 2 assertion lama
+  (`section.children.length`) disesuaikan dari `5` ke `9`
+  (satu-satunya perubahan: jumlah anak Automation Center bertambah
+  akibat penambahan additive tahap ini).
+- **`tests/dashboard-v2-summary-data.test.js`**,
+  **`tests/dashboard-v2-module-grid-data.test.js`**,
+  **`tests/dashboard-v2-statistics-data.test.js`**,
+  **`tests/dashboard-v2-recent-activity-data.test.js`**,
+  **`tests/dashboard-v2-upcoming-tasks-data.test.js`** &
+  **`tests/dashboard-v2-notifications-data.test.js`** — masing-masing
+  1 assertion constraint (jumlah guard `typeof fn === 'function'` per
+  fungsi adapter) disesuaikan dari `7x` ke `8x`, karena
+  `_buildAutomationCenter()` menambah 1 titik pemanggilan guard baru
+  per fungsi.
+
+### Ditambahkan
+
+- **`tests/dashboard-v2-automation-data.test.js`** — 18 test baru:
+  adapter tidak di-load → 4 elemen baru tetap ada dgn fallback
+  placeholder; 5 kartu lama tidak berubah; fungsi adapter tersedia tapi
+  return `null` → tetap fallback placeholder; masing-masing dari 4
+  fungsi adapter menampilkan ringkasan sungguhan saat tersedia & ada
+  data (di-mock per fungsi); integrasi sungguhan end-to-end (adapter
+  ASLI + shell dalam satu sandbox, `D` tiruan) untuk kasus ada data, `D`
+  belum ter-load, dan idempotency `render()`; aksesibilitas
+  (`aria-label` di 4 elemen baru); constraint statis (tanpa
+  `fetch(`/`showPage(`/`FEATURE_REGISTRY`, tanpa `D.` langsung di
+  shell, tanpa `innerHTML`, adapter tetap 4 fungsi yang sama tanpa
+  `let`/`var` top-level baru, guard `typeof` dipakai utk ke-4 fungsi
+  tepat 8x — Hero + Summary Cards + Module Grid + Statistics Panel +
+  Recent Activity + Upcoming Tasks + Notifications + Automation
+  Center); Hero (V2.17), Summary Cards (V2.18), Module Grid (V2.19),
+  Statistics Panel (V2.20), Recent Activity (V2.21), Upcoming Tasks
+  (V2.22) & Notifications (V2.23) tidak ikut berubah;
+  `dashboard-hub.js`/`index.html`/`app_production.html` tetap tidak
+  tersentuh.
+- **`DASHBOARD-V2-AUTOMATION-DATA.md`** — dokumentasi deliverable
+  tahap ini.
+
+### Tidak diubah
+
+`dashboard-v2-data-adapter.js` (dijamin identik dgn baseline V2.16 —
+diverifikasi `diff` & test tanda tangan API), `dashboard-hub.js`,
+`dashboard-v2-activation.js`, Hero, Summary Cards, Quick Actions,
+Module Grid, Insight Panel, Recent Activity, Statistics Panel,
+Upcoming Tasks, Notifications, AI Command Center, Health Score Widget,
+Predictive Insights (semua sub-komponen Main selain Automation
+Center), `FEATURE_REGISTRY`/`dashboard-hub-registry.js`, `showPage()`,
+routing, `index.html`, `app_production.html`. Tidak ada fetch, tidak
+ada business logic baru (murni interpolasi field yang sudah dihitung
+adapter), tidak ada state instance baru. Seluruh file test lama
+(baseline V2.23) tidak satu pun diubah selain 2 assertion child-count
+di `tests/dashboard-v2-automation.test.js`, dan 6 assertion
+guard-count di `tests/dashboard-v2-summary-data.test.js`,
+`tests/dashboard-v2-module-grid-data.test.js`,
+`tests/dashboard-v2-statistics-data.test.js`,
+`tests/dashboard-v2-recent-activity-data.test.js`,
+`tests/dashboard-v2-upcoming-tasks-data.test.js` &
+`tests/dashboard-v2-notifications-data.test.js` — hanya 1 file test
+baru ditambahkan.
+
+### Hasil test
+
+```
+node --test tests/dashboard-v2-automation-data.test.js
+# tests 18
+# pass 18
+# fail 0
+
+node --test
+# tests 1768
+# pass 1768
+# fail 0
+```
+
+## Tahap V2.25 — AI Command Center Data Integration
+
+Baseline: 1768/1768 PASS (akhir Tahap V2.24).
+
+### Diubah
+
+- **`dashboard-v2-shell.js`** — HANYA `_buildAiCommandCenter()`
+  diedit. Mengikuti pola persis Tahap
+  V2.17/V2.18/V2.19/V2.20/V2.21/V2.22/V2.23/V2.24: 4 elemen baru
+  ditambah sbg anak AI Command Center, satu per fungsi
+  `dashboard-v2-data-adapter.js` (getFinanceSummary/getVehicleSummary/
+  getFamilySummary/getDocumentSummary), dgn fallback placeholder bila
+  adapter tidak tersedia/return `null`. 6 anak lama (1 search field + 4
+  action card + 1 suggestion area) TIDAK berubah. AI Command Center
+  jadi 10 anak (6 lama + 4 baru).
+- **`tests/dashboard-v2-ai.test.js`** — 2 assertion lama
+  (`section.children.length`) disesuaikan dari `6` ke `10`
+  (satu-satunya perubahan: jumlah anak AI Command Center bertambah
+  akibat penambahan additive tahap ini).
+- **`tests/dashboard-v2-summary-data.test.js`**,
+  **`tests/dashboard-v2-module-grid-data.test.js`**,
+  **`tests/dashboard-v2-statistics-data.test.js`**,
+  **`tests/dashboard-v2-recent-activity-data.test.js`**,
+  **`tests/dashboard-v2-upcoming-tasks-data.test.js`**,
+  **`tests/dashboard-v2-notifications-data.test.js`** &
+  **`tests/dashboard-v2-automation-data.test.js`** — masing-masing 1
+  assertion constraint (jumlah guard `typeof fn === 'function'` per
+  fungsi adapter) disesuaikan dari `8x` ke `9x`, karena
+  `_buildAiCommandCenter()` menambah 1 titik pemanggilan guard baru
+  per fungsi.
+
+### Ditambahkan
+
+- **`tests/dashboard-v2-ai-data.test.js`** — 18 test baru: adapter
+  tidak di-load → 4 elemen baru tetap ada dgn fallback placeholder; 6
+  anak lama tidak berubah; fungsi adapter tersedia tapi return `null`
+  → tetap fallback placeholder; masing-masing dari 4 fungsi adapter
+  menampilkan ringkasan sungguhan saat tersedia & ada data (di-mock
+  per fungsi); integrasi sungguhan end-to-end (adapter ASLI + shell
+  dalam satu sandbox, `D` tiruan) untuk kasus ada data, `D` belum
+  ter-load, dan idempotency `render()`; aksesibilitas (`aria-label` di
+  4 elemen baru); constraint statis (tanpa `fetch(`/`showPage(`/
+  `FEATURE_REGISTRY`, tanpa `D.` langsung di shell, tanpa `innerHTML`,
+  adapter tetap 4 fungsi yang sama tanpa `let`/`var` top-level baru,
+  guard `typeof` dipakai utk ke-4 fungsi tepat 9x — Hero + Summary
+  Cards + Module Grid + Statistics Panel + Recent Activity + Upcoming
+  Tasks + Notifications + Automation Center + AI Command Center); Hero
+  (V2.17), Summary Cards (V2.18), Module Grid (V2.19), Statistics
+  Panel (V2.20), Recent Activity (V2.21), Upcoming Tasks (V2.22),
+  Notifications (V2.23) & Automation Center (V2.24) tidak ikut
+  berubah; `dashboard-hub.js`/`index.html`/`app_production.html` tetap
+  tidak tersentuh.
+- **`DASHBOARD-V2-AI-DATA.md`** — dokumentasi deliverable tahap ini.
+
+### Tidak diubah
+
+`dashboard-v2-data-adapter.js` (dijamin identik dgn baseline V2.16 —
+diverifikasi `diff` & test tanda tangan API), `dashboard-hub.js`,
+`dashboard-v2-activation.js`, Hero, Summary Cards, Quick Actions,
+Module Grid, Insight Panel, Recent Activity, Statistics Panel,
+Upcoming Tasks, Notifications, Automation Center, Health Score Widget,
+Predictive Insights (semua sub-komponen Main selain AI Command
+Center), `FEATURE_REGISTRY`/`dashboard-hub-registry.js`, `showPage()`,
+routing, `index.html`, `app_production.html`. Tidak ada fetch, tidak
+ada business logic baru (murni interpolasi field yang sudah dihitung
+adapter), tidak ada state instance baru. Seluruh file test lama
+(baseline V2.24) tidak satu pun diubah selain 2 assertion child-count
+di `tests/dashboard-v2-ai.test.js`, dan 7 assertion guard-count di
+`tests/dashboard-v2-summary-data.test.js`,
+`tests/dashboard-v2-module-grid-data.test.js`,
+`tests/dashboard-v2-statistics-data.test.js`,
+`tests/dashboard-v2-recent-activity-data.test.js`,
+`tests/dashboard-v2-upcoming-tasks-data.test.js`,
+`tests/dashboard-v2-notifications-data.test.js` &
+`tests/dashboard-v2-automation-data.test.js` — hanya 1 file test baru
+ditambahkan.
+
+### Hasil test
+
+```
+node --test tests/dashboard-v2-ai-data.test.js
+# tests 18
+# pass 18
+# fail 0
+
+node --test
+# tests 1786
+# pass 1786
+# fail 0
+```
+
+## Tahap V2.26 — Health Score Data Integration
+
+Baseline: `node --test` 1786/1786 PASS (akhir Tahap V2.25 — AI Command
+Center Data Integration).
+
+### Diubah
+
+- **`_buildHealthScore()` di `dashboard-v2-shell.js`** — ditambah 4
+  elemen baru (`dashboardV2HealthFinanceData`,
+  `dashboardV2HealthVehicleData`, `dashboardV2HealthFamilyData`,
+  `dashboardV2HealthDocumentData`), satu per fungsi
+  `dashboard-v2-data-adapter.js` (`getFinanceSummary`/
+  `getVehicleSummary`/`getFamilySummary`/`getDocumentSummary`),
+  dipanggil lewat guard `typeof fn === 'function'`, dgn fallback
+  placeholder kalau adapter tidak tersedia/return `null`. Health Score
+  jadi total 10 anak (6 lama V2.11 + 4 baru). Dibuat dgn
+  `createElement()`, digabung ke `children` lewat `replaceChildren()`.
+  Tidak ada fungsi lain yang diedit; adapter tidak disentuh; tidak ada
+  `D.` langsung/`fetch()`/`showPage()`/`FEATURE_REGISTRY`/`innerHTML`.
+
+### Ditambahkan
+
+- **`tests/dashboard-v2-health-data.test.js`** — 18 test baru: adapter
+  tidak di-load → 4 elemen baru tetap ada dgn fallback placeholder; 6
+  anak lama tidak berubah; fungsi adapter tersedia tapi return `null`
+  → tetap fallback placeholder; masing-masing dari 4 fungsi adapter
+  menampilkan ringkasan sungguhan saat tersedia & ada data (di-mock
+  per fungsi); integrasi sungguhan end-to-end (adapter ASLI + shell
+  dalam satu sandbox, `D` tiruan) untuk kasus ada data, `D` belum
+  ter-load, dan idempotency `render()`; aksesibilitas (`aria-label` di
+  4 elemen baru); constraint statis (tanpa `fetch(`/`showPage(`/
+  `FEATURE_REGISTRY`, tanpa `D.` langsung di shell, tanpa `innerHTML`,
+  adapter tetap 4 fungsi yang sama tanpa `let`/`var` top-level baru,
+  guard `typeof` dipakai utk ke-4 fungsi tepat 10x — Hero + Summary
+  Cards + Module Grid + Statistics Panel + Recent Activity + Upcoming
+  Tasks + Notifications + Automation Center + AI Command Center +
+  Health Score); Hero (V2.17), Summary Cards (V2.18), Module Grid
+  (V2.19), Statistics Panel (V2.20), Recent Activity (V2.21), Upcoming
+  Tasks (V2.22), Notifications (V2.23), Automation Center (V2.24) & AI
+  Command Center (V2.25) tidak ikut berubah;
+  `dashboard-hub.js`/`index.html`/`app_production.html` tetap tidak
+  tersentuh.
+- **`DASHBOARD-V2-HEALTH-DATA.md`** — dokumentasi deliverable tahap
+  ini.
+
+### Tidak diubah
+
+`dashboard-v2-data-adapter.js` (dijamin identik dgn baseline V2.16 —
+diverifikasi `diff` & test tanda tangan API), `dashboard-hub.js`,
+`dashboard-v2-activation.js`, Hero, Summary Cards, Quick Actions,
+Module Grid, Insight Panel, Recent Activity, Statistics Panel,
+Upcoming Tasks, Notifications, Automation Center, AI Command Center,
+Predictive Insights (semua sub-komponen Main selain Health Score),
+`FEATURE_REGISTRY`/`dashboard-hub-registry.js`, `showPage()`, routing,
+`index.html`, `app_production.html`. Tidak ada fetch, tidak ada
+business logic baru (murni interpolasi field yang sudah dihitung
+adapter), tidak ada state instance baru. Seluruh file test lama
+(baseline V2.25) tidak satu pun diubah selain 2 assertion child-count
+di `tests/dashboard-v2-health.test.js`, dan 8 assertion guard-count di
+`tests/dashboard-v2-summary-data.test.js`,
+`tests/dashboard-v2-module-grid-data.test.js`,
+`tests/dashboard-v2-statistics-data.test.js`,
+`tests/dashboard-v2-recent-activity-data.test.js`,
+`tests/dashboard-v2-upcoming-tasks-data.test.js`,
+`tests/dashboard-v2-notifications-data.test.js`,
+`tests/dashboard-v2-automation-data.test.js` &
+`tests/dashboard-v2-ai-data.test.js` — hanya 1 file test baru
+ditambahkan.
+
+### Hasil test
+
+```
+node --test tests/dashboard-v2-health-data.test.js
+# tests 18
+# pass 18
+# fail 0
+
+node --test
+# tests 1804
+# pass 1804
+# fail 0
+```
+
+## Tahap V2.27 — Predictive Insights Data Integration
+
+Baseline: `node --test` 1804/1804 PASS (akhir Tahap V2.26 — Health
+Score Data Integration).
+
+### Diubah
+
+- **`_buildPredictiveInsights()` di `dashboard-v2-shell.js`** —
+  ditambah 4 elemen baru (`dashboardV2PredictiveFinanceData`,
+  `dashboardV2PredictiveVehicleData`, `dashboardV2PredictiveFamilyData`,
+  `dashboardV2PredictiveDocumentData`), satu per fungsi
+  `dashboard-v2-data-adapter.js` (`getFinanceSummary`/
+  `getVehicleSummary`/`getFamilySummary`/`getDocumentSummary`),
+  dipanggil lewat guard `typeof fn === 'function'`, dgn fallback
+  placeholder kalau adapter tidak tersedia/return `null`. Predictive
+  Insights jadi total 9 anak (5 kartu lama V2.12 + 4 baru). Dibuat dgn
+  `createElement()`, digabung ke `section` lewat `replaceChildren()`.
+  Tidak ada fungsi lain yang diedit; adapter tidak disentuh; tidak ada
+  `D.` langsung/`fetch()`/`showPage()`/`FEATURE_REGISTRY`/`innerHTML`.
+
+### Ditambahkan
+
+- **`tests/dashboard-v2-predictive-data.test.js`** — 18 test baru:
+  adapter tidak di-load → 4 elemen baru tetap ada dgn fallback
+  placeholder; 5 kartu lama tidak berubah; fungsi adapter tersedia
+  tapi return `null` → tetap fallback placeholder; masing-masing dari
+  4 fungsi adapter menampilkan ringkasan sungguhan saat tersedia & ada
+  data (di-mock per fungsi); integrasi sungguhan end-to-end (adapter
+  ASLI + shell dalam satu sandbox, `D` tiruan) untuk kasus ada data,
+  `D` belum ter-load, dan idempotency `render()`; aksesibilitas
+  (`aria-label` di 4 elemen baru); constraint statis (tanpa
+  `fetch(`/`showPage(`/`FEATURE_REGISTRY`, tanpa `D.` langsung di
+  shell, tanpa `innerHTML`, adapter tetap 4 fungsi yang sama tanpa
+  `let`/`var` top-level baru, guard `typeof` dipakai utk ke-4 fungsi
+  tepat 11x — Hero + Summary Cards + Module Grid + Statistics Panel +
+  Recent Activity + Upcoming Tasks + Notifications + Automation Center
+  + AI Command Center + Health Score + Predictive Insights); Hero
+  (V2.17), Summary Cards (V2.18), Module Grid (V2.19), Statistics
+  Panel (V2.20), Recent Activity (V2.21), Upcoming Tasks (V2.22),
+  Notifications (V2.23), Automation Center (V2.24), AI Command Center
+  (V2.25) & Health Score (V2.26) tidak ikut berubah;
+  `dashboard-hub.js`/`index.html`/`app_production.html` tetap tidak
+  tersentuh.
+- **`DASHBOARD-V2-PREDICTIVE-DATA.md`** — dokumentasi deliverable
+  tahap ini.
+
+### Tidak diubah
+
+`dashboard-v2-data-adapter.js` (dijamin identik dgn baseline V2.16 —
+diverifikasi `diff` & test tanda tangan API), `dashboard-hub.js`,
+`dashboard-v2-activation.js`, Hero, Summary Cards, Quick Actions,
+Module Grid, Insight Panel, Recent Activity, Statistics Panel,
+Upcoming Tasks, Notifications, Automation Center, AI Command Center,
+Health Score (semua sub-komponen Main selain Predictive Insights),
+`FEATURE_REGISTRY`/`dashboard-hub-registry.js`, `showPage()`, routing,
+`index.html`, `app_production.html`. Tidak ada fetch, tidak ada
+business logic baru (murni interpolasi field yang sudah dihitung
+adapter), tidak ada state instance baru. Seluruh file test lama
+(baseline V2.26) tidak satu pun diubah selain 2 assertion child-count
+di `tests/dashboard-v2-predictive.test.js`, dan 9 assertion
+guard-count di `tests/dashboard-v2-summary-data.test.js`,
+`tests/dashboard-v2-module-grid-data.test.js`,
+`tests/dashboard-v2-statistics-data.test.js`,
+`tests/dashboard-v2-recent-activity-data.test.js`,
+`tests/dashboard-v2-upcoming-tasks-data.test.js`,
+`tests/dashboard-v2-notifications-data.test.js`,
+`tests/dashboard-v2-automation-data.test.js`,
+`tests/dashboard-v2-ai-data.test.js` &
+`tests/dashboard-v2-health-data.test.js` — hanya 1 file test baru
+ditambahkan.
+
+### Hasil test
+
+```
+node --test tests/dashboard-v2-predictive-data.test.js
+# tests 18
+# pass 18
+# fail 0
+
+node --test
+# tests 1822
+# pass 1822
+# fail 0
+```
+
+## Tahap V2.28 — Dashboard Refresh Lifecycle
+
+Baseline: ZIP V2.27 (`kw83-tahap0-feature-registry-28`), 1822/1822 test
+PASS.
+
+### Ditambahkan
+
+- **`dashboard-v2-shell.js`** — satu method baru, `DashboardV2Shell.
+  refresh()`, yang memperbarui ISI seluruh panel yang sudah memakai
+  `dashboard-v2-data-adapter.js` (V2.16) — Hero (V2.17), Summary Cards
+  (V2.18), Module Grid (V2.19), Statistics Panel (V2.20), Recent
+  Activity (V2.21), Upcoming Tasks (V2.22), Notifications (V2.23),
+  Automation Center (V2.24), AI Command Center (V2.25), Health Score
+  (V2.26) & Predictive Insights (V2.27) — TANPA `destroy()`/`init()`/
+  `render()` ulang & TANPA membuat root/main baru. Kontrak:
+  - No-op (`return null`) kalau dipanggil sebelum `init()` (root belum
+    ada) — sengaja TIDAK memanggil `init()` di dalam `refresh()`.
+  - No-op (`return null`) kalau dipanggil sebelum `render()` (root ada
+    tapi belum py anak `main`) — sengaja TIDAK memanggil `render()` di
+    dalam `refresh()`.
+  - Kalau sudah pernah `render()`: bangun instance baru dari
+    `_buildMain(document)` (builder existing, 0 baris diubah/di-
+    refactor), lalu pindahkan children-nya ke node `main` yang SUDAH
+    ADA di DOM lewat `replaceChildren()` (fallback manual
+    `removeChild`/`appendChild`, pola identik `render()`/`destroy()`).
+  - `root`/`sidebar`/`header`/`main`/`bottomNav`/`fab` — identitas/
+    referensi node top-level dijamin SAMA sebelum & sesudah
+    `refresh()` (hanya isi/children `main` yang berubah).
+  - Tidak membaca `D` langsung (satu-satunya jalur baca tetap lewat 4
+    fungsi adapter — `getFinanceSummary()`/`getVehicleSummary()`/
+    `getFamilySummary()`/`getDocumentSummary()` — dan itu pun hanya
+    secara tidak langsung lewat builder-builder yang sudah ada, dengan
+    guard `typeof fn === 'function'` yang sudah ada sejak V2.17–V2.24).
+  - Tidak ada `fetch()`, `showPage()`, `FEATURE_REGISTRY`, `innerHTML`,
+    atau query DOM global — sama sekali tidak dipakai/ditambah.
+  - Tidak menyentuh Activation Switch (`isDashboardV2Enabled()`)
+    ataupun atribut `hidden`/`data-dashboard-v2-state` di root — itu
+    murni domain `render()` (V2.14B).
+  - Idempotent: dipanggil berkali-kali aman, tidak menumpuk node.
+  - Tidak ada state instance/global baru (murni memakai `this._root`
+    yang sudah ada sejak V2.1).
+- **`tests/dashboard-v2-refresh.test.js`** (file baru, 22 test) —
+  ketersediaan `refresh()`; no-op sebelum `init()`/`render()`; tidak
+  memanggil `init()`/`destroy()`/`render()` ulang; tidak membuat root
+  baru; integrasi sungguhan dgn adapter ASLI (`D` berubah di antara
+  `render()` & `refresh()`, 11 panel ter-update konsisten); fallback
+  aman tanpa adapter ter-load; inspeksi source `refresh()` (tanpa
+  `D.`/`D[`, `fetch(`, `showPage(`, `FEATURE_REGISTRY`, `innerHTML`,
+  query DOM global, `isDashboardV2Enabled`); idempotency; Activation
+  Switch tidak berubah; referensi root/sidebar/header/main/bottomNav/
+  fab dipertahankan; Sidebar/Header/Bottom Nav tidak ikut ter-refresh;
+  API `init()`/`render()`/`destroy()` lama tidak berubah.
+- **`DASHBOARD-V2-REFRESH.md`** — dokumentasi deliverable tahap ini.
+
+### Tidak diubah
+
+`dashboard-v2-data-adapter.js`, `dashboard-hub.js`, `dashboard-v2-
+activation.js` (byte-identik dgn baseline V2.27), seluruh builder
+`_build*()` yang sudah ada (0 baris diubah/di-refactor — `refresh()`
+murni memanggil `_buildMain()` apa adanya), Activation Switch, mount
+lifecycle `init()`/`render()`/`destroy()`, `FEATURE_REGISTRY`/
+`dashboard-hub-registry.js`, `showPage()`, routing, `index.html`,
+`app_production.html` (selain versi build `?v=` yang disinkronkan
+otomatis oleh `build.js`, di luar perubahan manual tahap ini). Tidak
+ada fetch, tidak ada business logic baru, tidak ada state instance/
+global baru. Seluruh file test lama (baseline V2.27) tidak satu pun
+diubah — hanya 1 file test baru ditambahkan
+(`tests/dashboard-v2-refresh.test.js`).
+
+Diverifikasi dgn `diff -rq` antara baseline (akhir Tahap V2.27) dan
+hasil akhir tahap ini: hanya `dashboard-v2-shell.js` (diubah, aditif
+murni — 0 baris dihapus) + `tests/dashboard-v2-refresh.test.js` (baru)
++ `DASHBOARD-V2-REFRESH.md` (baru) + `CHANGELOG.md`/`FILES-
+CHANGED.md` (diubah, aditif) yang berbeda secara manual — sisanya
+(bundle `app-bundle-*.min.js`, `app_production.html`, `index.html`,
+`sw.js`, `docs/FILE-MAP.md`, 6 file sinkronisasi versi) adalah efek
+otomatis `node scripts/build.js` (bump versi build), bukan sentuhan
+manual.
+
+## Hasil test
+
+```
+node --test tests/dashboard-v2-refresh.test.js
+# tests 22
+# pass 22
+# fail 0
+
+node --test
+# tests 1844
+# pass 1844
+# fail 0
+```
+
+## Tahap V2.29 — Dashboard Auto Refresh
+
+Baseline: ZIP V2.28 (`kw83-tahap0-feature-registry-29`), 1844/1844 test
+PASS.
+
+### Ditambahkan
+
+- **`dashboard-v2-shell.js`** — tiga method baru, `DashboardV2Shell.
+  startAutoRefresh(intervalMs?)` / `stopAutoRefresh()` /
+  `isAutoRefreshActive()`, plus konstanta `AUTO_REFRESH_DEFAULT_MS`
+  (30000ms) & state instance `_autoRefreshTimer`, yang membungkus
+  `refresh()` (V2.28) di dalam satu timer periodik supaya Dashboard V2
+  otomatis memanggil `refresh()` tanpa caller manual memanggilnya tiap
+  kali data berubah. Kontrak:
+  - `startAutoRefresh(intervalMs?)` — mulai timer (`setInterval`) yang
+    memanggil `this.refresh()` (V2.28, tidak diubah/di-refactor sama
+    sekali) tiap `intervalMs` ms (default `AUTO_REFRESH_DEFAULT_MS`
+    kalau argumen tidak diberi/tidak valid — bukan angka positif).
+    Idempotent: dipanggil berkali-kali TIDAK menumpuk timer — timer
+    lama selalu dibersihkan dulu (lewat `stopAutoRefresh()` internal)
+    sebelum timer baru dibuat, jadi selalu tepat 1 timer aktif.
+  - `stopAutoRefresh()` — hentikan timer aktif (kalau ada), reset
+    `_autoRefreshTimer` ke `null`. Aman dipanggil berkali-kali / sebelum
+    pernah `startAutoRefresh()` (no-op, `return null`).
+  - `isAutoRefreshActive()` — murni membaca state timer (`!== null`),
+    tidak membuat/menghapus timer apa pun.
+  - Kenapa timer periodik (bukan hook ke titik tulis `D`): tidak ada
+    satu pun titik "notify data berubah" terpusat di repo ini — `D`
+    ditulis oleh banyak modul independen tanpa event bus/pub-sub apa
+    pun, dan menambah hook semacam itu ke modul lain jelas di luar
+    scope tahap ini (additive-only, tidak boleh menyentuh business
+    logic/file lain). Timer periodik 100% self-contained di
+    `dashboard-v2-shell.js` (pola sama dgn `setInterval(...)` 5 menit
+    yang sudah ada di `features-sheets-pwa-selftest.js`).
+  - Tiap tick timer HANYA memanggil `this.refresh()` — TIDAK pernah
+    memanggil `init()`/`destroy()`/`render()` ulang, TIDAK membuat root
+    baru. Kontrak no-op `refresh()` (before `init()`/`render()`, atau
+    setelah `destroy()`) tetap berlaku penuh terhadap tick timer — kalau
+    timer sempat tick sebelum root/main ada (atau setelah root
+    ter-detach lewat `destroy()`), `refresh()` sendiri yang no-op
+    (`return null`); tidak ada logic tambahan di sini untuk itu, dan
+    Dashboard TIDAK diam-diam ter-mount ulang.
+  - Tidak membaca `D` sama sekali (langsung maupun tidak langsung) —
+    ketiga method baru hanya memanggil `setInterval`/`clearInterval`/
+    `this.refresh()`, tidak pernah menyebut `D`, `getFinanceSummary`/
+    `getVehicleSummary`/`getFamilySummary`/`getDocumentSummary`.
+  - Tidak ada `fetch()`, `showPage()`, `FEATURE_REGISTRY`, `innerHTML`,
+    atau query DOM global — sama sekali tidak dipakai/ditambah.
+  - Guard `typeof setInterval/clearInterval === 'function'` — no-op
+    aman di environment tanpa timer.
+  - Opt-in murni: TIDAK auto-start sendiri saat file di-load (pola
+    sama dgn Activation Switch V2.15) — caller yang memanggil
+    `startAutoRefresh()` secara eksplisit.
+  - `_buildMain()` tetap punya persis 3 kemunculan di kode aktif (1
+    definisi + 1 call site `render()` + 1 call site `refresh()`) —
+    tidak ada call site ke-4 yang ditambah oleh `startAutoRefresh()`
+    (tidak menduplikasi logic pembangunan panel).
+- **`tests/dashboard-v2-auto-refresh.test.js`** (file baru, 20 test) —
+  ketersediaan API baru & `AUTO_REFRESH_DEFAULT_MS`; state awal
+  (`isAutoRefreshActive()` false, `stopAutoRefresh()` sebelum start
+  no-op); pendaftaran timer & aktivasi status; default vs custom vs
+  fallback interval tidak valid; pembersihan timer oleh
+  `stopAutoRefresh()`; idempotency `startAutoRefresh()` (tidak
+  menumpuk timer); tiap tick memanggil `refresh()` persis 1x & TIDAK
+  memanggil `init()`/`render()`/`destroy()`; tick aman sebelum
+  `init()`/`render()` & setelah `destroy()`; integrasi sungguhan dgn
+  adapter ASLI (`D` berubah di antara `render()` & tick, panel
+  ter-update via `refresh()`); tidak membaca `D` langsung & tidak
+  memakai `fetch()`/`showPage()`/`FEATURE_REGISTRY`/`innerHTML`
+  (inspeksi source ketiga method baru); `startAutoRefresh()` secara
+  tekstual hanya memanggil `refresh()`; environment tanpa
+  `setInterval` aman; `_buildMain()` tidak dapat call site baru;
+  idempotent end-to-end (banyak tick tidak menumpuk node).
+- **`DASHBOARD-V2-AUTO-REFRESH.md`** — dokumentasi deliverable tahap
+  ini.
+
+### Tidak diubah
+
+`refresh()` (V2.28), `init()`/`render()`/`destroy()`, seluruh
+`_build*()` builder existing di `dashboard-v2-shell.js`,
+`dashboard-v2-data-adapter.js`, `dashboard-hub.js`, `dashboard-v2-
+activation.js` (byte-identik dgn baseline V2.28), Activation Switch,
+`FEATURE_REGISTRY`/`dashboard-hub-registry.js`, `showPage()`, routing,
+`index.html`, `app_production.html` (selain versi build `?v=` yang
+disinkronkan otomatis oleh `build.js`, di luar perubahan manual tahap
+ini). Tidak ada fetch, tidak ada business logic baru, `D` tidak dibaca
+langsung. Seluruh file test lama (baseline V2.28) tidak satu pun
+diubah — hanya 1 file test baru ditambahkan
+(`tests/dashboard-v2-auto-refresh.test.js`).
+
+Diverifikasi dgn `diff -rq` antara baseline (akhir Tahap V2.28) dan
+hasil akhir tahap ini: hanya `dashboard-v2-shell.js` (diubah, aditif
+murni — 0 baris dihapus) + `tests/dashboard-v2-auto-refresh.test.js`
+(baru) + `DASHBOARD-V2-AUTO-REFRESH.md` (baru) + `CHANGELOG.md`/
+`FILES-CHANGED.md` (diubah, aditif) yang berbeda secara manual —
+sisanya (bundle `app-bundle-*.min.js`, `app_production.html`,
+`index.html`, `sw.js`, `docs/FILE-MAP.md`, 6 file sinkronisasi versi)
+adalah efek otomatis `node scripts/build.js` (bump versi build), bukan
+sentuhan manual.
+
+## Hasil test
+
+```
+node --test tests/dashboard-v2-auto-refresh.test.js
+# tests 20
+# pass 20
+# fail 0
+
+node --test
+# tests 1864
+# pass 1864
+# fail 0
+
+node scripts/build.js
+# ✅ Build "kw83-tahap0-feature-registry-31" selesai & lolos cek sintaks
+
+node --test   (setelah build)
+# tests 1864
+# pass 1864
+# fail 0
+```
+
+## Tahap V2.30 — Interactive Dashboard Cards
+
+Baseline: ZIP V2.29 (`kw83-tahap0-feature-registry-31`), 1864/1864 test
+PASS.
+
+### Ditambahkan
+
+- **`dashboard-v2-shell.js`** — `_buildModuleGrid()` (Module Grid, Tahap
+  V2.4/V2.19): 3 dari 6 kartu placeholder lama (Finance, Vehicle,
+  Settings) sekarang klik-able, reuse 100% mekanisme navigasi yang
+  sudah ada — TIDAK ada fungsi navigasi baru:
+  1. Kartu diberi `role="button"`, `tabindex="0"`,
+     `data-action="dashHubNavigateToFeature"`,
+     `data-args='[{"page":"keuangan"}]'` (atau `"carnotes"`/
+     `"settings"`) — pola atribut deklaratif yang sama persis dgn
+     `data-action="openTxModal" data-args='["expense"]'` yang sudah
+     dipakai puluhan tombol lain di `index.html`.
+  2. Dispatcher klik global yang sudah ada
+     (`features-helpers-global-security.js`,
+     `document.addEventListener('click', ...)`, TIDAK diubah) membaca
+     atribut itu & memanggil fungsi global sesuai nama.
+  3. `dashHubNavigateToFeature({page})` (`dashboard-hub.js`, TIDAK
+     diubah) memanggil `showPage(target.page, navItems[
+     PAGE_NAV_IDX[target.page]] || null)`.
+  4. `showPage()` (`modal-navigasi.js`, TIDAK diubah) — router utama
+     app yang sudah dipakai puluhan tempat lain.
+  - Akibatnya `dashboard-v2-shell.js` sendiri TIDAK PERNAH memanggil
+    `showPage()`/`FEATURE_REGISTRY`/`addEventListener`/`.onclick=`
+    secara tekstual — murni atribut deklaratif; regex-check regresi yang
+    sudah ada sejak V2.3 (`tests/dashboard-v2-summary.test.js`) tetap
+    lulus tanpa modifikasi.
+  - 3 kartu lain (Reports, Family, Documents) SENGAJA dibiarkan
+    `page: null` — tetap placeholder murni seperti sejak V2.4, karena
+    tidak py 1 page tunggal yang tidak ambigu di `PAGE_NAV_IDX` tanpa
+    keputusan produk baru (Reports = tab di dalam Keuangan, Family =
+    bagian LifeOS di `dashboard-hub`, Documents = tersebar
+    Vehicle/Pajak) — lihat `DASHBOARD-V2-INTERACTIVE-CARDS.md`
+    §"Kenapa hanya 3 dari 6 kartu".
+  - Tidak membaca `D` langsung — kartu hanya membawa nama page statis.
+  - Additive murni — 0 baris kode existing dihapus; satu-satunya
+    perubahan struktural adalah menambah field `page` di 6 entri
+    `modules[]` & membungkus pembuatan kartu lama dalam
+    `if (mod.page) {...} else {...}` dengan cabang `else` = kode lama
+    persis tidak berubah.
+- **`tests/dashboard-v2-interactive-cards.test.js`** (file baru, 1
+  test) — test integrasi: memuat `dashboard-v2-shell.js` bersama
+  `dashboard-hub.js` ASLI (bukan mock) di satu sandbox
+  (`tests/helpers/loadSource.js`), benar-benar memanggil rantai
+  `data-action` → `dashHubNavigateToFeature()` → `showPage()`
+  (di-stub) utk ketiga kartu (Finance/Vehicle/Settings) & memverifikasi
+  nama page yang benar terpanggil tepat 1x; juga memverifikasi
+  Reports/Family/Documents tetap 0 `data-action`.
+- **`DASHBOARD-V2-INTERACTIVE-CARDS.md`** — dokumentasi deliverable
+  tahap ini.
+
+### Diubah (update test obsolete)
+
+- **`tests/dashboard-v2-summary.test.js`** — test "Module Grid: 6
+  module card ... sesuai urutan & placeholder" diganti jadi
+  memverifikasi Finance/Vehicle/Settings punya `role="button"`/
+  `data-action`/`data-args` yang benar & TIDAK lagi match
+  `/placeholder/i`, sedangkan Reports/Family/Documents tetap match
+  `/placeholder/i` & 0 `data-action`.
+- **`tests/dashboard-v2-module-grid-data.test.js`** — test "6 kartu
+  lama ... tidak berubah" diganti jadi memverifikasi
+  Finance/Vehicle/Settings punya `data-action` yang benar,
+  Reports/Family/Documents tetap 0 `data-action`.
+- Tidak ada test lain (di luar 2 file di atas) yang perlu diperbarui —
+  semua regex-check global (`showPage(`, `addEventListener`,
+  `.onclick =`, `FEATURE_REGISTRY`) di file test lain tetap valid tanpa
+  modifikasi.
+
+### Tidak diubah
+
+`dashboard-hub.js`, `modal-navigasi.js`,
+`features-helpers-global-security.js`, `modules-render.js`,
+`dashboard-hub-registry.js`/`FEATURE_REGISTRY`, `refresh()`, `init()`/
+`render()`/`destroy()`, seluruh `_build*()` builder lain di
+`dashboard-v2-shell.js` (Hero, Summary Cards, Quick Actions, Insight
+Panel, Recent Activity, Statistics Panel, Upcoming Tasks,
+Notifications, AI Command Center, Health Score, Predictive Insights,
+Automation Center, Sidebar, Header, Bottom Nav, Auto Refresh),
+`index.html`, `app_production.html` (selain versi build `?v=` yang
+disinkronkan otomatis oleh `build.js`). Tidak ada `fetch()`, tidak ada
+business logic baru, `D` tidak dibaca langsung.
+
+Diverifikasi dgn `diff -rq` antara baseline (akhir Tahap V2.29) dan
+hasil akhir tahap ini: hanya `dashboard-v2-shell.js` (diubah, aditif —
+0 baris dihapus) + `tests/dashboard-v2-summary.test.js` (diubah,
+assersi obsolete diperbarui) + `tests/dashboard-v2-module-grid-
+data.test.js` (diubah, assersi obsolete diperbarui) +
+`tests/dashboard-v2-interactive-cards.test.js` (baru) +
+`DASHBOARD-V2-INTERACTIVE-CARDS.md` (baru) + `CHANGELOG.md`/
+`FILES-CHANGED.md` (aditif) yang berbeda secara manual — sisanya
+(bundle `app-bundle-*.min.js`, `app_production.html`, `index.html`,
+`sw.js`, `docs/FILE-MAP.md`, 6 file sinkronisasi versi) adalah efek
+otomatis `node scripts/build.js` (bump versi build), bukan sentuhan
+manual.
+
+## Hasil test
+
+```
+node --test tests/dashboard-v2-interactive-cards.test.js
+# tests 1
+# pass 1
+# fail 0
+
+node --test
+# tests 1865
+# pass 1865
+# fail 0
+
+node scripts/build.js
+# ✅ Build "kw83-tahap0-feature-registry-32" selesai & lolos cek sintaks
+
+node --test   (setelah build)
+# tests 1865
+# pass 1865
+# fail 0
+```

@@ -128,6 +128,9 @@ const GROUP_B = [
   'dashboard-hub-search.js',
   'dashboard-hub-favorit.js',
   'dashboard-hub-favorit-view.js',
+  'ai-command-center.js',
+  'dashboard-v2-shell.js',
+  'dashboard-v2-activation.js',
 
   // --- LifeOS: layer orkestrasi read-only di atas D (lihat
   // lifeos-data-model.md). Urutan WAJIB: store -> registry -> link-registry
