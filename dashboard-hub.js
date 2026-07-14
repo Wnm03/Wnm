@@ -333,7 +333,16 @@ const DashboardHub = {
       el.innerHTML = '<div class="empty"><div class="empty-text">Belum ada data fitur</div></div>';
       return;
     }
-    el.innerHTML = _dashHubV2SwitchHtml() + FEATURE_REGISTRY.map(cat => `
+    // BUGFIX (dashboard dobel — lihat blok mutual-exclusion V1/V2 di bawah,
+    // setelah baris "Dashboard V2 mount"): kartu FEATURE_REGISTRY sekarang
+    // dibungkus 1 div `#dashHubCatsWrap` (murni penanda, TIDAK ada CSS/class
+    // baru) supaya bisa disembunyikan sebagai satu kesatuan saat Dashboard V2
+    // aktif, TANPA ikut menyembunyikan `_dashHubV2SwitchHtml()` di atasnya
+    // (switch itu TETAP di dalam #dashboardHubGrid, di LUAR wrapper baru ini)
+    // — supaya switch tetap kelihatan & bisa dipencet balik (toggle OFF)
+    // walau Dashboard V2 sedang aktif. Isi & urutan markup kartu itu sendiri
+    // TIDAK berubah sama sekali, cuma dibungkus.
+    el.innerHTML = _dashHubV2SwitchHtml() + '<div id="dashHubCatsWrap">' + FEATURE_REGISTRY.map(cat => `
       <div class="dashhub-cat" id="dashHubCat-${escapeHtml(cat.key)}">
         <div class="dashhub-cat-head">
           <div class="dashhub-cat-icon">${cat.icon}</div>
@@ -352,7 +361,7 @@ const DashboardHub = {
           `).join('')}
         </div>
       </div>
-    `).join('');
+    `).join('') + '</div>';
 
     // LifeOS (section terpisah, lihat #lifeOSWrap di index.html/
     // app_production.html & lifeos/ui/lifeos-home.js). Tambahan murni —
@@ -429,6 +438,54 @@ const DashboardHub = {
       && DashboardHub._dashHubV2Initialized === true) {
       DashboardV2Shell.destroy();
       DashboardHub._dashHubV2Initialized = false;
+    }
+
+    // BUGFIX (dashboard dobel — root cause: DashboardHub.render() di atas
+    // TIDAK PERNAH menyembunyikan Dashboard Hub lama saat Dashboard V2
+    // aktif; blok mount/auto-destroy di atas hanya mengurus lifecycle V2,
+    // tidak pernah menyentuh visibility Dashboard Hub lama). Satu-satunya
+    // perubahan tahap ini: toggle class `u-dnone` (utility CSS yg SUDAH ADA,
+    // dipakai persis dgn cara sama di #dashHubFavoritSection/.lifeos-panel —
+    // TIDAK ada class/CSS baru ditambahkan) pada container-container
+    // Dashboard Hub lama, berdasarkan isDashboardV2Enabled(). TIDAK
+    // menghentikan/mengubah render() widget manapun di atas (Hero/Quick
+    // Actions/Summary/Analytics/Favorit/LifeOS/Pinned Widgets tetap
+    // dihitung & dirender seperti biasa, sesuai preferensi "hide/show
+    // container, bukan hentikan render()") — murni disembunyikan visual
+    // SETELAH semuanya selesai dirender di atas.
+    //
+    // #dashboardHubGrid & #dashHubV2SwitchRow (switch aktivasi) SENGAJA
+    // TIDAK ikut disembunyikan — switch itu ada DI DALAM #dashboardHubGrid
+    // (lihat _dashHubV2SwitchHtml() di atas), jadi kalau grid ikut
+    // disembunyikan, satu-satunya cara toggle V2 balik OFF dari UI ikut
+    // hilang. Yang disembunyikan cuma `#dashHubCatsWrap` (wrapper baru,
+    // pembungkus KHUSUS kartu FEATURE_REGISTRY, lihat perubahan di atas —
+    // switch tetap di luar wrapper ini).
+    //
+    // #dashHubFavoritSection HANYA ditambah u-dnone saat V2 aktif (tidak
+    // pernah dihapus di sini) — visibility aslinya (ada/tidaknya Favorit)
+    // sudah ditentukan DashboardHubFavoritView.render() di atas; saat V2
+    // nonaktif, class itu dibiarkan seperti apa adanya dari render()
+    // tersebut, tidak dipaksa dihapus di sini.
+    //
+    // Search bar (`.dashhub-search-wrap`) tidak punya id di index.html,
+    // jadi diakses lewat `.parentElement` dari `#dashHubSearchInput` yang
+    // sudah ada — dibungkus guard `typeof`/truthy standar (pola sama dgn
+    // guard lain di file ini), aman kalau di lingkungan tertentu
+    // `.parentElement` tidak tersedia (no-op, tidak melempar error).
+    {
+      const _v2On = typeof isDashboardV2Enabled === 'function' && isDashboardV2Enabled() === true;
+      const _catsWrap = document.getElementById('dashHubCatsWrap');
+      if (_catsWrap) _catsWrap.classList.toggle('u-dnone', _v2On);
+      ['dashHubHeroCard', 'dashHubQuickActions', 'dashHubSummaryGrid', 'dashHubAnalyticsRow', 'lifeOSWrap', 'dashboardHubPinnedWrap'].forEach((id) => {
+        const c = document.getElementById(id);
+        if (c) c.classList.toggle('u-dnone', _v2On);
+      });
+      const _searchInput = document.getElementById('dashHubSearchInput');
+      const _searchWrap = _searchInput && _searchInput.parentElement;
+      if (_searchWrap) _searchWrap.classList.toggle('u-dnone', _v2On);
+      const _favSection = document.getElementById('dashHubFavoritSection');
+      if (_favSection && _v2On) _favSection.classList.add('u-dnone');
     }
   },
 
