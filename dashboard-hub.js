@@ -430,6 +430,36 @@ const DashboardHub = {
       if (typeof el.setAttribute === 'function') {
         el.setAttribute('hidden', '');
       }
+
+      // QA V2.43 (bug "dashboard double"): `el.setAttribute('hidden','')`
+      // di atas cuma efektif menyembunyikan `#dashboardHubGrid` sendiri —
+      // sibling-sibling-nya di dalam #page-dashboard-hub (Hero Card,
+      // Quick Actions, Summary Cards, Analytics row, search bar, Favorit,
+      // LifeOS) TIDAK ikut tersembunyi lewat cara itu, karena beberapa di
+      // antaranya (.dashhub-qa-row/.dashhub-summary-grid/
+      // .dashhub-analytics-row) punya rule `display` eksplisit di
+      // styles.css yang mengalahkan default UA-stylesheet `[hidden]{
+      // display:none}` (author stylesheet selalu menang lawan UA
+      // stylesheet, terlepas dari urutan). Selama ini "aman" hanya krn
+      // ketutup visual oleh layer full-screen Dashboard V2
+      // (position:fixed;inset:0;z-index:var(--z-onboard) di
+      // .dashboard-v2-root:not([hidden]), styles.css) — begitu overlay
+      // itu gagal menutupi penuh di device/kondisi tertentu (mis. viewport
+      // dinamis, race kondisi CSS belum ter-apply), semua section itu
+      // langsung "bocor" kelihatan tumpang tindih dgn Dashboard V2 (persis
+      // bug "dashboard double" yg dilaporkan).
+      // Fix: sembunyikan SATU elemen pembungkusnya (#page-dashboard-hub)
+      // lewat inline style `display:none` — spesifisitas inline style
+      // selalu menang lawan rule class manapun (termasuk `.page.active{
+      // display:block}`), jadi tidak perlu mendaftar/menyentuh tiap
+      // section satu-satu maupun styles.css. Elemen TIDAK dikosongkan
+      // (sama seperti pola `el.setAttribute('hidden','')` di atas) —
+      // murni disembunyikan, semua state/lifecycle Hub tetap utuh di
+      // belakang layar.
+      const hubPageEl = document.getElementById('page-dashboard-hub');
+      if (hubPageEl && hubPageEl.style && typeof hubPageEl.style === 'object') {
+        hubPageEl.style.display = 'none';
+      }
     }
 
     // Auto-destroy (Tahap V2.14D, additive). Kebalikan dari guard init-once
@@ -454,6 +484,17 @@ const DashboardHub = {
       // Guard `typeof` sama dgn di atas.
       if (typeof el.removeAttribute === 'function') {
         el.removeAttribute('hidden');
+      }
+
+      // QA V2.43 — kebalikan dari `hubPageEl.style.display = 'none'` di
+      // blok mount di atas. Set balik ke string kosong (bukan 'block')
+      // supaya kontrol visibility kembali sepenuhnya ke CSS/class `.page.
+      // active` yang sudah ada (konsisten dgn cara showPage() lain
+      // mengelola halaman ini) — inline style kosong berarti "tidak ada
+      // override", bukan nilai baru yang di-hardcode.
+      const hubPageElRestore = document.getElementById('page-dashboard-hub');
+      if (hubPageElRestore && hubPageElRestore.style && typeof hubPageElRestore.style === 'object') {
+        hubPageElRestore.style.display = '';
       }
     }
   },

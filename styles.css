@@ -1034,7 +1034,31 @@ textarea.fi { resize: vertical; min-height: 80px; }
    saat ini, tidak ada preseden Sidebar). Tidak menyentuh/override rule
    .nav, .nav-item, atau .keu-fab existing manapun. */
 .dashboard-v2-root{display:none}
-.dashboard-v2-root:not([hidden]){display:block}
+/* BUGFIX: saat aktif, root ini sebelumnya cuma `display:block` — sebagai
+   node biasa yang di-append ke <body> (lihat dashboard-v2-shell.js init()),
+   itu berarti dia ikut alur dokumen NORMAL. Tapi UI app yang sesungguhnya
+   (#scrollRoot, lihat aturan di atas) dipasang `position:fixed;inset:0`,
+   yang artinya dia LEPAS dari alur dokumen. Akibatnya <body> kehilangan
+   tinggi dari #scrollRoot, dan root V2 (anak <body> berikutnya) ikut mulai
+   dari (0,0) juga — dua UI penuh-layar numpuk gambar di titik yang sama
+   (persis gejala teks/kartu Hero lama & Hero V2 bertumpuk tak terbaca).
+   Fix: samakan pola positioning dgn #scrollRoot (`position:fixed;inset:0`)
+   supaya root V2 jadi layer penuh-layar sendiri yang benar2 MENGGANTIKAN
+   tampilan lama secara visual selama aktif (bukan numpuk di belakang/
+   depannya) — z-index disamakan level dgn layer full-screen lain yang
+   sudah ada (--z-onboard) supaya konsisten dgn skala z-index existing,
+   bukan angka baru yang di-hardcode. Tidak mengubah dashboard-v2-shell.js
+   sama sekali — murni CSS, `hidden` attribute yang sudah ada dari shell
+   tetap satu-satunya sumber kebenaran show/hide. */
+.dashboard-v2-root:not([hidden]){
+  display:block;
+  position:fixed;
+  inset:0;
+  z-index:var(--z-onboard);
+  overflow-y:auto;
+  background:var(--bg);
+  -webkit-overflow-scrolling:touch;
+}
 
 .dashboard-v2-sidebar{
   display:none;
@@ -1048,12 +1072,94 @@ textarea.fi { resize: vertical; min-height: 80px; }
   .dashboard-v2-sidebar{display:block}
 }
 
+/* ===== QA V2.41 (Critical #2): .dashboard-v2-root basenya `display:block`
+   (murni block flow) - begitu Sidebar berubah jadi `display:block` di
+   >=1024px (aturan di atas), Sidebar (anak pertama root, urutan DOM:
+   sidebar, header, main, bottomnav, fab) ikut kena aturan block flow
+   biasa: melebar 1 baris PENUH lalu numpuk DI ATAS Header/Main, bukan
+   jadi kolom di samping konten (root tidak pernah diubah jadi flex/grid
+   di breakpoint manapun). Fix murni additive & desktop-only (>=1024px,
+   breakpoint sama persis dgn Sidebar di atas supaya kedua aturan selalu
+   sinkron): root jadi CSS Grid 2 kolom (Sidebar | konten), Header & Main
+   ditaruh eksplisit di kolom ke-2. Base rule root (`display:block` dst)
+   TIDAK diubah/dihapus - override HANYA berlaku >=1024px, jadi perilaku
+   mobile (<1024px, Sidebar `display:none`) sama sekali tidak berubah.
+   FAB tidak perlu penempatan grid (`.keu-fab` sudah `position:fixed`,
+   lepas dari flow). Lebar kolom Sidebar (240px) memakai literal px,
+   konsisten dgn pola ukuran non-token lain yg sudah ada di file ini
+   (mis. .dashboard-v2-health-score-circle width:96px) - belum ada
+   preseden lebar sidebar di file ini utk direuse (app lain 100% mobile
+   bottom-nav, lihat DASHBOARD-V2-SHELL.md), bukan token spacing/warna
+   baru. Bottom Nav V2 sengaja TIDAK ditaruh di grid (tetap `display:
+   none` bawaan di >=1024px dari aturan di atas - Sidebar sudah
+   menggantikan perannya di desktop, sama seperti sebelum patch ini). */
+@media (min-width:1024px){
+  .dashboard-v2-root:not([hidden]){
+    display:grid;
+    grid-template-columns:240px 1fr;
+    grid-template-rows:auto 1fr;
+  }
+  .dashboard-v2-sidebar{
+    grid-column:1;
+    grid-row:1 / span 2;
+    /* QA V2.42: sama dgn Header (lihat komentar di rule
+       .dashboard-v2-header) - root adlh satu-satunya scroll container
+       (`overflow-y:auto`), jadi tanpa `position:sticky` Sidebar (isinya:
+       5 item navigasi) ikut tergulung & hilang saat Main discroll,
+       walau kolom Sidebar sendiri (area grid) melebar penuh setinggi
+       konten. Fix additive: sticky top:0 supaya Sidebar tetap terlihat
+       di bagian atas viewport selama area kolomnya masih terlihat -
+       breakpoint & scope sama persis dgn override grid di atas
+       (>=1024px saja), tidak menambah token baru. */
+    position:sticky;
+    top:0;
+    /* QA V2.42 (lanjutan): tanpa `align-self:start`, grid item ini
+       di-stretch (default) memenuhi TINGGI PENUH area gridnya (row1/
+       span2, setinggi seluruh konten Main yg discroll - diverifikasi
+       lewat browser sungguhan: tanpa baris ini box Sidebar sendiri
+       setinggi ~5500px, sama persis dgn tinggi scrollable content,
+       sehingga `sticky` tidak py "ruang" utk menempel & top:0 di atas
+       tidak berefek sama sekali). `align-self:start` membuat box
+       Sidebar hanya setinggi kontennya sendiri (5 item nav) di dalam
+       area grid yg tetap sama (row1/span2) - sticky lalu py ruang utk
+       menempel di top:0 & tetap dlm batas area grid, TIDAK
+       mempengaruhi lebar/posisi kolom (grid-column/grid-row di atas
+       tidak berubah). */
+    align-self:start;
+  }
+  .dashboard-v2-header{
+    grid-column:2;
+    grid-row:1;
+  }
+  .dashboard-v2-main{
+    grid-column:2;
+    grid-row:2;
+  }
+}
+
+/* ===== QA V2.42: .dashboard-v2-header sebelum patch ini tidak punya
+   `position` sama sekali (statis, ikut alur dokumen biasa). Karena
+   scroll container Dashboard V2 ada di `.dashboard-v2-root` itu sendiri
+   (`overflow-y:auto`, lihat aturan di atas) dan Header cuma sibling
+   biasa dari Main (bukan elemen terpisah di luar area scroll), begitu
+   Main (13 section builder) melebihi tinggi viewport, Header ikut
+   tergulung ke atas & hilang dari layar saat discroll - padahal Header
+   V2 (search/notification/avatar) dimaksudkan tampil terus (persistent
+   chrome), sama seperti `.header` lama (baris atas file ini) yang
+   memang sengaja `position:sticky;top:0`. Fix: reuse PERSIS pola
+   `.header` yang sudah ada (position:sticky + top:0 + z-index:
+   var(--z-chrome)) - tidak ada nilai/token baru, konsisten dgn
+   precedent yg sudah dipakai di file yang sama. Properti lain (padding/
+   background/color/font-size/border-bottom) TIDAK diubah. */
 .dashboard-v2-header{
   padding:var(--sp-5) var(--sp-6);
   background:var(--header-bg);
   color:var(--text);
   font-size:var(--fs-stat);
   border-bottom:1px solid var(--border);
+  position:sticky;
+  top:0;
+  z-index:var(--z-chrome);
 }
 
 .dashboard-v2-main{
@@ -1069,6 +1175,41 @@ textarea.fi { resize: vertical; min-height: 80px; }
   border-top:1px solid var(--border);
   color:var(--text2);
   font-size:var(--fs-caption);
+}
+/* ===== QA V2.41 (Critical #1): sebelum patch ini .dashboard-v2-bottomnav
+   selalu `display:none` di SEMUA lebar layar - tidak ada media query yg
+   pernah menampilkannya (beda dgn .dashboard-v2-sidebar yg punya
+   override min-width:1024px di atas). Akibatnya saat Dashboard V2 root
+   aktif di lebar <1024px, TIDAK ADA navigasi yg terlihat sama sekali
+   (Sidebar sengaja desktop-only, Bottom Nav V2 malah tidak pernah
+   tampil). Fix murni additive: tambah breakpoint mobile (<1024px,
+   berpasangan dgn breakpoint desktop Sidebar) supaya Bottom Nav V2
+   tampil sbg pengganti Sidebar persis di rentang lebar yg sama dimana
+   Sidebar tersembunyi - simetris dgn pola Sidebar, base rule `display:
+   none` di atas TIDAK diubah/dihapus. */
+@media (max-width:1023px){
+  .dashboard-v2-bottomnav{
+    display:flex;
+    align-items:center;
+    justify-content:space-around;
+    /* QA V2.42: V2.41 (Critical #1) membuat Bottom Nav V2 akhirnya
+       TAMPIL di <1024px, tapi tidak diberi `position` - karena root
+       adlh satu-satunya scroll container (`overflow-y:auto`) & Bottom
+       Nav cuma sibling biasa SETELAH Main (13 section builder) di DOM,
+       begitu Main melebihi tinggi viewport, Bottom Nav baru kelihatan
+       stlh discroll sampai PALING BAWAH konten - bukan navigasi
+       persisten spt namanya/spt `.nav` lama (yg memang sengaja
+       `position:fixed;bottom:0`). Fix additive, scope tetap di dalam
+       breakpoint yg sama persis dgn fix V2.41 (<1024px): tambah
+       `position:sticky;bottom:0` (bukan `fixed`, supaya tetap dlm alur
+       kolom `.dashboard-v2-root` yg sudah 100% width, tidak perlu
+       left/right/width baru) + z-index reuse var(--z-chrome) - token
+       yg sama persis dipakai `.nav`/`.header` lama utk keperluan
+       identik. Tidak ada nilai/token baru. */
+    position:sticky;
+    bottom:0;
+    z-index:var(--z-chrome);
+  }
 }
 
 .dashboard-v2-fab{
@@ -1126,4 +1267,538 @@ textarea.fi { resize: vertical; min-height: 80px; }
   font-size:var(--fs-caption);
   color:var(--text2);
   margin-top:var(--sp-2);
+}
+
+/* ===== Tahap V2.4: Insight Panel. Reuse token existing saja
+   (--sp-*/--r-xl/--fs-body/--surface2/--border/--text2), tidak ada nilai
+   baru yang di-hardcode. Container pakai pola kartu yang sama dgn
+   .dashboard-v2-hero (padding/border-radius/background) di atas; separator
+   antar item pakai border-top reuse --border, bukan warna baru. */
+.dashboard-v2-insight-panel{
+  margin-top:var(--sp-6);
+  padding:var(--sp-5);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--r-xl);
+}
+.dashboard-v2-insight-item{
+  font-size:var(--fs-body);
+  color:var(--text2);
+  padding:var(--sp-2) 0;
+}
+.dashboard-v2-insight-item + .dashboard-v2-insight-item{
+  border-top:1px solid var(--border);
+}
+
+/* ===== Tahap V2.6/V2.21: Recent Activity. Reuse token existing saja
+   (--sp-*/--r-xl/--fs-body/--surface2/--border/--text2), tidak ada nilai
+   baru. Pola identik dgn Insight Panel di atas (kartu + separator antar
+   item) — komponen ini memang dokumentasikan sbg pola sama persis dgn
+   _buildInsightPanel() di dashboard-v2-shell.js. Class item dipakai sama
+   utk 5 baris lama maupun 4 elemen data (V2.21) — tidak ada pembeda
+   struktural di JS, jadi cukup 1 selector item bersama. */
+.dashboard-v2-recent-activity{
+  margin-top:var(--sp-6);
+  padding:var(--sp-5);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--r-xl);
+}
+.dashboard-v2-recent-activity-item{
+  font-size:var(--fs-body);
+  color:var(--text2);
+  padding:var(--sp-2) 0;
+}
+.dashboard-v2-recent-activity-item + .dashboard-v2-recent-activity-item{
+  border-top:1px solid var(--border);
+}
+
+/* ===== Tahap V2.7/V2.20: Statistics Panel. Reuse token existing saja
+   (--sp-*/--r-xl/--fs-*/--surface2/--border/--text/--text2), tidak ada
+   nilai baru. Beda dgn Insight Panel/Recent Activity (list flat), builder
+   ini merender <button disabled> berisi 4 span (icon/title/value/trend)
+   sbg "kartu" dlm grid 2 kolom — jadi container dibuat grid, tiap kartu
+   flex-column, reset properti default <button> (border/background/font)
+   pakai token yg sama dgn container kartu lain di file ini. Class
+   .dashboard-v2-statistics-card dipakai sama utk 4 kartu placeholder
+   (button) maupun 4 elemen data V2.20 (div) — tidak ada pembeda
+   struktural di JS, jadi cukup 1 selector kartu bersama. */
+.dashboard-v2-statistics-panel{
+  margin-top:var(--sp-6);
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:var(--sp-3);
+}
+.dashboard-v2-statistics-card{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:var(--sp-2);
+  width:100%;
+  box-sizing:border-box;
+  padding:var(--sp-5);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--r-xl);
+  text-align:left;
+  font-family:inherit;
+  cursor:default;
+}
+.dashboard-v2-statistics-icon{
+  font-size:var(--fs-icon-lg);
+}
+.dashboard-v2-statistics-title{
+  font-size:var(--fs-label);
+  color:var(--text2);
+}
+.dashboard-v2-statistics-value{
+  font-size:var(--fs-stat);
+  color:var(--text);
+}
+.dashboard-v2-statistics-trend{
+  font-size:var(--fs-caption);
+  color:var(--text2);
+}
+
+/* ===== Tahap V2.8/V2.22: Upcoming Tasks. Reuse token existing saja
+   (--sp-*/--r-xl/--fs-*/--surface2/--border/--text/--text2), tidak ada
+   nilai baru. Pola identik dgn Statistics Panel di atas (grid 2 kolom +
+   kartu <button disabled> flex-column) — komponen ini memang
+   didokumentasikan sbg pola sama persis dgn _buildStatisticsPanel() di
+   dashboard-v2-shell.js. Class kartu dipakai sama utk 5 kartu placeholder
+   (button) maupun 4 elemen data V2.22 (div). */
+.dashboard-v2-upcoming-tasks{
+  margin-top:var(--sp-6);
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:var(--sp-3);
+}
+.dashboard-v2-upcoming-task-card{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:var(--sp-2);
+  width:100%;
+  box-sizing:border-box;
+  padding:var(--sp-5);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--r-xl);
+  text-align:left;
+  font-family:inherit;
+  cursor:default;
+}
+.dashboard-v2-upcoming-task-icon{
+  font-size:var(--fs-icon-lg);
+}
+.dashboard-v2-upcoming-task-title{
+  font-size:var(--fs-body-lg);
+  color:var(--text);
+}
+.dashboard-v2-upcoming-task-due-date{
+  font-size:var(--fs-caption);
+  color:var(--text2);
+}
+.dashboard-v2-upcoming-task-status{
+  font-size:var(--fs-caption);
+  color:var(--text2);
+}
+
+/* ===== Tahap V2.9/V2.23: Notifications. Reuse token existing saja
+   (--sp-*/--r-xl/--fs-*/--surface2/--border/--text/--text2), tidak ada
+   nilai baru. Pola identik dgn Statistics Panel/Upcoming Tasks (grid 2
+   kolom + kartu <button disabled> flex-column) — komponen ini memang
+   didokumentasikan sbg pola sama persis dgn _buildUpcomingTasks()
+   (V2.8). Class kartu dipakai sama utk 5 kartu placeholder (button)
+   maupun 4 elemen data V2.23 (div). */
+.dashboard-v2-notifications{
+  margin-top:var(--sp-6);
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:var(--sp-3);
+}
+.dashboard-v2-notification-card{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:var(--sp-2);
+  width:100%;
+  box-sizing:border-box;
+  padding:var(--sp-5);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--r-xl);
+  text-align:left;
+  font-family:inherit;
+  cursor:default;
+}
+.dashboard-v2-notification-icon{
+  font-size:var(--fs-icon-lg);
+}
+.dashboard-v2-notification-title{
+  font-size:var(--fs-body-lg);
+  color:var(--text);
+}
+.dashboard-v2-notification-description{
+  font-size:var(--fs-caption);
+  color:var(--text2);
+}
+.dashboard-v2-notification-timestamp{
+  font-size:var(--fs-caption);
+  color:var(--text2);
+}
+
+/* ===== Tahap V2.10/V2.25: AI Command Center. Reuse token existing saja
+   (--sp-*/--r-xl/--r-md/--fs-*/--surface2/--surface3/--border/--border2/
+   --text/--text2), tidak ada nilai baru. Beda dgn builder kartu lain di
+   atas, struktur di sini campuran 1 <input readonly> + kartu aksi + 1
+   area saran, semua ANAK LANGSUNG section yg sama (tanpa wrapper grid
+   terpisah) — jadi container dibuat flex-wrap dgn search & suggestion
+   dipaksa selebar 1 baris penuh (flex-basis 100%), kartu aksi mengisi
+   sisa baris di antaranya. flex-basis kartu aksi (140px) memakai literal
+   px, konsisten dgn pola ukuran non-token yg sudah dipakai di file ini
+   (mis. .tx-icon width:38px) — bukan token warna/spasi/radius baru.
+   Class .dashboard-v2-ai-action-card dipakai sama utk 4 kartu aksi
+   placeholder (button) maupun 4 elemen data V2.25 (div). */
+.dashboard-v2-ai-command-center{
+  margin-top:var(--sp-6);
+  display:flex;
+  flex-wrap:wrap;
+  gap:var(--sp-3);
+  padding:var(--sp-5);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--r-xl);
+}
+.dashboard-v2-ai-search{
+  flex:1 1 100%;
+  width:100%;
+  box-sizing:border-box;
+  padding:var(--sp-4) var(--sp-5);
+  background:var(--surface3);
+  border:1px solid var(--border2);
+  border-radius:var(--r-md);
+  color:var(--text);
+  font-family:inherit;
+  font-size:var(--fs-body);
+}
+.dashboard-v2-ai-action-card{
+  flex:1 1 140px;
+  box-sizing:border-box;
+  padding:var(--sp-4) var(--sp-5);
+  background:var(--surface3);
+  border:1px solid var(--border);
+  border-radius:var(--r-md);
+  color:var(--text2);
+  font-family:inherit;
+  font-size:var(--fs-body);
+  text-align:left;
+  cursor:default;
+}
+.dashboard-v2-ai-suggestion{
+  flex:1 1 100%;
+  font-size:var(--fs-caption);
+  color:var(--text2);
+  padding-top:var(--sp-2);
+  border-top:1px solid var(--border);
+}
+
+/* ===== Tahap V2.11/V2.26: Health Score. Reuse token existing saja
+   (--sp-*/--r-xl/--r-md/--r-full/--fs-*/--surface2/--surface3/--border/
+   --text/--text2), tidak ada nilai baru. Struktur beda dgn builder kartu
+   lain: 1 lingkaran skor + 1 subtitle + 4 kartu metrik, semua ANAK
+   LANGSUNG section yg sama — jadi container dibuat flex-wrap (pola sama
+   dgn AI Command Center di atas), lingkaran & subtitle dipaksa row
+   sendiri (flex-basis 100% utk subtitle, flex 0 0 auto utk lingkaran),
+   kartu metrik mengisi baris berikutnya. Class
+   .dashboard-v2-health-metric-card dipakai sama utk 4 kartu placeholder
+   (button) maupun 4 elemen data V2.26 (div). */
+.dashboard-v2-health-score{
+  margin-top:var(--sp-6);
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:center;
+  gap:var(--sp-3);
+  padding:var(--sp-5);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--r-xl);
+}
+.dashboard-v2-health-score-circle{
+  flex:0 0 auto;
+  width:96px;
+  height:96px;
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--surface3);
+  border:1px solid var(--border);
+  border-radius:var(--r-full);
+}
+.dashboard-v2-health-score-value{
+  font-size:var(--fs-stat);
+  color:var(--text);
+}
+.dashboard-v2-health-score-subtitle{
+  flex:1 1 100%;
+  text-align:center;
+  font-size:var(--fs-caption);
+  color:var(--text2);
+}
+.dashboard-v2-health-metric-card{
+  flex:1 1 140px;
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:var(--sp-2);
+  padding:var(--sp-4) var(--sp-5);
+  background:var(--surface3);
+  border:1px solid var(--border);
+  border-radius:var(--r-md);
+  text-align:left;
+  font-family:inherit;
+  cursor:default;
+}
+.dashboard-v2-health-metric-icon{
+  font-size:var(--fs-icon-lg);
+}
+.dashboard-v2-health-metric-title{
+  font-size:var(--fs-label);
+  color:var(--text2);
+}
+.dashboard-v2-health-metric-status{
+  font-size:var(--fs-caption);
+  color:var(--text2);
+}
+
+/* ===== Tahap V2.12/V2.27: Predictive Insights. Reuse token existing saja
+   (--sp-*/--r-xl/--fs-*/--surface2/--border/--text/--text2), tidak ada
+   nilai baru. Pola grid 2 kolom identik dgn Statistics Panel/Notifications
+   di atas. Beda dgn builder lain, 4 elemen data V2.27 di sini memakai
+   class TERPISAH (.dashboard-v2-predictive-data-card, bukan
+   .dashboard-v2-predictive-card) — sesuai apa adanya di JS, jadi dibuat
+   selector kartu tambahan (grid-column:span 2 spy tampil selebar 1 baris
+   penuh, konsisten dgn pola item ringkasan teks di builder2 lain). */
+.dashboard-v2-predictive-insights{
+  margin-top:var(--sp-6);
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:var(--sp-3);
+}
+.dashboard-v2-predictive-card{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:var(--sp-2);
+  width:100%;
+  box-sizing:border-box;
+  padding:var(--sp-5);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--r-xl);
+  text-align:left;
+  font-family:inherit;
+  cursor:default;
+}
+.dashboard-v2-predictive-icon{
+  font-size:var(--fs-icon-lg);
+}
+.dashboard-v2-predictive-title{
+  font-size:var(--fs-body-lg);
+  color:var(--text);
+}
+.dashboard-v2-predictive-prediction{
+  font-size:var(--fs-body);
+  color:var(--text);
+}
+.dashboard-v2-predictive-confidence{
+  font-size:var(--fs-caption);
+  color:var(--text2);
+}
+.dashboard-v2-predictive-recommendation{
+  font-size:var(--fs-caption);
+  color:var(--text2);
+}
+.dashboard-v2-predictive-data-card{
+  grid-column:span 2;
+  box-sizing:border-box;
+  padding:var(--sp-5);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--r-xl);
+  font-size:var(--fs-body);
+  color:var(--text2);
+}
+
+/* ===== Tahap V2.13/V2.24: Automation Center. Reuse token existing saja
+   (--sp-*/--r-xl/--fs-*/--surface2/--border/--text/--text2), tidak ada
+   nilai baru. Pola grid 2 kolom identik dgn Statistics Panel/
+   Notifications/Predictive Insights di atas. Class
+   .dashboard-v2-automation-card dipakai sama utk 5 kartu placeholder
+   (button, Tahap V2.13) maupun 4 elemen data V2.24 (div) — tidak ada
+   pembeda struktural di JS, jadi cukup 1 selector kartu bersama (sama
+   spt pola Statistics Panel/Notifications, BEDA dgn Predictive Insights
+   yg pakai class terpisah). Builder ini adalah builder TERAKHIR dari
+   rangkaian audit CSS Dashboard V2 — lihat CHANGELOG-V2_39.md utk Final
+   CSS Audit menyeluruh. */
+.dashboard-v2-automation-center{
+  margin-top:var(--sp-6);
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:var(--sp-3);
+}
+.dashboard-v2-automation-card{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:var(--sp-2);
+  width:100%;
+  box-sizing:border-box;
+  padding:var(--sp-5);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--r-xl);
+  text-align:left;
+  font-family:inherit;
+  cursor:default;
+}
+.dashboard-v2-automation-icon{
+  font-size:var(--fs-icon-lg);
+}
+.dashboard-v2-automation-title{
+  font-size:var(--fs-body-lg);
+  color:var(--text);
+}
+.dashboard-v2-automation-schedule{
+  font-size:var(--fs-caption);
+  color:var(--text2);
+}
+.dashboard-v2-automation-status{
+  font-size:var(--fs-caption);
+  color:var(--text2);
+}
+.dashboard-v2-automation-description{
+  font-size:var(--fs-caption);
+  color:var(--text2);
+}
+
+/* ===== Tahap V2_40: Final merge - Summary Cards, Quick Actions, Module
+   Grid, Sidebar item, Bottom Nav item, Hero *-summary (V2.17). Reuse
+   token existing saja (--sp-*/--r-*/--fs-*/--surface2/--border/--text/
+   --text2), tidak ada nilai baru. Semua selector di bawah ini BARU
+   (belum ada rule sebelumnya utk class ini) - murni additive, tidak
+   mengubah/menghapus rule/selector lama di file ini. */
+
+/* Hero *-summary (V2.17): 4 elemen tambahan anak Hero, style identik
+   dgn .dashboard-v2-hero-healthscore/-balance/-insight yg sudah ada di
+   atas (rule lama TIDAK disentuh - ini rule baru terpisah dgn nilai
+   token yg sama, bukan mengubah selector existing). */
+.dashboard-v2-hero-finance-summary,
+.dashboard-v2-hero-vehicle-summary,
+.dashboard-v2-hero-family-summary,
+.dashboard-v2-hero-document-summary{
+  font-size:var(--fs-caption);
+  color:var(--text2);
+  margin-top:var(--sp-2);
+}
+
+/* Summary Cards (V2.3/V2.18): 8 kartu (4 placeholder + 4 data) sbg anak
+   langsung Summary Cards, pola grid 2 kolom sama dgn Statistics Panel/
+   Upcoming Tasks di atas. */
+.dashboard-v2-summary-cards{
+  margin-top:var(--sp-6);
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:var(--sp-3);
+}
+.dashboard-v2-summary-card{
+  padding:var(--sp-5);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--r-xl);
+  font-size:var(--fs-body);
+  color:var(--text2);
+}
+
+/* Quick Actions (V2.3): 4 tombol `disabled`, reuse pola tombol nonaktif
+   standar yg sama dgn Header V2 search/notification (opacity turun). */
+.dashboard-v2-quickactions{
+  margin-top:var(--sp-6);
+  display:flex;
+  flex-wrap:wrap;
+  gap:var(--sp-3);
+}
+.dashboard-v2-quickaction-btn{
+  flex:1 1 auto;
+  padding:var(--sp-4) var(--sp-5);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--r-pill);
+  color:var(--text);
+  font-family:inherit;
+  font-size:var(--fs-body);
+  text-align:center;
+  opacity:.5;
+}
+
+/* Module Grid (V2.4/V2.19/V2.30): 10 kartu (6 placeholder + 4 data) sbg
+   anak Module Grid, pola grid 2 kolom sama dgn Summary Cards di atas.
+   3 dari 6 kartu placeholder bersifat interaktif (role="button", V2.30)
+   - dibedakan lewat atribut existing, bukan class baru. */
+.dashboard-v2-module-grid{
+  margin-top:var(--sp-6);
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:var(--sp-3);
+}
+.dashboard-v2-module-card{
+  padding:var(--sp-5);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--r-xl);
+  color:var(--text);
+  font-size:var(--fs-body-lg);
+  text-align:left;
+}
+.dashboard-v2-module-card[role="button"]{
+  cursor:pointer;
+}
+
+/* Sidebar item (V2.5): 5 tombol navigasi `disabled` anak Sidebar,
+   reuse pola tombol nonaktif standar (opacity turun) sama dgn Quick
+   Actions/Header V2 di atas. */
+.dashboard-v2-sidebar-item{
+  display:block;
+  width:100%;
+  box-sizing:border-box;
+  padding:var(--sp-3) var(--sp-4);
+  margin-bottom:var(--sp-2);
+  background:transparent;
+  border:none;
+  border-radius:var(--r-md);
+  color:var(--text2);
+  font-family:inherit;
+  font-size:var(--fs-body);
+  text-align:left;
+  opacity:.5;
+}
+
+/* Bottom Nav item (V2.5): 4 tombol navigasi `disabled` anak Bottom Nav,
+   pola sama dgn Sidebar item di atas (namespace terpisah - RFC §5 Risk
+   Assessment - tapi style nonaktif identik). */
+.dashboard-v2-bottomnav-item{
+  display:inline-block;
+  padding:var(--sp-2) var(--sp-3);
+  margin-right:var(--sp-2);
+  background:transparent;
+  border:none;
+  border-radius:var(--r-md);
+  color:var(--text2);
+  font-family:inherit;
+  font-size:var(--fs-caption);
+  text-align:center;
+  opacity:.5;
 }
