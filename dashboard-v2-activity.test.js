@@ -175,7 +175,10 @@ test('Recent Activity: tidak ada onclick/addEventListener terpasang (murni label
 
 test('dashboard-v2-shell.js (setelah V2.6) tetap tidak terhubung ke FEATURE_REGISTRY/showPage()/AICommandCenter/D.profile/D.transactions', () => {
   assert.doesNotMatch(codeOnly, /FEATURE_REGISTRY/);
-  assert.doesNotMatch(codeOnly, /showPage\s*\(/);
+  // Tahap V2.43 (persetujuan eksplisit user): showPage() sekarang LEGIT
+  // dipakai di navigateTo() (lihat DASHBOARD-V2-BOTTOMNAV-WIREUP.md).
+  // Guard larangan showPage() dihapus dari sini; guard spesifik ada di
+  // tests/dashboard-v2-navigation.test.js.
   assert.doesNotMatch(codeOnly, /AICommandCenter/);
   assert.doesNotMatch(codeOnly, /D\.profile/);
   assert.doesNotMatch(codeOnly, /D\.transactions/);

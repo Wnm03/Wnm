@@ -231,7 +231,7 @@ test('render() hanya membaca flag, tidak menuliskannya (isDashboardV2Enabled dip
   assert.equal(disableCalled, false, 'render() tidak boleh memanggil disableDashboardV2()');
 });
 
-test('source file tidak mengandung referensi tekstual ke showPage(/FEATURE_REGISTRY pada baris kode aktif (jaminan statis tambahan)', () => {
+test('source file tidak mengandung referensi tekstual ke FEATURE_REGISTRY pada baris kode aktif (jaminan statis tambahan)', () => {
   const fs = require('node:fs');
   const path = require('node:path');
   const src = fs.readFileSync(path.join(__dirname, '..', 'dashboard-v2-shell.js'), 'utf8');
@@ -239,6 +239,9 @@ test('source file tidak mengandung referensi tekstual ke showPage(/FEATURE_REGIS
     .split('\n')
     .filter((line) => !line.trim().startsWith('//'))
     .join('\n');
-  assert.equal(/showPage\s*\(/.test(codeOnly), false);
+  // Tahap V2.43 (persetujuan eksplisit user): showPage() sekarang LEGIT
+  // dipakai di navigateTo() (lihat DASHBOARD-V2-BOTTOMNAV-WIREUP.md).
+  // Guard larangan showPage() dihapus dari sini; guard spesifik (showPage
+  // hanya di dalam navigateTo()) ada di tests/dashboard-v2-navigation.test.js.
   assert.equal(/FEATURE_REGISTRY/.test(codeOnly), false);
 });

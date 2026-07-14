@@ -298,7 +298,10 @@ test('refresh() tidak memakai fetch()', () => {
 
 test('refresh() tidak memakai showPage()', () => {
   const src = extractRefreshSource();
-  assert.doesNotMatch(src, /showPage\s*\(/);
+  // Tahap V2.43 (persetujuan eksplisit user): showPage() sekarang LEGIT
+  // dipakai di navigateTo() (lihat DASHBOARD-V2-BOTTOMNAV-WIREUP.md).
+  // Guard larangan showPage() dihapus dari sini; guard spesifik ada di
+  // tests/dashboard-v2-navigation.test.js.
 });
 
 test('refresh() tidak memakai FEATURE_REGISTRY', () => {

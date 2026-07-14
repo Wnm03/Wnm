@@ -177,7 +177,10 @@ const shellCodeOnly = SHELL_SOURCE.split('\n').map((line) => line.replace(/\/\/.
 test('dashboard-v2-shell.js (setelah V2.31) tetap tidak membaca D langsung / fetch / routing / FEATURE_REGISTRY / innerHTML', () => {
   assert.doesNotMatch(shellCodeOnly, /\bD\.\w/, 'shell TIDAK boleh membaca `D` langsung — harus lewat adapter');
   assert.doesNotMatch(shellCodeOnly, /fetch\s*\(/);
-  assert.doesNotMatch(shellCodeOnly, /showPage\s*\(/);
+  // Tahap V2.43 (persetujuan eksplisit user): showPage() sekarang LEGIT
+  // dipakai di navigateTo() (lihat DASHBOARD-V2-BOTTOMNAV-WIREUP.md).
+  // Guard larangan showPage() dihapus dari sini; guard spesifik ada di
+  // tests/dashboard-v2-navigation.test.js.
   assert.doesNotMatch(shellCodeOnly, /FEATURE_REGISTRY/);
   assert.doesNotMatch(shellCodeOnly, /innerHTML/);
 });

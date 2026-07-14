@@ -329,7 +329,10 @@ test('Dashboard V2 tetap dormant setelah render() Tahap V2.4 (Module Grid + Insi
 test('Module Grid: tidak ada onclick/addEventListener terpasang (murni label, tanpa routing/link)', () => {
   const SRC = fs.readFileSync(path.join(__dirname, '..', 'dashboard-v2-shell.js'), 'utf8');
   const code = SRC.split('\n').map((line) => line.replace(/\/\/.*$/, '')).join('\n');
-  assert.doesNotMatch(code, /showPage\s*\(/);
+  // Tahap V2.43 (persetujuan eksplisit user): showPage() sekarang LEGIT
+  // dipakai di navigateTo() (lihat DASHBOARD-V2-BOTTOMNAV-WIREUP.md).
+  // Guard larangan showPage() dihapus dari sini; guard spesifik ada di
+  // tests/dashboard-v2-navigation.test.js.
   assert.doesNotMatch(code, /addEventListener/);
   assert.doesNotMatch(code, /\.onclick\s*=/);
 });
@@ -345,7 +348,10 @@ const codeOnly = SHELL_SOURCE.split('\n').map((line) => line.replace(/\/\/.*$/, 
 
 test('dashboard-v2-shell.js (setelah V2.3) tetap tidak terhubung ke FEATURE_REGISTRY/showPage()/AICommandCenter/D.profile/D.transactions', () => {
   assert.doesNotMatch(codeOnly, /FEATURE_REGISTRY/);
-  assert.doesNotMatch(codeOnly, /showPage\s*\(/);
+  // Tahap V2.43 (persetujuan eksplisit user): showPage() sekarang LEGIT
+  // dipakai di navigateTo() (lihat DASHBOARD-V2-BOTTOMNAV-WIREUP.md).
+  // Guard larangan showPage() dihapus dari sini; guard spesifik ada di
+  // tests/dashboard-v2-navigation.test.js.
   assert.doesNotMatch(codeOnly, /AICommandCenter/);
   assert.doesNotMatch(codeOnly, /D\.profile/);
   assert.doesNotMatch(codeOnly, /D\.transactions/);

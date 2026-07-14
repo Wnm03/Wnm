@@ -73,7 +73,7 @@ function loadShell() {
     document: fakeDocument,
     window: fakeWindow,
   });
-  return { Shell: context.window.DashboardV2Shell, document: fakeDocument, window: fakeWindow };
+  return { Shell: context.window.DashboardV2Shell, document: fakeDocument, window: fakeWindow, fakeWindow };
 }
 
 function getRootParts(root) {
@@ -97,7 +97,7 @@ test('Sidebar: dirender dgn aria-label + 5 item navigasi', () => {
   assert.equal(sidebar.children.length, 5);
 });
 
-test('Sidebar: 5 item (Dashboard, Finance, Vehicle, Reports, Settings) sesuai urutan, semua disabled', () => {
+test('Sidebar (Tahap V2.44): 5 item (Dashboard, Finance, Vehicle, Reports, Settings) sesuai urutan; Dashboard/Finance/Vehicle/Settings diwire ke showPage() lewat data-action, Reports tetap disabled', () => {
   const { Shell } = loadShell();
   const root = Shell.render();
   const { sidebar } = getRootParts(root);
@@ -107,25 +107,32 @@ test('Sidebar: 5 item (Dashboard, Finance, Vehicle, Reports, Settings) sesuai ur
   assert.equal(dashboard.tagName, 'BUTTON');
   assert.equal(dashboard.type, 'button');
   assert.equal(dashboard.className, 'dashboard-v2-sidebar-item');
-  assert.equal(dashboard.disabled, true, 'item Dashboard harus disabled');
+  assert.equal(dashboard.disabled, false, 'item Dashboard harus BISA diklik sejak V2.44');
   assert.equal(dashboard.textContent, 'Dashboard');
   assert.ok(dashboard.getAttribute('aria-label'));
+  assert.equal(dashboard.getAttribute('data-action'), 'DashboardV2Shell.navigateTo');
+  assert.deepEqual(JSON.parse(dashboard.getAttribute('data-args')), ['dashboard-hub', '$el']);
 
   assert.equal(finance.id, 'dashboardV2SidebarFinance');
-  assert.equal(finance.disabled, true, 'item Finance harus disabled');
+  assert.equal(finance.disabled, false, 'item Finance harus BISA diklik sejak V2.44');
   assert.equal(finance.textContent, 'Finance');
+  assert.deepEqual(JSON.parse(finance.getAttribute('data-args')), ['keuangan', '$el']);
 
   assert.equal(vehicle.id, 'dashboardV2SidebarVehicle');
-  assert.equal(vehicle.disabled, true, 'item Vehicle harus disabled');
+  assert.equal(vehicle.disabled, false, 'item Vehicle harus BISA diklik sejak V2.44');
   assert.equal(vehicle.textContent, 'Vehicle');
+  assert.deepEqual(JSON.parse(vehicle.getAttribute('data-args')), ['carnotes', '$el']);
 
   assert.equal(reports.id, 'dashboardV2SidebarReports');
-  assert.equal(reports.disabled, true, 'item Reports harus disabled');
+  assert.equal(reports.disabled, true, 'item Reports harus TETAP disabled (tidak ada #page-reports)');
   assert.equal(reports.textContent, 'Reports');
+  assert.equal(reports.getAttribute('data-action'), null, 'Reports tidak boleh punya data-action (tidak ada halaman tujuan)');
+  assert.equal(reports.getAttribute('data-args'), null, 'Reports tidak boleh punya data-args (tidak ada halaman tujuan)');
 
   assert.equal(settings.id, 'dashboardV2SidebarSettings');
-  assert.equal(settings.disabled, true, 'item Settings harus disabled');
+  assert.equal(settings.disabled, false, 'item Settings harus BISA diklik sejak V2.44');
   assert.equal(settings.textContent, 'Settings');
+  assert.deepEqual(JSON.parse(settings.getAttribute('data-args')), ['settings', '$el']);
 });
 
 test('Bottom Navigation V2: dirender dgn aria-label + 4 item navigasi, namespace class tetap "dashboard-v2-bottomnav"', () => {
@@ -139,7 +146,7 @@ test('Bottom Navigation V2: dirender dgn aria-label + 4 item navigasi, namespace
   assert.equal(bottomNav.children.length, 4);
 });
 
-test('Bottom Navigation V2: 4 item (Home, Finance, Vehicle, More) sesuai urutan, semua disabled', () => {
+test('Bottom Navigation V2 (Tahap V2.43): 4 item (Home, Finance, Vehicle, More) sesuai urutan, TIDAK disabled, diwire ke showPage() lewat data-action', () => {
   const { Shell } = loadShell();
   const root = Shell.render();
   const { bottomNav } = getRootParts(root);
@@ -149,21 +156,51 @@ test('Bottom Navigation V2: 4 item (Home, Finance, Vehicle, More) sesuai urutan,
   assert.equal(home.tagName, 'BUTTON');
   assert.equal(home.type, 'button');
   assert.equal(home.className, 'dashboard-v2-bottomnav-item');
-  assert.equal(home.disabled, true, 'item Home harus disabled');
+  assert.equal(home.disabled, false, 'item Home harus BISA diklik sejak V2.43');
   assert.equal(home.textContent, 'Home');
   assert.ok(home.getAttribute('aria-label'));
+  assert.equal(home.getAttribute('data-action'), 'DashboardV2Shell.navigateTo');
+  assert.deepEqual(JSON.parse(home.getAttribute('data-args')), ['dashboard-hub', '$el']);
 
   assert.equal(finance.id, 'dashboardV2BottomNavFinance');
-  assert.equal(finance.disabled, true, 'item Finance harus disabled');
+  assert.equal(finance.disabled, false, 'item Finance harus BISA diklik sejak V2.43');
   assert.equal(finance.textContent, 'Finance');
+  assert.deepEqual(JSON.parse(finance.getAttribute('data-args')), ['keuangan', '$el']);
 
   assert.equal(vehicle.id, 'dashboardV2BottomNavVehicle');
-  assert.equal(vehicle.disabled, true, 'item Vehicle harus disabled');
+  assert.equal(vehicle.disabled, false, 'item Vehicle harus BISA diklik sejak V2.43');
   assert.equal(vehicle.textContent, 'Vehicle');
+  assert.deepEqual(JSON.parse(vehicle.getAttribute('data-args')), ['carnotes', '$el']);
 
   assert.equal(more.id, 'dashboardV2BottomNavMore');
-  assert.equal(more.disabled, true, 'item More harus disabled');
+  assert.equal(more.disabled, false, 'item More harus BISA diklik sejak V2.43');
   assert.equal(more.textContent, 'More');
+  assert.deepEqual(JSON.parse(more.getAttribute('data-args')), ['settings', '$el']);
+});
+
+test('Bottom Navigation V2 (Tahap V2.43): navigateTo() memanggil showPage() global dgn nama halaman & el yg benar', () => {
+  const { Shell, fakeWindow } = loadShell();
+  const calls = [];
+  fakeWindow.showPage = (name, el) => { calls.push(['showPage', name, el]); };
+  fakeWindow.disableDashboardV2 = () => { calls.push(['disableDashboardV2']); };
+  const fakeEl = { id: 'fakeBtn' };
+
+  Shell.navigateTo('keuangan', fakeEl);
+
+  assert.deepEqual(calls[0], ['showPage', 'keuangan', fakeEl]);
+  assert.ok(calls.some((c) => c[0] === 'disableDashboardV2'), 'navigasi ke halaman selain dashboard-hub harus menonaktifkan Dashboard V2 supaya halaman tujuan terlihat');
+});
+
+test('Bottom Navigation V2 (Tahap V2.43): navigateTo("dashboard-hub") TIDAK menonaktifkan Dashboard V2 (Home = Dashboard V2 itu sendiri)', () => {
+  const { Shell, fakeWindow } = loadShell();
+  const calls = [];
+  fakeWindow.showPage = (name, el) => { calls.push(['showPage', name, el]); };
+  fakeWindow.disableDashboardV2 = () => { calls.push(['disableDashboardV2']); };
+
+  Shell.navigateTo('dashboard-hub', { id: 'homeBtn' });
+
+  assert.equal(calls.length, 1, 'hanya showPage() yg dipanggil, disableDashboardV2() tidak boleh terpanggil utk Home');
+  assert.equal(calls[0][1], 'dashboard-hub');
 });
 
 test('render() tetap idempotent setelah penambahan item Sidebar/Bottom Nav (tidak menumpuk)', () => {
@@ -192,15 +229,55 @@ test('Dashboard V2 tetap dormant setelah render() Tahap V2.5 (root masih `hidden
 const SHELL_SOURCE = fs.readFileSync(path.join(__dirname, '..', 'dashboard-v2-shell.js'), 'utf8');
 const codeOnly = SHELL_SOURCE.split('\n').map((line) => line.replace(/\/\/.*$/, '')).join('\n');
 
-test('dashboard-v2-shell.js (setelah V2.5) tetap tidak terhubung ke FEATURE_REGISTRY/showPage()/AICommandCenter/.nav-item global', () => {
+test('dashboard-v2-shell.js tetap tidak terhubung ke FEATURE_REGISTRY/AICommandCenter/.nav-item global/innerHTML/addEventListener', () => {
   assert.doesNotMatch(codeOnly, /FEATURE_REGISTRY/);
-  assert.doesNotMatch(codeOnly, /showPage\s*\(/);
   assert.doesNotMatch(codeOnly, /AICommandCenter/);
   assert.doesNotMatch(codeOnly, /innerHTML/);
   assert.doesNotMatch(codeOnly, /addEventListener/);
   assert.doesNotMatch(codeOnly, /\.onclick\s*=/);
   assert.doesNotMatch(codeOnly, /['"]nav-item['"]/);
   assert.doesNotMatch(codeOnly, /getElementById\(\s*['"]mainNav['"]\s*\)/);
+});
+
+// Tahap V2.43: showPage() SEKARANG legal dipakai, tapi HANYA di dalam
+// navigateTo() — dipanggil lewat data-action="DashboardV2Shell.navigateTo"
+// (global click-delegation di features-helpers-global-security.js), BUKAN
+// addEventListener/.onclick baru di file ini (diverifikasi test di atas).
+// Tahap V2.44: Sidebar ikut diwire dgn pola & pemanggil (navigateTo())
+// yg SAMA — tidak ada pemanggilan showPage() baru di tempat lain, tidak
+// ada addEventListener baru. Reports (Sidebar) & FAB V2 TETAP disabled
+// (Reports: tidak ada halaman tujuan valid; FAB: rencana Tahap V2.45).
+test('showPage() Tahap V2.43/V2.44 hanya dipakai di dalam navigateTo(); Sidebar Reports & FAB V2 tetap disabled', () => {
+  assert.match(codeOnly, /showPage\s*\(/, 'navigateTo() harus memanggil showPage()');
+  const navigateToBody = codeOnly.slice(codeOnly.indexOf('navigateTo(pageName, el)'));
+  assert.match(navigateToBody, /showPage\s*\(/);
+  // showPage() (termasuk fallback window.showPage()) hanya boleh muncul di
+  // dalam navigateTo() — guard regresi supaya tidak ada pemanggilan
+  // showPage() baru di tempat lain (mis. di _buildSidebar()). navigateTo()
+  // sendiri sudah py 2 pemanggilan sejak V2.43 (showPage() langsung +
+  // window.showPage() fallback), jadi yg diverifikasi di sini adalah
+  // jumlah TOTAL di seluruh file == jumlah di dalam navigateTo() saja
+  // (artinya 0 pemanggilan di luar navigateTo()).
+  const showPageMatches = codeOnly.match(/showPage\s*\(/g) || [];
+  const showPageMatchesInNavigateTo = navigateToBody.match(/showPage\s*\(/g) || [];
+  assert.equal(
+    showPageMatches.length,
+    showPageMatchesInNavigateTo.length,
+    'showPage()/window.showPage() tidak boleh dipanggil di luar navigateTo()'
+  );
+
+  const { Shell } = loadShell();
+  const root = Shell.render();
+  const { sidebar, fab } = getRootParts(root);
+  sidebar.children.forEach((btn) => {
+    if (btn.id === 'dashboardV2SidebarReports') {
+      assert.equal(btn.disabled, true, 'Sidebar Reports harus tetap disabled (tidak ada halaman tujuan valid)');
+    } else {
+      assert.equal(btn.disabled, false, `Sidebar item ${btn.id} harus BISA diklik sejak V2.44`);
+      assert.equal(btn.getAttribute('data-action'), 'DashboardV2Shell.navigateTo');
+    }
+  });
+  assert.equal(fab.disabled, true, 'FAB V2 harus tetap disabled (belum Tahap V2.45)');
 });
 
 test('dashboard-hub.js tetap tidak berubah/tidak direferensikan oleh shell V2', () => {

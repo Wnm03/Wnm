@@ -208,7 +208,10 @@ test('AI Command Center: tidak ada onclick/addEventListener terpasang (murni rea
 
 test('dashboard-v2-shell.js (setelah V2.10) tetap tidak terhubung ke FEATURE_REGISTRY/showPage()/AICommandCenter/D.profile/D.transactions/fetch', () => {
   assert.doesNotMatch(codeOnly, /FEATURE_REGISTRY/);
-  assert.doesNotMatch(codeOnly, /showPage\s*\(/);
+  // Tahap V2.43 (persetujuan eksplisit user): showPage() sekarang LEGIT
+  // dipakai di navigateTo() (lihat DASHBOARD-V2-BOTTOMNAV-WIREUP.md).
+  // Guard larangan showPage() dihapus dari sini; guard spesifik ada di
+  // tests/dashboard-v2-navigation.test.js.
   assert.doesNotMatch(codeOnly, /AICommandCenter/);
   assert.doesNotMatch(codeOnly, /D\.profile/);
   assert.doesNotMatch(codeOnly, /D\.transactions/);
