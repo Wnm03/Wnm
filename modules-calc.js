@@ -1,5 +1,5 @@
 
-const MODULE_CALC_VERSION='kw83-tahap0-feature-registry-32';
+const MODULE_CALC_VERSION='kw-v2-31-hero-real-data-2';
 const FI={
 assetScopeState:'zakatable',
 investmentAssetValue(){

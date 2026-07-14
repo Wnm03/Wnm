@@ -4134,3 +4134,96 @@ node --test   (setelah build)
 # pass 1865
 # fail 0
 ```
+
+## Tahap V2.31 — Hero Real Data
+
+Baseline: Dashboard V2 V2.30.1 (Stable) — mutual-exclusion Dashboard Hub
+↔ Dashboard V2 sudah selesai, 1870/1870 test PASS, build PASS.
+
+### Diubah (REPLACE placeholder → data nyata, bukan menambah elemen baru)
+
+- **`dashboard-v2-shell.js`** — `_buildHero()` SAJA yang disentuh (builder
+  lain tidak diedit sama sekali):
+  1. 4 variabel summary adapter (`getFinanceSummary`/`getVehicleSummary`/
+     `getFamilySummary`/`getDocumentSummary`, `dashboard-v2-data-
+     adapter.js`, V2.16, TIDAK diubah) dipindah ke ATAS blok `_buildHero`
+     — dari lokasi lamanya di Tahap V2.17 — supaya di-REUSE oleh 4
+     placeholder LAMA di bawah ini TANPA memanggil fungsi adapter 2x.
+  2. 4 placeholder LAMA (title/healthScore/balance/insight, Tahap V2.2)
+     sekarang diisi data nyata — id/class/`data-dashboard-v2-part` TIDAK
+     berubah, hanya `textContent`/`aria-label` yang di-REPLACE:
+     - **title**: `Selamat datang — {N} data tercatat` (N = jumlah akun +
+       kendaraan + anak + dokumen SIM, dari 4 summary adapter).
+     - **healthScore**: diisi ulang maknanya jadi **Skor Kelengkapan
+       Data** — `{X}/4 kategori terisi` (X = jumlah domain
+       Keuangan/Kendaraan/Keluarga/Dokumen yang py minimal 1 data).
+       Adapter TIDAK punya fungsi skor "Hidup Seimbang" (itu ranah
+       `LifeBalance.compute()` di `hidup-seimbang.js`, di luar adapter &
+       di luar scope tahap ini — lihat `DASHBOARD-V2-HERO-REAL-DATA.md`
+       §"Keputusan cakupan").
+     - **balance**: `Saldo: Rp {totalBalance}` dari `getFinanceSummary()`.
+     - **insight**: kalimat ringkasan gabungan 4 domain (akun/kendaraan/
+       anak/SIM).
+  3. Kalau adapter/`D` belum tersedia (guard `typeof fn === 'function'`
+     gagal, pola sama persis dgn V2.17/V2.18), 4 elemen fallback ke teks
+     placeholder ASLI V2.2 byte-identik — jalur ini yang dipakai
+     `tests/dashboard-v2-hero.test.js` & `tests/dashboard-v2-hero-
+     data.test.js` (keduanya me-load shell TANPA adapter), sehingga kedua
+     file test lama TETAP lulus tanpa 1 baris pun diubah.
+  4. 4 elemen data summary BARU (Tahap V2.17: `dashboardV2HeroFinance-
+     Summary` dkk) tidak berubah perilakunya — tetap memakai variabel
+     summary yang sama (reuse), bukan fetch ulang.
+- **`tests/dashboard-v2-hero-real-data.test.js`** (file baru, 6 test) —
+  integrasi sungguhan (`dashboard-v2-data-adapter.js` ASLI + `D` tiruan,
+  tidak di-mock): 4 placeholder lama menampilkan data nyata & tidak lagi
+  match `/placeholder/i`; healthScore parsial (3/4 domain terisi) dihitung
+  benar; jalur "adapter tidak di-load" tetap fallback placeholder
+  byte-identik; constraint check (`D` tidak dibaca langsung, adapter tidak
+  diubah, `dashboard-hub.js` tidak diubah).
+- **`DASHBOARD-V2-HERO-REAL-DATA.md`** — dokumentasi deliverable tahap
+  ini, termasuk rasional keputusan cakupan Health Score.
+
+### Tidak diubah (regresi non-obsolete)
+
+- `dashboard-v2-data-adapter.js` — 0 byte diubah, tetap persis 5 fungsi
+  (`_dashV2AdapterHasD`/`getFinanceSummary`/`getVehicleSummary`/
+  `getFamilySummary`/`getDocumentSummary`) seperti baseline V2.16.
+- `dashboard-hub.js` — tidak disentuh (masih V2.30.1, mutual-exclusion
+  Hub↔V2 tidak berubah).
+- `_buildSummaryCards()`/`_buildQuickActions()`/`_buildModuleGrid()`/
+  seluruh `_build*()` builder lain di `dashboard-v2-shell.js` — tidak
+  disentuh, hanya `_buildHero()` yang diedit.
+- **Seluruh test lama** (baseline V2.30.1, 1870 test) — 0 file diubah;
+  hanya 1 file test baru ditambahkan (`tests/dashboard-v2-hero-real-
+  data.test.js`). `tests/dashboard-v2-hero.test.js` &
+  `tests/dashboard-v2-hero-data.test.js` yang tadinya berisiko jadi
+  obsolete ternyata TETAP lulus tanpa modifikasi — keduanya me-load shell
+  tanpa adapter, sehingga tetap menguji jalur fallback placeholder yang
+  tidak berubah.
+- `index.html`, `app_production.html` (selain versi build `?v=` yang
+  disinkronkan otomatis oleh `build.js`) — Hero tetap self-mounting via
+  JS, 0 markup Dashboard V2 baru.
+- Tidak ada `fetch()`, tidak ada routing/`showPage()`, tidak ada
+  `FEATURE_REGISTRY`, tidak ada `D` dibaca langsung, tidak ada
+  `innerHTML`, tidak ada business logic baru — healthScore/title/insight
+  murni interpolasi presentasional dari field count yang sudah dihitung
+  adapter, bukan formula/skor bisnis baru.
+
+## Hasil test
+
+```
+node --test tests/dashboard-v2-hero-real-data.test.js
+# tests 6 / pass 6 / fail 0
+
+node --test tests/dashboard-v2-hero.test.js tests/dashboard-v2-hero-data.test.js
+# tests 30 / pass 30 / fail 0  (regresi non-obsolete, 0 diubah)
+
+node --test
+# tests 1876 / pass 1876 / fail 0
+
+node scripts/build.js
+# ✅ Build "kw-v2-31-hero-real-data-1" selesai & lolos cek sintaks
+
+node --test   (setelah build)
+# tests 1876 / pass 1876 / fail 0
+```

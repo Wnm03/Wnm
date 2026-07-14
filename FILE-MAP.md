@@ -11,7 +11,7 @@
 > file tapi lupa `node build.js`), jalankan ulang generatornya, JANGAN diedit
 > tangan — editan manual bakal ketimpa lagi di build berikutnya.
 
-Terakhir digenerate: 2026-07-14T03:12:10.374Z
+Terakhir digenerate: 2026-07-14T05:10:47.273Z
 Total file source: 84 · Total identifier global: 959
 
 ## 1. Urutan load & ringkasan tiap file
@@ -81,12 +81,12 @@ bundler menggabungkan semua file jadi `app-bundle-a.min.js`/`app-bundle-b.min.js
 | 58 | `features-aiwidget-reminder-gdrive-search.js` | 1616 | Reminder, hari kerja, kendaraan (pajak/SIM/servis/BBM/sparepart), storage & arsip, skema Google Sheets (SHEETS_SCHEMAS/SHEETS_MODULES) CATATAN: SHEETS_SCHEMAS dipindah dari features-edukasi-pajak-utang-sewakios.js (v57) … |
 | 59 | `features-sheets-pwa-selftest.js` | 2373 | Settings, notifikasi, PWA setup, self-test/smoke-test rendering, pajak/zakat/aset/utang PENTING: file ini HARUS dimuat sesuai urutan build.js (GROUP_A/GROUP_B) karena beberapa modul saling referensi. Urutan grup ini: … |
 | 60 | `dashboard-hub-registry.js` | 222 | FEATURE_REGISTRY: sumber data tunggal taksonomi Dashboard Feature Hub (blueprint-dashboard-hub.md §1 & §7, Tahap 0). PENTING — file ini MURNI DATA, tidak ada logic render/navigasi apa pun. Tahap 0 blueprint: "Finalisasi … |
-| 61 | `dashboard-hub.js` | 503 | Dashboard Feature Hub (blueprint-dashboard-hub.md §5) STATUS (update v1.0-stabilization, build v234): sejak Tahap 4, halaman ini SUDAH jadi landing page default (satu-satunya class="page active" saat startup, lihat … |
+| 61 | `dashboard-hub.js` | 529 | Dashboard Feature Hub (blueprint-dashboard-hub.md §5) STATUS (update v1.0-stabilization, build v234): sejak Tahap 4, halaman ini SUDAH jadi landing page default (satu-satunya class="page active" saat startup, lihat … |
 | 62 | `dashboard-hub-search.js` | 125 | Feature Search: cari FITUR/MENU (bukan data transaksi) lintas kategori FEATURE_REGISTRY (blueprint-dashboard-hub.md §2 & §6). Berbeda tujuan dari Global Search existing (`openGlobalSearch`) yang mencari DATA milik user … |
 | 63 | `dashboard-hub-favorit.js` | 38 | Favorit (Tahap 3, Langkah 6): storage + service MURNI (ADR-001 §3/§4/§5, blueprint Favorit final). Tidak ada DOM/render di file ini — itu ada di dashboard-hub-favorit-view.js (Langkah 7-8, sudah diimplementasikan; lihat … |
 | 64 | `dashboard-hub-favorit-view.js` | 112 | Favorit (Tahap 3, Langkah 7-8): render + toggle button wiring. Sengaja file TERPISAH dari dashboard-hub-favorit.js (storage murni, Langkah 6) supaya guard test "window.DashboardHubFavorit HANYA mengekspos getFavoritKeys … |
 | 65 | `ai-command-center.js` | 141 | Sprint 3 Tahap 3.1: AI Command Center Foundation. SCOPE Tahap 3.1 (Foundation SAJA): Menyediakan satu registry netral tempat modul lain (Tahap 3.2+) MENDAFTARKAN "command" AI (aksi yang bisa dijalankan lewat command … |
-| 66 | `dashboard-v2-shell.js` | 2426 | Tahap V2.1: Dashboard V2 Layout Foundation (lihat DASHBOARD-V2-MIGRATION-RFC.md §4 "Tahap V2.1 — Layout Foundation"). SCOPE (persis sesuai RFC, BLOCKER "Shell V2.1 belum ada" dianggap selesai sesi ini): scaffold 5 … |
+| 66 | `dashboard-v2-shell.js` | 2489 | Tahap V2.1: Dashboard V2 Layout Foundation (lihat DASHBOARD-V2-MIGRATION-RFC.md §4 "Tahap V2.1 — Layout Foundation"). SCOPE (persis sesuai RFC, BLOCKER "Shell V2.1 belum ada" dianggap selesai sesi ini): scaffold 5 … |
 | 67 | `dashboard-v2-activation.js` | 68 | Tahap V2.14A: Dashboard V2 Activation Framework (lihat DASHBOARD-V2-ACTIVATION.md). TUJUAN: menyiapkan SATU feature flag internal in-memory supaya Dashboard V2 (dashboard-v2-shell.js, dkk — dormant sejak V2.1) BISA … |
 | 68 | `lifeos/lifeos-store.js` | 51 | SATU-SATUNYA tempat Life OS boleh MENULIS. ATURAN WAJIB: - Tidak pernah menyentuh D. Tidak ada property baru di D, tidak ada perubahan struktur D sedikit pun. - Tidak pernah memanggil save() milik D. - Persist lewat … |
 | 69 | `lifeos/lifeos-registry.js` | 55 | taksonomi FUNGSIONAL Life OS (beda dari FEATURE_REGISTRY yang taksonomi NAVIGASI — keduanya sengaja terpisah, lihat personal-life-os-blueprint.md Langkah 1). PENTING: file ini MURNI DATA. Tidak ada logic, tidak ada … |
