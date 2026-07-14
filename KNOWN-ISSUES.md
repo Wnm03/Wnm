@@ -103,14 +103,13 @@ Tahap 6.
 
 ## 5. Motion
 
-### 5.1 Tidak ada exit/closing animation untuk overlay & bottom sheet 🔴
-`.overlay` disembunyikan lewat `display:none` instan setelah class
-`.open` dilepas oleh `modals.js` — animasi keluar yang mulus butuh
-penundaan `display:none` (mis. via `animationend`/`setTimeout`).
-
-**Kenapa belum diperbaiki**: butuh perubahan JavaScript di `modals.js`
-— di luar batas "tidak mengubah JavaScript" yang berlaku sejak
-Tahap 7.
+### 5.1 ✅ SELESAI (Tahap 10) — Exit/closing animation untuk overlay & bottom sheet
+`.overlay` sebelumnya disembunyikan lewat `display:none` instan
+setelah class `.open` dilepas — animasi keluar sekarang ada, lewat
+class `.closing` (`styles.css`: `overlayOut`/`slideDown`) yang
+ditambah `closeModal()` di `modal-navigasi.js` sebelum melepas `.open`,
+ditunda pakai `animationend`+fallback `setTimeout`. Lihat
+`MODAL-EXIT-ANIMATION.md`.
 
 ### 5.2 Ripple bukan berbasis koordinat sentuh asli 🔴
 Ripple Tahap 7 berupa pulsa dari tengah elemen (CSS-only), bukan dari

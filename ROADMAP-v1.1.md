@@ -20,10 +20,13 @@ Isu yang berdampak langsung ke pengalaman pengguna atau aksesibilitas.
    per tema agar tetap harmonis dengan palet masing-masing.
    *Sumber: `KNOWN-ISSUES.md` §1.1.*
 
-2. **🔴 Exit/closing animation untuk overlay & bottom sheet.** Perlu
-   menunda `display:none` di `modals.js` (via `animationend` atau
-   `setTimeout`) supaya transisi keluar modal/sheet terasa mulus,
-   konsisten dengan entrance animation yang sudah ada sejak Tahap 7.
+2. ~~🔴 Exit/closing animation untuk overlay & bottom sheet.~~ **✅
+   Selesai Tahap 10** — lihat `MODAL-EXIT-ANIMATION.md`. Diimplementasi
+   di `closeModal()` (`modal-navigasi.js`, via `animationend` +
+   fallback `setTimeout`) & `styles.css` (`overlayOut`/`slideDown`),
+   bukan di `modals.js` (file itu isinya cuma `MODAL_HTML[]` string,
+   logika buka/tutup modal sudah dipindah ke `modal-navigasi.js` sejak
+   sebelum tahap ini — lihat komentar header file tsb).
    *Sumber: `KNOWN-ISSUES.md` §5.1.*
 
 3. **🔴 Ganti emoji `icon:` di `dashboard-hub-registry.js` (FEATURE_REGISTRY)

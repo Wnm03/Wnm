@@ -172,6 +172,7 @@ const el=document.getElementById(id);
 if(!el){
 console.warn(`Modal #${id} tidak ditemukan di DOM — cek document.write index (lihat modals.js MODAL_HTML[] vs document.write(MODAL_HTML[i]) di index.html/app_production.html, urutan/jumlahnya harus persis sama).`);
 }
+el.classList.remove('closing');
 el.classList.add('open');
 _syncNavVisibilityForModals();
 }
@@ -209,11 +210,30 @@ if(chev)chev.classList.add('collapsed');
 });
 }
 function closeModal(id){
-document.getElementById(id).classList.remove('open');
+const el=document.getElementById(id);
+if(!el)return;
 if(id==='txModal'&&typeof WorthIt!=='undefined'&&WorthIt.pendingBuyId){
 WorthIt.pendingBuyId=null;
 }
+if(el.classList.contains('closing'))return;
+el.classList.add('closing');
+let done=false;
+function finish(){
+if(done)return;
+done=true;
+if(el.removeEventListener)el.removeEventListener('animationend',onAnimEnd);
+// Kalau di antara closeModal() & sini modal ini sempat dibuka lagi
+// (openModal melepas class 'closing'), jangan ikut menutup modal yang
+// baru saja dibuka ulang itu.
+if(el.classList.contains('closing')){
+el.classList.remove('open');
+el.classList.remove('closing');
 _syncNavVisibilityForModals();
+}
+}
+function onAnimEnd(e){ if(e.target===el)finish(); }
+if(el.addEventListener)el.addEventListener('animationend',onAnimEnd);
+setTimeout(finish,260);
 }
 function enableSwipeToDismiss(overlayId){
 const overlay=document.getElementById(overlayId);

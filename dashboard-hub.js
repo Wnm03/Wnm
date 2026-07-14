@@ -271,6 +271,60 @@ const DashboardHubAnalytics = {
   },
 };
 
+// Activation Switch (Tahap V2.15, lihat DASHBOARD-V2-ACTIVATION-SWITCH.md).
+// TUJUAN: menyediakan kontrol UI (toggle) supaya pengguna bisa
+// menyalakan/mematikan Dashboard V2 sendiri, tanpa perlu memanggil
+// enableDashboardV2()/disableDashboardV2() lewat console. Sebelum tahap
+// ini, flag dari dashboard-v2-activation.js (V2.14A) hanya bisa diubah
+// programatik — TIDAK ada elemen UI apa pun yang membacanya.
+//
+// SCOPE tahap ini (persis, tidak lebih):
+//   - Render 1 blok switch (label + checkbox) di bagian atas
+//     #dashboardHubGrid, HANYA kalau isDashboardV2Enabled()/
+//     enableDashboardV2()/disableDashboardV2() (dari dashboard-v2-
+//     activation.js) semuanya tersedia sbg function — pola guard `typeof`
+//     yang sama dgn blok mount/init-once/auto-destroy di render() di
+//     bawah. Kalau salah satu tidak tersedia, blok ini no-op total
+//     (tidak ada markup switch sama sekali) — Dashboard lama tidak
+//     terpengaruh.
+//   - DashboardHub.toggleDashboardV2(): dipanggil dari data-action
+//     switch di atas. Baca state SEKARANG lewat isDashboardV2Enabled(),
+//     panggil disableDashboardV2() kalau sedang true / enableDashboardV2()
+//     kalau sedang false, lalu panggil DashboardHub.render() supaya UI
+//     (termasuk switch itu sendiri, dan blok mount/init-once/auto-destroy
+//     yang SUDAH ADA sejak V2.14C/V2.14D) langsung mengikuti state baru
+//     di render berikutnya — TIDAK ADA logic mount/destroy baru
+//     ditambahkan di sini, murni memanggil ulang render() yang sudah
+//     mengerjakan itu semua.
+//
+// TIDAK melakukan (secara sengaja, additive-only):
+//   - TIDAK mengubah dashboard-v2-activation.js atau dashboard-v2-
+//     shell.js sama sekali — hanya MEMBACA/MEMANGGIL fungsi publiknya
+//     yang sudah ada (isDashboardV2Enabled/enableDashboardV2/
+//     disableDashboardV2).
+//   - TIDAK mengubah blok mount/init-once/auto-destroy yang sudah ada di
+//     render() (baris-baris di bawah, sejak V2.14C/V2.14D) — tetap persis
+//     sama, murni terpicu ulang lewat pemanggilan render() seperti biasa.
+//   - TIDAK menyentuh FEATURE_REGISTRY, showPage(), routing, index.html,
+//     app_production.html, atau business logic apa pun.
+function _dashHubV2SwitchHtml() {
+  if (typeof isDashboardV2Enabled !== 'function'
+    || typeof enableDashboardV2 !== 'function'
+    || typeof disableDashboardV2 !== 'function') {
+    return '';
+  }
+  const on = isDashboardV2Enabled() === true;
+  return `
+    <div class="dashhub-v2-switch-row" id="dashHubV2SwitchRow">
+      <label class="tgl-switch" aria-label="Aktifkan Dashboard V2">
+        <input type="checkbox" id="dashHubV2SwitchInput" ${on ? 'checked' : ''} data-action="DashboardHub.toggleDashboardV2">
+        <span class="tgl-track"></span>
+      </label>
+      <span class="dashhub-v2-switch-label">Dashboard V2 ${on ? 'aktif' : 'nonaktif'}</span>
+    </div>
+  `;
+}
+
 const DashboardHub = {
   render() {
     const el = document.getElementById('dashboardHubGrid');
@@ -279,7 +333,7 @@ const DashboardHub = {
       el.innerHTML = '<div class="empty"><div class="empty-text">Belum ada data fitur</div></div>';
       return;
     }
-    el.innerHTML = FEATURE_REGISTRY.map(cat => `
+    el.innerHTML = _dashHubV2SwitchHtml() + FEATURE_REGISTRY.map(cat => `
       <div class="dashhub-cat" id="dashHubCat-${escapeHtml(cat.key)}">
         <div class="dashhub-cat-head">
           <div class="dashhub-cat-icon">${cat.icon}</div>
@@ -324,6 +378,83 @@ const DashboardHub = {
     // Tambahan murni, pola sama dgn DashboardHubSummary.render() di atas —
     // tidak mengubah baris manapun sebelum ini.
     if (typeof DashboardHubAnalytics !== 'undefined') DashboardHubAnalytics.render();
+
+    // Dashboard V2 mount (Tahap V2.14C, lihat DASHBOARD-V2-MOUNT.md).
+    // Tambahan murni, pola SAMA PERSIS dgn conditional render() opsional
+    // lain di atas (LifeOSHome/DashboardHubFavoritView/DashboardHubHero/
+    // DashboardHubSummary/DashboardHubAnalytics) — tidak mengubah baris
+    // manapun sebelum ini. Mount HANYA terjadi kalau activation flag
+    // (isDashboardV2Enabled(), dari dashboard-v2-activation.js — V2.14A)
+    // bernilai true DAN DashboardV2Shell tersedia; kalau flag false
+    // (default), blok ini no-op total dan Dashboard lama berjalan persis
+    // seperti sebelum tahap ini. init() lalu render() keduanya idempotent
+    // (kontrak dari V2.1/V2.14B), jadi DashboardHub.render() dipanggil
+    // berkali-kali (mis. tiap kali halaman Dashboard dibuka) tidak
+    // menumpuk root/children Dashboard V2 maupun Dashboard lama. Tidak
+    // ada showPage()/FEATURE_REGISTRY/fetch/business logic ditambahkan di
+    // blok ini — murni baca 1 boolean lalu panggil 2 method existing.
+    //
+    // Guard init-once (tahap tambahan, lihat DASHBOARD-V2-INIT-ONCE.md).
+    // DashboardV2Shell.init() sudah idempotent by contract (V2.1/V2.14B),
+    // tapi memanggilnya berulang tiap DashboardHub.render() (mis. tiap kali
+    // halaman Dashboard dibuka) tetap kerja sia-sia. Flag internal sederhana
+    // `_dashHubV2Initialized` (pola sama dgn flag boolean lain di repo ini,
+    // mis. `_dashboardV2Enabled` di dashboard-v2-activation.js) dipakai
+    // supaya DashboardV2Shell.init() hanya benar-benar dipanggil SEKALI per
+    // load halaman; panggilan render() berikutnya (baik krn DashboardHub.
+    // render() dipanggil ulang, maupun setelah disable→enable ulang flag)
+    // cukup memanggil DashboardV2Shell.render() saja. Tambahan murni — tidak
+    // mengubah urutan/isi baris di atas, tidak menyentuh routing/showPage()/
+    // FEATURE_REGISTRY/business logic Dashboard lama.
+    if (typeof isDashboardV2Enabled === 'function' && isDashboardV2Enabled() === true
+      && typeof DashboardV2Shell !== 'undefined') {
+      if (!DashboardHub._dashHubV2Initialized) {
+        DashboardV2Shell.init();
+        DashboardHub._dashHubV2Initialized = true;
+      }
+      DashboardV2Shell.render();
+    }
+
+    // Auto-destroy (Tahap V2.14D, additive). Kebalikan dari guard init-once
+    // di atas: kalau flag SUDAH kembali false (mis. disableDashboardV2())
+    // TAPI Dashboard V2 sebelumnya pernah ter-init di sesi ini
+    // (`_dashHubV2Initialized === true`), maka `DashboardV2Shell.destroy()`
+    // dipanggil TEPAT SEKALI untuk melepas instance-nya, lalu flag di-reset
+    // ke false supaya siklus enable berikutnya init() lagi dari awal (bukan
+    // dianggap "sudah pernah init"). Guard tetap pola typeof yang sama
+    // dengan blok di atas — tidak menyentuh showPage()/FEATURE_REGISTRY/
+    // logic Dashboard lama, tidak mengubah dashboard-v2-shell.js.
+    if (typeof isDashboardV2Enabled === 'function' && isDashboardV2Enabled() === false
+      && typeof DashboardV2Shell !== 'undefined'
+      && DashboardHub._dashHubV2Initialized === true) {
+      DashboardV2Shell.destroy();
+      DashboardHub._dashHubV2Initialized = false;
+    }
+  },
+
+  // toggleDashboardV2() — Tahap V2.15 Activation Switch (lihat
+  // DASHBOARD-V2-ACTIVATION-SWITCH.md). Dipanggil dari data-action switch
+  // yang dirender _dashHubV2SwitchHtml() di atas. Baca state SEKARANG
+  // lewat isDashboardV2Enabled(), balik ke lawannya (disableDashboardV2()
+  // kalau sedang true, enableDashboardV2() kalau sedang false — keduanya
+  // fungsi existing dari dashboard-v2-activation.js, V2.14A, TIDAK diubah
+  // di tahap ini), lalu panggil DashboardHub.render() supaya seluruh UI
+  // (switch itu sendiri + blok mount/init-once/auto-destroy V2.14C/V2.14D
+  // yang SUDAH ADA) langsung mengikuti state baru. Guard `typeof` sama
+  // dengan blok switch di atas — no-op total kalau salah satu dari
+  // ketiga fungsi flag belum tersedia.
+  toggleDashboardV2() {
+    if (typeof isDashboardV2Enabled !== 'function'
+      || typeof enableDashboardV2 !== 'function'
+      || typeof disableDashboardV2 !== 'function') {
+      return;
+    }
+    if (isDashboardV2Enabled() === true) {
+      disableDashboardV2();
+    } else {
+      enableDashboardV2();
+    }
+    DashboardHub.render();
   },
 
   // Kontrak resolusi ADR-001 §4 — SATU-SATUNYA entry point publik navigasi.
