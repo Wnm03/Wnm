@@ -2725,3 +2725,72 @@ node --test tests/dashboard-v2-interactive-cards.test.js
 node --test
 # tests 1865 / pass 1865 / fail 0
 ```
+## Tahap V2.31 — Hero Real Data
+
+### Diubah (REPLACE placeholder → data nyata di elemen yang sama, id/class tidak berubah)
+
+- `dashboard-v2-shell.js` — HANYA `_buildHero()` disentuh:
+  - 4 variabel summary adapter (`financeSummary`/`vehicleSummary`/
+    `familySummary`/`documentSummary`) dipindah ke atas fungsi (dari
+    lokasi lamanya di blok V2.17) supaya di-REUSE, bukan fetch ulang.
+  - 4 placeholder LAMA (`dashboardV2HeroTitle`/`dashboardV2Hero-
+    HealthScore`/`dashboardV2HeroBalance`/`dashboardV2HeroInsight`,
+    Tahap V2.2) — `textContent`/`aria-label` di-REPLACE jadi data nyata
+    (title: total data tercatat; healthScore: Skor Kelengkapan Data
+    X/4 domain; balance: saldo dari `getFinanceSummary()`; insight:
+    ringkasan gabungan 4 domain), dgn fallback ke teks placeholder ASLI
+    V2.2 byte-identik kalau adapter/`D` belum tersedia. 4 elemen data
+    summary BARU (V2.17) tidak berubah perilakunya.
+
+### Baru
+
+- `tests/dashboard-v2-hero-real-data.test.js` — 6 test: integrasi
+  sungguhan (adapter ASLI + `D` tiruan) memverifikasi 4 placeholder lama
+  menampilkan data nyata & tidak lagi match `/placeholder/i`; healthScore
+  parsial (3/4 domain); jalur "adapter tidak di-load" tetap fallback
+  placeholder byte-identik; constraint check (`D` tidak dibaca langsung,
+  adapter & `dashboard-hub.js` tidak diubah).
+- `DASHBOARD-V2-HERO-REAL-DATA.md` — dokumentasi deliverable tahap ini.
+
+### Tidak diubah
+
+- `dashboard-v2-data-adapter.js` — 0 byte diubah, tetap persis 5 fungsi
+  seperti baseline V2.16.
+- `dashboard-hub.js` — tidak disentuh (tetap V2.30.1, mutual-exclusion
+  Hub↔V2 tidak berubah).
+- Seluruh `_build*()` builder lain di `dashboard-v2-shell.js` (Summary
+  Cards, Quick Actions, Module Grid, Insight Panel, Recent Activity,
+  Statistics Panel, Upcoming Tasks, Notifications, AI Command Center,
+  Health Score card, Predictive Insights, Automation Center, Sidebar,
+  Header, Bottom Nav, Auto Refresh) — 0 baris tersentuh.
+- `index.html`, `app_production.html` — tidak disentuh secara manual
+  (selain versi build `?v=` yang disinkronkan otomatis oleh `build.js`).
+- Business logic penulis `D` (`transaksi.js`, `vehicle-core.js`,
+  `hidup-seimbang.js`, dst) — tidak disentuh; Hero tidak membaca `D`
+  langsung, hanya lewat 4 fungsi adapter yang sudah ada.
+- **Seluruh file test lama** (baseline V2.30.1, 1870 test) — 0 file
+  diubah; hanya 1 file test baru ditambahkan.
+  `tests/dashboard-v2-hero.test.js` & `tests/dashboard-v2-hero-
+  data.test.js` (yang tadinya berisiko obsolete krn menguji teks
+  placeholder lama) TETAP lulus tanpa modifikasi — keduanya me-load
+  shell tanpa adapter, sehingga tetap menguji jalur fallback yang tidak
+  berubah.
+
+Diverifikasi dgn `diff -rq` antara baseline (V2.30.1) dan hasil akhir
+tahap ini: perubahan manual hanya `dashboard-v2-shell.js` (diubah, hanya
+di dalam `_buildHero()`) + `tests/dashboard-v2-hero-real-data.test.js`
+(baru) + `DASHBOARD-V2-HERO-REAL-DATA.md` (baru) + `CHANGELOG.md`/
+`FILES-CHANGED.md` (aditif). File lain yang berbeda
+(`app-bundle-*.min.js`, `app_production.html`, `index.html`, `sw.js`,
+`docs/FILE-MAP.md`, 6 file sinkronisasi versi) adalah efek otomatis
+`node scripts/build.js` (bump nomor versi build), bukan sentuhan manual.
+
+## Hasil test
+
+```
+node --test tests/dashboard-v2-hero-real-data.test.js
+# tests 6 / pass 6 / fail 0
+
+node --test
+# tests 1876 / pass 1876 / fail 0
+```

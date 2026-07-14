@@ -333,16 +333,7 @@ const DashboardHub = {
       el.innerHTML = '<div class="empty"><div class="empty-text">Belum ada data fitur</div></div>';
       return;
     }
-    // BUGFIX (dashboard dobel — lihat blok mutual-exclusion V1/V2 di bawah,
-    // setelah baris "Dashboard V2 mount"): kartu FEATURE_REGISTRY sekarang
-    // dibungkus 1 div `#dashHubCatsWrap` (murni penanda, TIDAK ada CSS/class
-    // baru) supaya bisa disembunyikan sebagai satu kesatuan saat Dashboard V2
-    // aktif, TANPA ikut menyembunyikan `_dashHubV2SwitchHtml()` di atasnya
-    // (switch itu TETAP di dalam #dashboardHubGrid, di LUAR wrapper baru ini)
-    // — supaya switch tetap kelihatan & bisa dipencet balik (toggle OFF)
-    // walau Dashboard V2 sedang aktif. Isi & urutan markup kartu itu sendiri
-    // TIDAK berubah sama sekali, cuma dibungkus.
-    el.innerHTML = _dashHubV2SwitchHtml() + '<div id="dashHubCatsWrap">' + FEATURE_REGISTRY.map(cat => `
+    el.innerHTML = _dashHubV2SwitchHtml() + FEATURE_REGISTRY.map(cat => `
       <div class="dashhub-cat" id="dashHubCat-${escapeHtml(cat.key)}">
         <div class="dashhub-cat-head">
           <div class="dashhub-cat-icon">${cat.icon}</div>
@@ -361,7 +352,7 @@ const DashboardHub = {
           `).join('')}
         </div>
       </div>
-    `).join('') + '</div>';
+    `).join('');
 
     // LifeOS (section terpisah, lihat #lifeOSWrap di index.html/
     // app_production.html & lifeos/ui/lifeos-home.js). Tambahan murni —
@@ -422,6 +413,23 @@ const DashboardHub = {
         DashboardHub._dashHubV2Initialized = true;
       }
       DashboardV2Shell.render();
+
+      // Hub/V2 mutual-exclusion (additive, pola `hidden` yang sama dgn
+      // root Dashboard V2 sendiri — lihat dashboard-v2-shell.js render()).
+      // Selagi Dashboard V2 benar2 aktif & ter-mount di atas, grid Hub
+      // (`el`, sudah diambil di baris pertama render()) disembunyikan
+      // supaya tidak tumpang tindih dgn Dashboard V2. Tidak menghapus/
+      // mengosongkan innerHTML (Hub tetap ter-render penuh di belakang
+      // layar, cuma tidak ditampilkan) — jadi tidak ada state/lifecycle
+      // Hub yang hilang, murni toggle attribute `hidden` yang sudah
+      // dikenal lewat kontrak sama yg dipakai DashboardV2Shell. Guard
+      // `typeof el.setAttribute === 'function'` (pola sama dgn guard
+      // `typeof root.setAttribute` di dashboard-v2-shell.js render())
+      // supaya tetap aman di fakeDocument tes lama yang elemennya tidak
+      // menyediakan setAttribute.
+      if (typeof el.setAttribute === 'function') {
+        el.setAttribute('hidden', '');
+      }
     }
 
     // Auto-destroy (Tahap V2.14D, additive). Kebalikan dari guard init-once
@@ -438,54 +446,15 @@ const DashboardHub = {
       && DashboardHub._dashHubV2Initialized === true) {
       DashboardV2Shell.destroy();
       DashboardHub._dashHubV2Initialized = false;
-    }
 
-    // BUGFIX (dashboard dobel — root cause: DashboardHub.render() di atas
-    // TIDAK PERNAH menyembunyikan Dashboard Hub lama saat Dashboard V2
-    // aktif; blok mount/auto-destroy di atas hanya mengurus lifecycle V2,
-    // tidak pernah menyentuh visibility Dashboard Hub lama). Satu-satunya
-    // perubahan tahap ini: toggle class `u-dnone` (utility CSS yg SUDAH ADA,
-    // dipakai persis dgn cara sama di #dashHubFavoritSection/.lifeos-panel —
-    // TIDAK ada class/CSS baru ditambahkan) pada container-container
-    // Dashboard Hub lama, berdasarkan isDashboardV2Enabled(). TIDAK
-    // menghentikan/mengubah render() widget manapun di atas (Hero/Quick
-    // Actions/Summary/Analytics/Favorit/LifeOS/Pinned Widgets tetap
-    // dihitung & dirender seperti biasa, sesuai preferensi "hide/show
-    // container, bukan hentikan render()") — murni disembunyikan visual
-    // SETELAH semuanya selesai dirender di atas.
-    //
-    // #dashboardHubGrid & #dashHubV2SwitchRow (switch aktivasi) SENGAJA
-    // TIDAK ikut disembunyikan — switch itu ada DI DALAM #dashboardHubGrid
-    // (lihat _dashHubV2SwitchHtml() di atas), jadi kalau grid ikut
-    // disembunyikan, satu-satunya cara toggle V2 balik OFF dari UI ikut
-    // hilang. Yang disembunyikan cuma `#dashHubCatsWrap` (wrapper baru,
-    // pembungkus KHUSUS kartu FEATURE_REGISTRY, lihat perubahan di atas —
-    // switch tetap di luar wrapper ini).
-    //
-    // #dashHubFavoritSection HANYA ditambah u-dnone saat V2 aktif (tidak
-    // pernah dihapus di sini) — visibility aslinya (ada/tidaknya Favorit)
-    // sudah ditentukan DashboardHubFavoritView.render() di atas; saat V2
-    // nonaktif, class itu dibiarkan seperti apa adanya dari render()
-    // tersebut, tidak dipaksa dihapus di sini.
-    //
-    // Search bar (`.dashhub-search-wrap`) tidak punya id di index.html,
-    // jadi diakses lewat `.parentElement` dari `#dashHubSearchInput` yang
-    // sudah ada — dibungkus guard `typeof`/truthy standar (pola sama dgn
-    // guard lain di file ini), aman kalau di lingkungan tertentu
-    // `.parentElement` tidak tersedia (no-op, tidak melempar error).
-    {
-      const _v2On = typeof isDashboardV2Enabled === 'function' && isDashboardV2Enabled() === true;
-      const _catsWrap = document.getElementById('dashHubCatsWrap');
-      if (_catsWrap) _catsWrap.classList.toggle('u-dnone', _v2On);
-      ['dashHubHeroCard', 'dashHubQuickActions', 'dashHubSummaryGrid', 'dashHubAnalyticsRow', 'lifeOSWrap', 'dashboardHubPinnedWrap'].forEach((id) => {
-        const c = document.getElementById(id);
-        if (c) c.classList.toggle('u-dnone', _v2On);
-      });
-      const _searchInput = document.getElementById('dashHubSearchInput');
-      const _searchWrap = _searchInput && _searchInput.parentElement;
-      if (_searchWrap) _searchWrap.classList.toggle('u-dnone', _v2On);
-      const _favSection = document.getElementById('dashHubFavoritSection');
-      if (_favSection && _v2On) _favSection.classList.add('u-dnone');
+      // Kebalikan dari `el.setAttribute('hidden', '')` di blok mount di
+      // atas — begitu Dashboard V2 di-destroy (balik ke Dashboard lama),
+      // grid Hub ditampilkan lagi. Pola sama, murni toggle attribute yang
+      // sama yang disembunyikan blok mount, tidak menyentuh lifecycle lain.
+      // Guard `typeof` sama dgn di atas.
+      if (typeof el.removeAttribute === 'function') {
+        el.removeAttribute('hidden');
+      }
     }
   },
 

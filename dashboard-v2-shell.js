@@ -627,45 +627,111 @@ const DashboardV2Shell = {
     hero.setAttribute('role', 'region');
     hero.setAttribute('aria-labelledby', 'dashboardV2HeroTitle');
 
+    // --- Tahap V2.31: Hero Real Data ---------------------------------------
+    // 4 variabel summary (satu per fungsi dashboard-v2-data-adapter.js,
+    // V2.16) DIPINDAH ke atas blok ini (dari lokasi lamanya di bawah,
+    // Tahap V2.17) supaya BISA di-REUSE oleh 4 placeholder LAMA (title/
+    // healthScore/balance/insight, Tahap V2.2) di bawah ini TANPA memanggil
+    // fungsi adapter 2x — murni pemindahan urutan deklarasi, bukan
+    // duplikasi fetch. 4 elemen data summary BARU (Tahap V2.17, di bawah)
+    // tetap memakai variabel yang SAMA ini, tidak berubah perilakunya.
+    // Guard `typeof fn === 'function'` tetap sama persis dgn V2.17/V2.18.
+    const financeSummary = (typeof getFinanceSummary === 'function') ? getFinanceSummary() : null;
+    const vehicleSummary = (typeof getVehicleSummary === 'function') ? getVehicleSummary() : null;
+    const familySummary = (typeof getFamilySummary === 'function') ? getFamilySummary() : null;
+    const documentSummary = (typeof getDocumentSummary === 'function') ? getDocumentSummary() : null;
+    const hasFinance = !!(financeSummary && typeof financeSummary === 'object');
+    const hasVehicle = !!(vehicleSummary && typeof vehicleSummary === 'object');
+    const hasFamily = !!(familySummary && typeof familySummary === 'object');
+    const hasDocument = !!(documentSummary && typeof documentSummary === 'object');
+    const hasAllSummaries = hasFinance && hasVehicle && hasFamily && hasDocument;
+
+    // 4 placeholder LAMA (Tahap V2.2) — sekarang diisi data nyata dari
+    // adapter existing (bukan menambah elemen baru, REPLACE nilai teks/
+    // aria-label di elemen yang sama, id/class/data-part TIDAK berubah).
+    // Kalau adapter/`D` belum tersedia (guard di atas gagal), fallback ke
+    // teks placeholder ASLI V2.2 byte-identik — jalur ini yang dipakai
+    // tests/dashboard-v2-hero.test.js & tests/dashboard-v2-hero-data.test.js
+    // (keduanya me-load shell TANPA adapter), jadi kedua file test lama
+    // TETAP lulus tanpa perlu diubah.
+    //
+    // Catatan cakupan (didokumentasikan, bukan ditebak) — Health Score:
+    // adapter TIDAK punya fungsi skor "Hidup Seimbang" (skor itu dihitung
+    // LifeBalance.compute() di hidup-seimbang.js, di luar adapter), dan
+    // tahap ini melarang mengubah adapter maupun membaca `D`/modul lain
+    // langsung dari shell. Elemen ini karena itu diisi ULANG maknanya jadi
+    // "Skor Kelengkapan Data" — proporsi domain (Keuangan/Kendaraan/
+    // Keluarga/Dokumen) yang py minimal 1 data, dihitung MURNI dari 4 field
+    // count yang SUDAH ada di 4 objek summary adapter (interpolasi
+    // presentasional, BUKAN formula/skor bisnis baru) — tidak diklaim sbg
+    // skor Hidup Seimbang yang sebenarnya. Wiring LifeBalance yang
+    // sesungguhnya tetap di luar scope, butuh mandat eksplisit terpisah.
     const title = document.createElement('h2');
     title.id = 'dashboardV2HeroTitle';
     title.className = 'dashboard-v2-hero-title';
     title.setAttribute('data-dashboard-v2-part', 'hero-title');
-    title.textContent = 'Selamat datang (placeholder)';
+    if (hasAllSummaries) {
+      const totalRecords = financeSummary.accountCount + vehicleSummary.vehicleCount
+        + familySummary.anakCount + documentSummary.simCount;
+      title.textContent = `Selamat datang — ${totalRecords} data tercatat`;
+    } else {
+      title.textContent = 'Selamat datang (placeholder)';
+    }
 
     const healthScore = document.createElement('div');
     healthScore.id = 'dashboardV2HeroHealthScore';
     healthScore.className = 'dashboard-v2-hero-healthscore';
     healthScore.setAttribute('data-dashboard-v2-part', 'hero-health-score');
-    healthScore.setAttribute('aria-label', 'Skor Hidup Seimbang (placeholder, belum ada data)');
-    healthScore.textContent = 'Skor Hidup Seimbang: -- (placeholder)';
+    if (hasAllSummaries) {
+      const filledDomains = [
+        financeSummary.accountCount > 0,
+        vehicleSummary.vehicleCount > 0,
+        familySummary.anakCount > 0,
+        documentSummary.simCount > 0,
+      ].filter(Boolean).length;
+      healthScore.setAttribute('aria-label', 'Skor Kelengkapan Data');
+      healthScore.textContent = `Skor Kelengkapan Data: ${filledDomains}/4 kategori terisi`;
+    } else {
+      healthScore.setAttribute('aria-label', 'Skor Hidup Seimbang (placeholder, belum ada data)');
+      healthScore.textContent = 'Skor Hidup Seimbang: -- (placeholder)';
+    }
 
     const balance = document.createElement('div');
     balance.id = 'dashboardV2HeroBalance';
     balance.className = 'dashboard-v2-hero-balance';
     balance.setAttribute('data-dashboard-v2-part', 'hero-balance');
-    balance.setAttribute('aria-label', 'Saldo (placeholder, belum ada data)');
-    balance.textContent = 'Saldo: Rp -- (placeholder)';
+    if (hasFinance) {
+      balance.setAttribute('aria-label', 'Saldo');
+      balance.textContent = `Saldo: Rp ${financeSummary.totalBalance}`;
+    } else {
+      balance.setAttribute('aria-label', 'Saldo (placeholder, belum ada data)');
+      balance.textContent = 'Saldo: Rp -- (placeholder)';
+    }
 
     const insight = document.createElement('div');
     insight.id = 'dashboardV2HeroInsight';
     insight.className = 'dashboard-v2-hero-insight';
     insight.setAttribute('data-dashboard-v2-part', 'hero-insight');
-    insight.setAttribute('aria-label', 'Insight (placeholder, belum ada data)');
-    insight.textContent = 'Insight (placeholder)';
+    if (hasAllSummaries) {
+      insight.setAttribute('aria-label', 'Insight');
+      insight.textContent = `Insight: ${financeSummary.accountCount} akun, ${vehicleSummary.vehicleCount} kendaraan, ${familySummary.anakCount} anak, ${documentSummary.simCount} SIM dipantau`;
+    } else {
+      insight.setAttribute('aria-label', 'Insight (placeholder, belum ada data)');
+      insight.textContent = 'Insight (placeholder)';
+    }
 
     // --- Tahap V2.17: Hero Data Integration (additive) --------------------
     // 4 elemen BARU, anak Hero, satu per fungsi dashboard-v2-data-adapter.js
-    // (V2.16). Elemen lama di atas (title/healthScore/balance/insight)
-    // TIDAK disentuh — tetap teks statis placeholder persis seperti V2.2.
-    // Setiap elemen baru: kalau fungsi adapter TERSEDIA (global function,
-    // pola guard sama persis dgn `isDashboardV2Enabled` di render() —
-    // lihat Tahap V2.14B) DAN mengembalikan objek (bukan `null`, guard
-    // internal adapter sendiri saat `D` belum ter-load), tampilkan ringkasan
-    // sederhana dari field-nya. Kalau tidak tersedia/`null`, fallback ke
-    // teks placeholder — jadi elemen ini SELALU ada & SELALU punya teks,
-    // tidak pernah kosong/undefined.
-    const financeSummary = (typeof getFinanceSummary === 'function') ? getFinanceSummary() : null;
+    // (V2.16). Sejak Tahap V2.31, 4 elemen lama di atas (title/healthScore/
+    // balance/insight) JUGA memakai adapter (lihat blok di atas) — variabel
+    // summary di bawah ini REUSE, bukan fetch ulang. Setiap elemen baru:
+    // kalau fungsi adapter TERSEDIA (global function, pola guard sama
+    // persis dgn `isDashboardV2Enabled` di render() — lihat Tahap V2.14B)
+    // DAN mengembalikan objek (bukan `null`, guard internal adapter sendiri
+    // saat `D` belum ter-load), tampilkan ringkasan sederhana dari
+    // field-nya. Kalau tidak tersedia/`null`, fallback ke teks placeholder —
+    // jadi elemen ini SELALU ada & SELALU punya teks, tidak pernah
+    // kosong/undefined.
     const financeEl = document.createElement('div');
     financeEl.id = 'dashboardV2HeroFinanceSummary';
     financeEl.className = 'dashboard-v2-hero-finance-summary';
@@ -678,7 +744,6 @@ const DashboardV2Shell = {
       financeEl.textContent = 'Keuangan: -- (placeholder)';
     }
 
-    const vehicleSummary = (typeof getVehicleSummary === 'function') ? getVehicleSummary() : null;
     const vehicleEl = document.createElement('div');
     vehicleEl.id = 'dashboardV2HeroVehicleSummary';
     vehicleEl.className = 'dashboard-v2-hero-vehicle-summary';
@@ -691,7 +756,6 @@ const DashboardV2Shell = {
       vehicleEl.textContent = 'Kendaraan: -- (placeholder)';
     }
 
-    const familySummary = (typeof getFamilySummary === 'function') ? getFamilySummary() : null;
     const familyEl = document.createElement('div');
     familyEl.id = 'dashboardV2HeroFamilySummary';
     familyEl.className = 'dashboard-v2-hero-family-summary';
@@ -704,7 +768,6 @@ const DashboardV2Shell = {
       familyEl.textContent = 'Keluarga: -- (placeholder)';
     }
 
-    const documentSummary = (typeof getDocumentSummary === 'function') ? getDocumentSummary() : null;
     const documentEl = document.createElement('div');
     documentEl.id = 'dashboardV2HeroDocumentSummary';
     documentEl.className = 'dashboard-v2-hero-document-summary';
