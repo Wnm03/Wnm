@@ -2794,3 +2794,192 @@ node --test tests/dashboard-v2-hero-real-data.test.js
 node --test
 # tests 1876 / pass 1876 / fail 0
 ```
+
+# Files Changed — Tab "📊 Laporan" Shop/Cobek (bangun UI utk logic yatim)
+
+Baseline: 1727/1727 test PASS sebelum sesi ini.
+
+## Temuan audit
+
+`Laporan.renderTab()`/`topProdukAgg()`/`renderTopProduk()`/
+`renderTopPelanggan()`/`setPeriodeLap()`/`getRangeLap()` (`cobek-order.js`)
+dan `exportLaporanShopXLSX()` (`cobek-io.js`), plus cabang
+`t==='laporan'` di `setShopTab()`, sudah ada sejak lama — tapi **tidak ada
+elemen HTML sama sekali** (`#lapTrip`, `#lapOmzet`, `#lapGrafikBars`, dst)
+maupun tombol tab untuk memicunya. Tab "Laporan" Shop sepenuhnya tidak bisa
+diakses user walau logic-nya lengkap. Sesi ini menambahkan HANYA markup +
+1 wrapper tipis baru untuk mengaktifkannya, plus FAB kontekstual (pola sama
+persis dengan `#laporanFab` di tab Laporan Keuangan, `REPORTS-2.0.md`).
+
+## File yang berubah
+
+| File | Jenis | Ringkasan |
+|---|---|---|
+| `index.html` | Diubah (+95 baris) | 1 tombol tab baru "📊 Laporan" di `.cn-tabs` Shop; 1 div `#shopTab-laporan` baru berisi filter periode (`#lapPeriodeChips`/`#lapCustomRange`, TERPISAH dari filter Riwayat), 4 kartu stat (reuse `.grid2`/`.stat-box`), grafik (reuse `.grafik-bar-wrap`), top produk & top pelanggan; FAB kontekstual `#shopLaporanFab` (reuse penuh `.keu-fab*`, 2 aksi: `exportLaporanShopXLSX()`/`exportShopSemuaXLSX()`, keduanya fungsi lama tidak diubah). |
+| `app_production.html` | Diubah (disinkronkan) | Disalin ulang jadi salinan persis `index.html` (diverifikasi `diff` kosong). |
+| `styles.css` | Diubah (+8 baris) | 1 rule baru `#shopTab-laporan .keu-fab{bottom:236px;}` (override posisi, aditif, offset sama seperti pola Laporan Keuangan) + komentar. Tidak ada class `.shop-laporan-fab*` baru. |
+| `cobek-io.js` | Diubah (+1 baris) | 1 wrapper tipis baru `function renderShopLaporan(){return Laporan.renderTab();}` (pola sama dgn `renderShop()`/`renderShopGrafik()` yang sudah ada) supaya input `#lapFrom`/`#lapTo` bisa memicu render ulang. Tidak ada baris lain di file ini yang diubah. |
+| `tests/shop-laporan-tab.test.js` | **Baru** (28 test) | Test struktural: tombol tab & posisi, elemen `#lapTrip`/dst ada, filter periode terpisah dari Riwayat, 4 kartu stat reuse `.grid2`/`.stat-box` (bukan grid-4 baru), grafik reuse `.grafik-bar-wrap`, FAB kontekstual (di dalam `#shopTab-laporan`, ter-toggle otomatis), FAB reuse `.keu-fab*` & 2 fungsi export lama, parity `index.html`/`app_production.html`, guard tidak ada class CSS baru, guard `cobek-order.js`/`dashboard-hub-registry.js` tidak disentuh, guard `cobek-io.js` hanya nambah 1 wrapper. |
+| `CHANGELOG.md` | Diubah | ditambah entry baru (aditif, prepend). |
+| `FILES-CHANGED.md` | Diubah | Dokumen ini (aditif, append). |
+
+## Yang TIDAK diubah
+
+- `Laporan.renderTab()`/`topProdukAgg()`/`renderTopProduk()`/
+  `renderTopPelanggan()`/`setPeriodeLap()`/`getRangeLap()`/`renderGrafik()`
+  (`cobek-order.js`) — 0 baris tersentuh, semua logic direuse apa adanya.
+- `exportLaporanShopXLSX()`/`ShopExport.exportLaporan()`/
+  `exportShopSemuaXLSX()` (`cobek-io.js`) — 0 baris tersentuh.
+- `setShopTab()` (`cobek-io.js`) — cabang `t==='laporan'` sudah ada sejak
+  lama, tidak diubah.
+- `#shopFab` (Sprint 2 Tahap 2) — tidak diubah, tetap tampil di semua tab
+  Shop termasuk tab Laporan yang baru.
+- `dashboard-hub-registry.js` (`FEATURE_REGISTRY`) — tidak relevan/tidak
+  disentuh, tab Laporan Shop bukan entri baru di Dashboard Grid.
+
+## Verifikasi
+
+Diverifikasi lewat browser (Playwright + Chrome headless), dgn transaksi
+nyata di `D.cobek` (bukan mock): tab Laporan menampilkan jumlah transaksi,
+omzet, untung, margin, grafik 6 bulan, top produk, top pelanggan dgn benar;
+FAB toggle & kedua aksi export terwire dgn benar; ganti filter periode
+(Harian) tidak memicu error; smoke-test internal tetap bersih
+(`✅ [smoke-test] OK — 1155 referensi getElementById() & 79 data-action
+semuanya valid`).
+
+## Hasil test
+
+```
+node --test tests/shop-laporan-tab.test.js
+# tests 28 / pass 28 / fail 0
+
+node --test
+# tests 1755 / pass 1755 / fail 0
+
+npm run build
+✓ Tidak ada elemen u-dnone yang berisiko permanen kosong
+✓ Tidak ada field user yang dirender tanpa escapeHtml()
+✓ Tidak ada regresi pola guard dini Tesseract
+✓ Semua konstanta versi terverifikasi sinkron
+✓ Sintaks kedua bundle valid (node --check lolos)
+✓ index.html & app_production.html sudah identik.
+```
+
+---
+
+# Files Changed — Sesi 139: Bugfix Navigasi "Semua Fitur" Dashboard Hub (goTo ke sub-tab tidak aktif)
+
+Baseline: hasil Sesi 138 (`?v=563`), `node --test tests/*.test.js`
+52/52 PASS sebelum sesi ini (skop test yang tersedia di ZIP kerja ini).
+
+Total file kode yang berubah: **2** (`dashboard-hub.js`,
+`app-bundle-b.min.js`). Total file baru: **1**
+(`tests/dashboard-hub-goto-subtab.test.js`). Total file dibuat ulang
+otomatis oleh `scripts/build.js` (bukan diedit manual): `app-bundle-a.min.js`,
+`index.html`, `app_production.html`, `sw.js`, `docs/FILE-MAP.md`, + 6 file
+konstanta versi source.
+
+| File | Jenis | Ringkasan |
+|---|---|---|
+| `modules/dashboard-hub/dashboard-hub.js` | Diubah (aditif) | Tambah `DASHHUB_GOTO_SECTION_MAP` (reverse-map dari `SECTION_GROUPS` yang sudah ada di `DashboardHub.applySectionTab()`, 0 taksonomi baru) + `_dashHubResolveGoToSection(goToId)` (jalan naik lewat `parentElement` sampai ketemu container section terdaftar, atau `null`). `dashHubNavigateToFeature()`: 1 blok baru di dalam `setTimeout` yang sudah ada, sebelum `scrollIntoView()` — kalau `target.page==='dashboard-hub'` dan section-nya ketemu, panggil `DashboardHub.setSectionTab(section)` dulu. 0 baris lama dihapus/diubah selain penambahan blok ini. |
+| `app-bundle-b.min.js` | Diubah (aditif, lalu dibuat ulang otomatis) | Patch identik ditempel manual dulu (verifikasi cepat `node --check`), lalu `scripts/build.js` dijalankan sungguhan sehingga bundle final = hasil build otomatis dari source yang sudah dipatch (bukan lagi patch manual yang dipertahankan). |
+| `tests/dashboard-hub-goto-subtab.test.js` | **Baru** | 10 test: resolusi `_dashHubResolveGoToSection()` per id (termasuk naik beberapa level ancestor, id di luar `SECTION_GROUPS` manapun → `null`, id yang tidak ada di DOM → `null`, tidak `throw`), serta integrasi penuh `dashHubNavigateToFeature()` (setSectionTab terpanggil dgn tab yang benar SEBELUM scrollIntoView utk kartu Widget/Insight, TIDAK terpanggil sama sekali utk kartu yang sudah di luar section manapun, dan tidak pernah tersentuh sama sekali utk goTo di halaman lain). |
+| `CHANGELOG.md` | Diubah | Entry Sesi 139 ditambahkan di paling atas (konvensi newest-first file ini, riwayat lama tidak diubah). |
+| `FILES-CHANGED.md` | Diubah | Dokumen ini (aditif, append). |
+| `docs/CHECKPOINT.md` | Diubah | Current Session diperbarui ke Sesi 139. |
+
+## File yang TIDAK berubah (ditegaskan)
+
+- `SECTION_GROUPS` di `DashboardHub.applySectionTab()` (dashboard-hub.js)
+  — 0 baris disentuh, `DASHHUB_GOTO_SECTION_MAP` murni REUSE nilainya.
+- `dashboard-hub-registry.js` (`FEATURE_REGISTRY`) — 0 baris disentuh,
+  seluruh `target.goTo`/`target.page` per kartu tetap persis sama dengan
+  sebelum sesi ini.
+- `showPage()`, `applySectionTab()`, `setKeuanganTab()`/`setShopTab()`/
+  `setCnTab()`/`setPajakTab()`/`setAsetTab()` dan seluruh cabang navigasi
+  ke page lain di `dashHubNavigateToFeature()` — 0 baris disentuh, guard
+  baru HANYA aktif utk `target.page==='dashboard-hub'`.
+- `index.html`, `app_production.html` — tidak diedit manual (hanya `?v=`
+  disinkronkan otomatis oleh `scripts/build.js`, 0 markup berubah).
+- Seluruh 62 test lama (52 baseline Sesi 138 + tidak ada yang dihapus) —
+  tidak satu pun diubah, tetap 100% lulus tanpa modifikasi assertion.
+
+## Hasil test
+
+```
+node --test tests/dashboard-hub-goto-subtab.test.js
+# tests 10 / pass 10 / fail 0
+
+node --test tests/*.test.js
+# tests 62 / pass 62 / fail 0
+```
+
+## Build
+
+```
+node scripts/build.js kw139-fix-dashboard-hub-goto-subtab
+# ✓ Sintaks kedua bundle valid (node --check lolos)
+# ✓ index.html & app_production.html sudah identik.
+# Versi baru: ?v=564 / kw-cache-v564
+```
+
+---
+
+# Files Changed — Sesi 140: Bugfix Kartu Beranda Tidak Muncul Lagi Setelah Dinyalakan Ulang
+
+Baseline: hasil Sesi 139 (`?v=564`), `node --test tests/*.test.js`
+62/62 PASS sebelum sesi ini (skop test yang tersedia di ZIP kerja ini).
+
+Total file kode yang berubah: **1** (`modules/shared/modules-render.js`).
+Total file baru: **1** (`tests/dash-card-show-hide.test.js`). Total file
+dibuat ulang otomatis oleh `scripts/build.js` (bukan diedit manual):
+`app-bundle-a.min.js`, `app-bundle-b.min.js`, `index.html`,
+`app_production.html`, `sw.js`, `docs/FILE-MAP.md`, + 6 file konstanta
+versi source.
+
+| File | Jenis | Ringkasan |
+|---|---|---|
+| `modules/shared/modules-render.js` | Diubah (aditif) | Tambah `showDashCardEl(elId)` — kebalikan simetris persis `hideDashCardEl()` (melepas `classList('u-dnone')` DAN inline `style.display`), ditempatkan langsung setelah definisi `hideDashCardEl()`. Loop `DASH_RENDER_ORDER` di `renderDashboard()`: +1 baris `showDashCardEl(cardDef.elId);` dipanggil SETELAH guard `isDashCardOn()` & SEBELUM `cardDef.render(...)`. 0 baris lama dihapus/diubah selain penambahan ini. |
+| `tests/dash-card-show-hide.test.js` | **Baru** | 7 test: `hideDashCardEl()` (class+inline style ditambahkan), `showDashCardEl()` (keduanya dilepas — kontrak inti bugfix ini, idempotent, aman di elemen tidak ada/tidak pernah disembunyikan), dan 1 test integrasi yang memverifikasi urutan pemanggilan nyata di source (`isDashCardOn` guard → `showDashCardEl` → `cardDef.render`) di dalam loop `renderDashboard()`. |
+| `CHANGELOG.md` | Diubah | Entry Sesi 140 ditambahkan di paling atas (konvensi newest-first file ini, riwayat lama tidak diubah). |
+| `FILES-CHANGED.md` | Diubah | Dokumen ini (aditif, append). |
+| `docs/CHECKPOINT.md` | Diubah | Current Session diperbarui ke Sesi 140. |
+| `docs/NEXT_SESSION.md` | Diubah | Sinkronisasi status Batch 14 & baseline versi terbaru. |
+
+## File yang TIDAK berubah (ditegaskan)
+
+- `hideDashCardEl()` — 0 baris disentuh, `showDashCardEl()` murni fungsi
+  BARU yang simetris, bukan modifikasi fungsi lama.
+- `DASH_CARD_DEFS`/`DASH_RENDER_ORDER`/`DASH_CARD_BY_KEY`,
+  `isDashCardOn()`/`toggleDashCardPref()`/`setAllDashCardPrefs()`,
+  `renderDashCardPrefsUI()` — 0 baris disentuh.
+- `dashboard-hub-registry.js` (`FEATURE_REGISTRY`, termasuk field
+  `dashKey`) — 0 baris disentuh.
+- `dashboard-hub.js` (`dashHubNavigateToFeature`/
+  `DASHHUB_GOTO_SECTION_MAP`, bugfix Sesi 139) — 0 baris disentuh sesi
+  ini, area berbeda (sub-tab Dashboard Hub vs inline style kartu
+  opsional).
+- `index.html`, `app_production.html` — tidak diedit manual (hanya `?v=`
+  disinkronkan otomatis oleh `scripts/build.js`, 0 markup berubah).
+- Seluruh 62 test lama — tidak satu pun diubah, tetap 100% lulus tanpa
+  modifikasi assertion.
+
+## Hasil test
+
+```
+node --test tests/dash-card-show-hide.test.js
+# tests 7 / pass 7 / fail 0
+
+node --test tests/*.test.js
+# tests 69 / pass 69 / fail 0
+```
+
+## Build
+
+```
+node scripts/build.js kw140-fix-dashcard-toggle-inline-style
+# ✓ Linter bawaan "pola bug u-dnone vs style.display" lolos bersih
+# ✓ Sintaks kedua bundle valid (node --check lolos)
+# ✓ index.html & app_production.html sudah identik.
+# Versi baru: ?v=565 / kw-cache-v565
+```
